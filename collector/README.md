@@ -1,6 +1,6 @@
-# 私人收件器：離線待批准版本
+# 私人收件器：已核准範圍與部署驗收
 
-本分支只交付本機程式與虛構資料測試。Google OAuth、建表及 Web App 部署尚未獲批准，也沒有執行；公開 Pages 仍使用先前版本，收件設定 `enabled:false`。本機產生 `Code.gs` 不會呼叫 Google。
+本分支交付本機程式與虛構資料測試。使用者已核准下述 Google 權限、建表、Web App 執行與登入範圍，以及 10/6 的 `u03` 關卡。Google 真實收件仍須驗收，本機收件設定 `enabled:false`。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準。本機產生 `Code.gs` 不會呼叫 Google。
 
 點名條件沿用已核准的「完成當週指定關卡＋填完反思，不以答對率判定出席」。兩欄「理由與教材依據」「何時會修正」為原遊戲既有欄位，每欄最多 6000 字，只要求非空。服務端用可信 13 章資料與原引擎重播同一次 complete 紀錄；戰術失敗也有效。自填學號、姓名、裝置完成時間與匯入紀錄不構成本人／當堂操作證明；收件一律 `pending_teacher_review`，不改正式出席表。
 
@@ -13,22 +13,22 @@
 - 課次可選通行碼，只有 SHA256 留在 Script Properties 的 `CLASS_ACCESS_CODE_HASHES`。通行碼為獨立 transport 參數，不進 payload、event fingerprint、工作表、網址、localStorage 或回執。沒有配置 hash 的課次不要求碼。需要課堂碼時應使用足夠長且不易猜的隨機值，私下發放。
 - 改為直接開啟 GAS 的 GET 提交頁，登入後貼事件內容並輸入課堂碼，再以 `google.script.run` 提交。跨站 POST、fetch、opaque response 都不視為收件證據。
 
-## 精確權限及待批准步驟
+## 已核准的精確權限及部署步驟
 
-1. 帳號在目前唯讀 profile 為 `johnny2cindy@gmail.com`；實際 Google 編輯器帳號仍須確認。使用者批准新持續 `drive.file` 權限、新私人收件表、Web App 執行身分與學生存取範圍後，才可執行以下 Google 步驟。若 Google 顯示額外 scope 或設計失敗，停止並回報，不自動升級 `spreadsheets`、Drive 全 scope、外部請求或新 OAuth client。
-2. 執行 `node scripts/build-collector.js` 只產生本機 bundle。批准後由教師在自己的 Apps Script 編輯器建立獨立專案，貼入生成 Code.gs 與 manifest。manifest 啟用 Sheets v4；預設 Cloud project 會自動啟用對應 API，不需 UrlFetch、Picker 或第二套 OAuth client。
+1. 使用者已核准以 `johnny2cindy@gmail.com`，同一 app 僅用新持續 `drive.file` 範圍新建私人表「軍事倫理學遊戲紀錄｜2026秋」，採 `USER_DEPLOYING`＋`ANYONE`（須登入 Google）。實際 Google 編輯器帳號仍須核對。禁止匿名存取；若 Google 顯示額外 scope 或設計失敗，停止受限步驟並回報，不自動升級 `spreadsheets`、Drive 全 scope、外部請求或新 OAuth client。
+2. 執行 `node scripts/build-collector.js` 只產生本機 bundle。由教師在自己的 Apps Script 編輯器建立獨立專案，貼入生成 Code.gs 與 manifest。manifest 啟用 Sheets v4；預設 Cloud project 會自動啟用對應 API，不需 UrlFetch、Picker 或第二套 OAuth client。
 3. 在 Script Properties 明確設 `INITIALIZE_NEW_PRIVATE_SHEET=true`、`COLLECTOR_ENABLED=false`，由教師在編輯器執行 **`initializePrivateCollector_`**。它由同一 app 建立新的收件表，寫入固定 `SPREADSHEET_ID`；已有 ID 就拒絕再建。尾底線使管理函式無法由 `google.script.run` 呼叫。不要用另一個 connector 或手動建表再直接填 ID，聲稱此 app 已獲文件授權。
 4. 在 Google Share 介面核對新表為「限制存取」，只有教師／明確授權人員；不要公開或使用含其他資料的表。老師審核另記，保留原始 15 欄收件列，不排序／修改／插入公式，以免重送核對失敗。
-5. 設 `RECORDS_SHEET`（預設 `ethics_game_receipts`）、`CLASS_SESSIONS`、可選 `CLASS_ACCESS_CODE_HASHES`。CLASS_SESSIONS 每項至少 id、chapterId、opensAt、closesAt，可加上述兩個事件上限。下列 chapter 佔位值故意無效，10/6 指定章節仍待老師決定：
+5. 設 `RECORDS_SHEET`（預設 `ethics_game_receipts`）、`CLASS_SESSIONS`、`CLASS_ACCESS_CODE_HASHES`。程式支援無碼課次，但此次部署使用私人通行碼：原碼在操作時生成，SHA256 map 只填 Script Properties；不放部署包。10/6 指定「軍人倫理（一）」已核對為 `u03`「超出能力的求助」；正式設定如下：
 
 ```json
-[{"id":"teacher-chosen-session-id","chapterId":"__TEACHER_ASSIGNED_CHAPTER__","opensAt":"2026-10-06T13:30:00+08:00","closesAt":"2026-10-06T15:20:00+08:00","maxEvents":500,"maxStudentEvents":3}]
+[{"id":"2026-10-06-d84-26-u03","chapterId":"u03","opensAt":"2026-10-06T05:30:00Z","closesAt":"2026-10-06T07:20:00Z","maxEvents":500,"maxStudentEvents":3}]
 ```
 
 6. 若使用通行碼，輸入總長最多 128 字，不允許控制字元；在可信本機將 trim 後原碼以 UTF-8 計算 SHA256，僅把 sessionId→64位十六進位 hash 的 JSON map 放入 `CLASS_ACCESS_CODE_HASHES`；原碼與 hash 都不放前端／版本庫／log。只存 hash 不代表原碼能抵抗猜測，低熵碼仍不安全。
-7. Web App 採 `USER_DEPLOYING`（教師身分）。建議學生 access=`ANYONE`（任意已登入 Google 使用者）；`ANYONE_ANONYMOUS` 含免登入訪客，需另外明確批准。這不授予學生工作表讀取權，但登入不代表本班本人，execute-as-owner 也不能依賴 active-user email。初驗只設 `MYSELF`；測試 Google 真正授權／建表／寫入時，用獨立虛構課次與身份。
+7. Web App 採已核准的 `USER_DEPLOYING`（教師身分）與學生 access=`ANYONE`（任意已登入 Google 使用者）。`ANYONE_ANONYMOUS` 不在授權範圍。這不授予學生工作表讀取權，但登入不代表本班本人，execute-as-owner 也不能依賴 active-user email。初驗可設 `MYSELF`；測試 Google 真正授權／建表／寫入時，用獨立虛構課次與身分，再以 ANYONE 驗證登入與私人表拒絕存取。
 8. 批准後的實測需核對：實際 consent 只有 drive.file、同 app 建表、私人分享、RAW 型態、追加後完整列讀回、前導零、同事件去重、事件衝突、敗局完成、缺反思／錯章／錯課次／超時／錯碼／限額拒收、登入重導後 GET 提交頁與 RPC 回執。離線 stub 不替代此項。
-9. 確認真實回執和表列相符後，另依既有發布流程啟用 public config 的 URL／課次／指定章節；工作表 ID、code、hash、token 不進 public config。本分支不自行推送或發布。
+9. 確認真實回執和表列相符後，另依既有發布流程啟用 public config 的 URL／課次／指定章節；工作表 ID、code、hash、token 不進 public config。最新 commit／CI／Pages 與 Google 收件結果由部署驗證記錄提供。
 
 ## 登入及可確認回執
 

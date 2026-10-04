@@ -115,7 +115,7 @@
       '<section id="submission-receipt" hidden aria-labelledby="receipt-heading"><h2 id="receipt-heading">伺服器收件回執</h2>' +
       '<dl><dt>事件編號</dt><dd id="receipt-event-id"></dd><dt>伺服器收件時間</dt><dd id="receipt-server-time"></dd>' +
       '<dt>教師核實狀態</dt><dd id="receipt-review-status"></dd></dl><p id="receipt-duplicate"></p>' +
-      '<p>請保留事件編號與伺服器收件時間，供老師核對。戰術勝敗與答對率不作為唯一出席依據；身分與當堂參與仍待老師核實。</p></section>' +
+      '<p>請保留事件編號與伺服器收件時間，供老師核對。戰術勝敗與答對率不作為出席門檻；身分與當堂參與仍待老師核實。</p></section>' +
       '<noscript><p>此收件頁需要 JavaScript。尚未確認收件；請保留遊戲 JSON 備份並請老師協助。</p></noscript>' +
       '<script>(' + mountSubmissionPage.toString() + ')(document,window);</script></main></body></html>';
   }

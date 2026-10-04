@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-10-04T21:27:04.256Z",
+  "verifiedAtUtc": "2026-10-04T22:50:01.833Z",
   "branch": "offline/drive-file-collector-20261005",
   "baselinePublishedCommit": "1da918eea64e2bc0336e6e253e336ca649bfb524",
   "baselineTests": 108,
@@ -25,10 +25,10 @@
   ],
   "sourceFingerprints": {
     "collector/core.js": "94706145e3f4f15b14c6361fa6cc1525f64c1ee104523b4380536dd76264c7fe",
-    "collector/adapter.gs": "910d589cacfc43615befc4eeb1cf9a86e80b7324b6a2dfbdee9d57aef0ce3883",
-    "collector/submission_page.js": "2fef2f05ce72fe812f2159e646788176ff50aebdebf8a43f383e6ff00ea21a40",
+    "collector/adapter.gs": "ab6efeeecb6f119a71ba8ede7e1b4a4f73c00bc0969a53e7a2fb5955858b3c37",
+    "collector/submission_page.js": "33337328633ee2e0529af5b33d7c0e469c6c57958159496fbb76b08438c3c197",
     "collector/appsscript.json": "0a8a35881677cdb344b5fb215c944faef3cdb3d44c2dfd44b4f4a6cd19b19f4e",
-    "collector/generated/Code.gs": "03a949a340bbefe9ac38f55d9e4af31186c3ccaeed179ec601e19a64b4e42d51",
+    "collector/generated/Code.gs": "dff513af2354178869c48720059540b0472a53628728c0a428ec516bc8d1677d",
     "js/receipt_client.js": "b2b97dc91bed010ef5447482f7efb511ffca93361312ff5d35ccf2ac10e9aa74",
     "js/classroom_config.js": "1bff67837e5a3c4d86e41ac0322635b421217c5a2a84c51f81e0b90bfaba8e75",
     "tests/collector.test.js": "3ac70194dc5244285e6eea34843106e2d7893be7f6691659bf88cd6537e0f6b5",
@@ -42,12 +42,28 @@
   "liveGoogleDeployment": false,
   "liveGoogleSheetReadOrWrite": false,
   "scopesGranted": false,
-  "pushed": false,
   "liveLoginRedirectVerified": false,
   "localBuildOnly": true,
   "limitations": [
     "Offline API/DOM stubs do not verify actual OAuth or private sharing.",
     "Google login and same-origin RPC must be tested with synthetic events after approval.",
-    "Self-declared IDs, a shared code and event caps are not identity or attendance authentication."
-  ]
+    "Self-declared IDs, a shared code and event caps are not identity or attendance authentication.",
+    "This environment has no callable Apps Script deployment action, node_repl/Computer Use runtime, browser-use/clasp CLI, or connected CDP endpoint; exact deployment package handed off via Library."
+  ],
+  "previousVerifiedAtUtc": "2026-10-04T22:46:40.429Z",
+  "phase": "prepublication_offline_verification",
+  "userAuthorizationApproved": true,
+  "assignedChapter": {
+    "id": "u03",
+    "title": "軍人倫理（一）",
+    "scenario": "超出能力的求助"
+  },
+  "newPrivateSheetTitle": "軍事倫理學遊戲紀錄｜2026秋",
+  "approvedDeploymentSettings": {
+    "account": "johnny2cindy@gmail.com",
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE",
+    "requiresGoogleLogin": true
+  },
+  "pushedAtVerification": false
 }

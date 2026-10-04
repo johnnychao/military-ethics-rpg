@@ -1,14 +1,14 @@
 # 教師啟用與當堂驗收
 
-這是本機隔離分支的待批准收件版本，尚未推送／發布。原學生入口仍可玩原已發布遊戲，Google 收件保持 OFF。詳細權限、設定、登入提交及測試邊界見 [collector/README.md](collector/README.md)。
+這是已獲使用者授權續接部署的收件版本，Google 真實收件仍須驗收，本機 Google 收件設定保持 OFF。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準。詳細權限、設定、登入提交及測試邊界見 [collector/README.md](collector/README.md)。
 
-Google 端需明確批准：以 `johnny2cindy@gmail.com` 建立一份新私人收件表、同一 Apps Script 只授予 `https://www.googleapis.com/auth/drive.file`、啟用 Advanced Sheets service、以 `USER_DEPLOYING` 執行，以及學生 access 範圍。建議 `ANYONE` 要求 Google 登入；免登入的 `ANYONE_ANONYMOUS` 是另一個須批准的選項。學生不獲工作表讀取權，程式只回事件編號／伺服器時間／待核實狀態。
+Google 端已明確核准：以 `johnny2cindy@gmail.com` 新建私人表「軍事倫理學遊戲紀錄｜2026秋」，同一 Apps Script 只授予 `https://www.googleapis.com/auth/drive.file`，啟用 Advanced Sheets service，採 `USER_DEPLOYING` 執行與 `ANYONE`（須登入 Google）。`ANYONE_ANONYMOUS` 不在授權範圍。學生不獲工作表讀取權，程式只回事件編號／伺服器時間／待核實狀態；實際 consent、私有分享與收件仍須驗證。
 
 此版本移除需要全帳號 Sheets 權限的 SpreadsheetApp，不以 currentonly 假裝 Web App 已縮權。drive.file 僅處理此 app 建立／獲授權的文件，但仍非 OAuth 固定單一 ID；程序固定 ID，拒絕學生指定目的表。若 Google 要求其他 scope 或設定不適用，停止回報，不自行擴權。
 
-核准後由教師在 Apps Script 編輯器初始化同 app 新表，確認分享限制存取，設定課次、指定章節、時間窗、事件上限及可選通行碼 hash。所有私人值留在 Script Properties；原碼私下發放、不進前端／repo／網址／log。先採 MYSELF 與虛構課次驗證真正 consent、RAW 型態、讀回、去重、拒收及登入後提交頁，才開學生 access 和公共收件設定。
+由教師在 Apps Script 編輯器初始化同 app 新表，確認分享限制存取，設定課次、指定章節、時間窗、事件上限與私人通行碼 hash。所有私人值留在 Script Properties；原碼在操作時生成並私下發放，不進部署包／前端／repo／網址／log。先採 MYSELF 與虛構課次驗證真正 consent、RAW 型態、讀回、去重及拒收，再以已核准的 ANYONE 驗證 Google 登入後提交及學生不能讀表，完成後才開公共收件設定。
 
-10/6 13:30–15:20（台灣）D84、26 教室的正式指定章節仍待老師決定。點名條件已核准為「完成指定關卡＋填完反思」，不設答對率或戰術勝敗門檻。兩欄反思本來就在遊戲。登入、通行碼及自填學號上限不能證明本人，老師仍需核對當堂參與和學習內容後，走原正式點名流程。
+10/6 13:30–15:20（台灣）D84、26 教室指定「軍人倫理（一）」：真 chapterId=`u03`，關卡「超出能力的求助」。正式課次=`2026-10-06-d84-26-u03`，收件時間窗=`2026-10-06T05:30:00Z` 至 `2026-10-06T07:20:00Z`，課次／自填學號事件上限為 500／3。點名條件已核准為「完成指定關卡＋填完兩欄既有反思」，不設答對率或戰術勝敗門檻。登入、通行碼及自填學號上限不能證明本人，收件仍標 `pending_teacher_review`，老師核對當堂參與與學習內容後，走原正式點名流程。
 
 當堂驗收尚需：
 

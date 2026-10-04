@@ -15,15 +15,15 @@
     },
     {
       "path": "collector/submission_page.js",
-      "sha256": "2fef2f05ce72fe812f2159e646788176ff50aebdebf8a43f383e6ff00ea21a40"
+      "sha256": "33337328633ee2e0529af5b33d7c0e469c6c57958159496fbb76b08438c3c197"
     },
     {
       "path": "collector/adapter.gs",
-      "sha256": "910d589cacfc43615befc4eeb1cf9a86e80b7324b6a2dfbdee9d57aef0ce3883"
+      "sha256": "ab6efeeecb6f119a71ba8ede7e1b4a4f73c00bc0969a53e7a2fb5955858b3c37"
     }
   ],
   "generated": {
     "path": "collector/generated/Code.gs",
-    "sha256": "03a949a340bbefe9ac38f55d9e4af31186c3ccaeed179ec601e19a64b4e42d51"
+    "sha256": "dff513af2354178869c48720059540b0472a53628728c0a428ec516bc8d1677d"
   }
 }

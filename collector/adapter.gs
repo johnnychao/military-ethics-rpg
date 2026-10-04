@@ -179,7 +179,7 @@ function initializePrivateCollector_() {
     properties.setProperty('INITIALIZE_NEW_PRIVATE_SHEET', 'false');
     const name = 'ethics_game_receipts';
     const spreadsheet = Sheets.Spreadsheets.create({
-      properties: { title: '軍事倫理學｜私人遊戲收件', timeZone: 'Asia/Taipei' },
+      properties: { title: '軍事倫理學遊戲紀錄｜2026秋', timeZone: 'Asia/Taipei' },
       sheets: [{ properties: { title: name, gridProperties: { rowCount: 1000, columnCount: 15 } } }]
     }, { fields: 'spreadsheetId' });
     const id = spreadsheet && spreadsheet.spreadsheetId;
