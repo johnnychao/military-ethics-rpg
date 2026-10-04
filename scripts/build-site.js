@@ -4,7 +4,7 @@ const root = path.resolve(__dirname, '..');
 const output = path.resolve(root, 'site');
 if (path.dirname(output) !== root || path.basename(output) !== 'site') throw new Error('Unsafe build directory');
 const PUBLIC_FILES = [
-  'index.html','privacy.html','favicon.svg','css/rpg.css','css/receipt.css','js/rpg_app.js',
+  'index.html','preview/u03/index.html','privacy.html','favicon.svg','css/rpg.css','css/receipt.css','js/rpg_app.js',
   'js/classroom_config.js','js/receipt_client.js','js/data/rpg_chapters.js',
   'js/engine/rpg_engine.js','js/engine/rpg_store.js','js/engine/rpg_world.js','js/engine/rpg_audio.js'
 ];
