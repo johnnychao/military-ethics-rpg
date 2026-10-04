@@ -1,0 +1,25 @@
+{
+  "algorithm": "SHA256",
+  "sources": [
+    {
+      "path": "js/data/rpg_chapters.js",
+      "sha256": "3254c56ad8a05661c8b3a7ea081ef3a1e6677816e30769e9f43943857db65084"
+    },
+    {
+      "path": "js/engine/rpg_engine.js",
+      "sha256": "4f55297152eb93e35934a27e49e4169f9a9d265f2d8f955c1e19d798b73394e8"
+    },
+    {
+      "path": "collector/core.js",
+      "sha256": "dbb9a82e33c46882a7307cd38c846c084d4cbfa0fd10978efee46e82d271b581"
+    },
+    {
+      "path": "collector/adapter.gs",
+      "sha256": "9385a77dcf80f0c8f2ac8237f5229ef3c07068b8236fffd20eb6dbfd850a4b64"
+    }
+  ],
+  "generated": {
+    "path": "collector/generated/Code.gs",
+    "sha256": "9a988624f2c9be138d94bcceab1b09c068fb393346c44182a24f1c129ffc00b9"
+  }
+}

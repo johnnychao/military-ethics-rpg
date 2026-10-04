@@ -1,0 +1,21 @@
+{
+  "verifiedAtUtc": "2026-10-04T20:43:33Z",
+  "verifiedAtTaipei": "2026-10-05T04:43:33+08:00",
+  "command": "node --test tests/collector.test.js",
+  "exitCode": 0,
+  "tests": 22,
+  "passed": 22,
+  "failed": 0,
+  "fixtures": "synthetic only; all 13 trusted chapters; mocked Apps Script and Sheets",
+  "actualFrontendCollectorInteroperability": "passed with real trusted u03 state and repeated same event payload, one persisted mock row",
+  "liveGoogleDeployment": false,
+  "liveGoogleSheetReadOrWrite": false,
+  "scopesGranted": false,
+  "sourceFingerprints": {
+    "collector/core.js": "DBB9A82E33C46882A7307CD38C846C084D4CBFA0FD10978EFEE46E82D271B581",
+    "collector/adapter.gs": "9385A77DCF80F0C8F2AC8237F5229EF3C07068B8236FFFD20EB6DBFD850A4B64",
+    "collector/generated/Code.gs": "9A988624F2C9BE138D94BCCEAB1B09C068FB393346C44182A24F1C129FFC00B9",
+    "tests/collector.test.js": "3DBBCD3B926ED80C415B002E5B179707F1B9F7EEC1824481CAB1579DBE8E8B87",
+    "scripts/build-collector.js": "838383F27C011DD186F965258C9B1966CE065B0E8B84D9A81344412C0FDCB2A7"
+  }
+}

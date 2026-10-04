@@ -1,0 +1,13 @@
+site/
+node_modules/
+.env*
+.clasp.json
+*credentials*
+*secret*
+教材/
+備份/
+*.pdf
+*.csv
+*.xlsx
+*.log
+
