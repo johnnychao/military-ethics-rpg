@@ -16,4 +16,7 @@
 .classroom-receipt .classroom-status { padding: .7rem; border-left: 4px solid #ad620c; background: #fffaf0; overflow-wrap: anywhere; }
 .classroom-receipt .classroom-privacy { font-size: .92rem; }
 .classroom-receipt a { color: #7c4308; text-decoration: underline; }
+.classroom-receipt .classroom-transfer { margin: 1rem 0; padding: 1rem; border: 1px solid #62746a; border-radius: .4rem; background: white; }
+.classroom-receipt .classroom-transfer textarea { width: 100%; box-sizing: border-box; min-height: 10rem; padding: .7rem; color: #19382c; background: #fffaf0; overflow-wrap: anywhere; font-size: .9rem; }
+.classroom-receipt .classroom-open-page { display: inline-block; padding: .7rem; min-height: 44px; }
 @media (max-width: 640px) { .classroom-receipt { margin: 1rem .6rem; padding: 1rem; } .classroom-receipt .classroom-identity { grid-template-columns: 1fr; gap: 0; } .classroom-receipt button { width: 100%; margin-bottom: .5rem; } }

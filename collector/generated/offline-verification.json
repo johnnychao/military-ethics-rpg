@@ -1,21 +1,53 @@
 {
-  "verifiedAtUtc": "2026-10-04T20:43:33Z",
-  "verifiedAtTaipei": "2026-10-05T04:43:33+08:00",
-  "command": "node --test tests/collector.test.js",
+  "verifiedAtUtc": "2026-10-04T21:27:04.256Z",
+  "branch": "offline/drive-file-collector-20261005",
+  "baselinePublishedCommit": "1da918eea64e2bc0336e6e253e336ca649bfb524",
+  "baselineTests": 108,
+  "command": "npm test",
   "exitCode": 0,
-  "tests": 22,
-  "passed": 22,
+  "tests": 146,
+  "passed": 146,
   "failed": 0,
-  "fixtures": "synthetic only; all 13 trusted chapters; mocked Apps Script and Sheets",
-  "actualFrontendCollectorInteroperability": "passed with real trusted u03 state and repeated same event payload, one persisted mock row",
+  "skipped": 0,
+  "groups": {
+    "originalRpg": 67,
+    "collectorCore": 21,
+    "collectorAbuse": 11,
+    "advancedSheetsAdapter": 15,
+    "receiptClient": 19,
+    "submissionPage": 10,
+    "publication": 3
+  },
+  "difference": "38 net additional tests: five obsolete SpreadsheetApp adapter cases replaced by fifteen Advanced Sheets cases; four new Core cases, eleven abuse cases, three new client cases, ten GAS-page cases.",
+  "fixtures": "synthetic only; trusted 13-chapter replay and mocked Advanced Sheets/HTML Service RPC; no real students",
+  "configuredOAuthScope": [
+    "https://www.googleapis.com/auth/drive.file"
+  ],
+  "sourceFingerprints": {
+    "collector/core.js": "94706145e3f4f15b14c6361fa6cc1525f64c1ee104523b4380536dd76264c7fe",
+    "collector/adapter.gs": "910d589cacfc43615befc4eeb1cf9a86e80b7324b6a2dfbdee9d57aef0ce3883",
+    "collector/submission_page.js": "2fef2f05ce72fe812f2159e646788176ff50aebdebf8a43f383e6ff00ea21a40",
+    "collector/appsscript.json": "0a8a35881677cdb344b5fb215c944faef3cdb3d44c2dfd44b4f4a6cd19b19f4e",
+    "collector/generated/Code.gs": "03a949a340bbefe9ac38f55d9e4af31186c3ccaeed179ec601e19a64b4e42d51",
+    "js/receipt_client.js": "b2b97dc91bed010ef5447482f7efb511ffca93361312ff5d35ccf2ac10e9aa74",
+    "js/classroom_config.js": "1bff67837e5a3c4d86e41ac0322635b421217c5a2a84c51f81e0b90bfaba8e75",
+    "tests/collector.test.js": "3ac70194dc5244285e6eea34843106e2d7893be7f6691659bf88cd6537e0f6b5",
+    "tests/collector-abuse.test.js": "3541a05cb001ed28cc3d5933be4ae24c765efc894fad2c3ce2311739759fa8bd",
+    "tests/collector-adapter.test.js": "7152030a55bd6eaa6c6a55ffbc903fa592fc5b5ce788c0c25bbbb55edfcbe415",
+    "tests/receipt-client.test.js": "aac0afbe053788fbbe817b3b87b1f84b16dd30562751f945ae64ae86de2eb3d7",
+    "tests/submission-page.test.js": "e9d2dc2fe60f1fc37681d05bd14d1993cbc73eb3c92e723a3956ba7d8fc33179",
+    "scripts/build-collector.js": "0ca1990445fd7e276ccd2b9138988ffb0f65aab46990a3c4e316336ba3eeaf9f"
+  },
+  "collectionEnabled": false,
   "liveGoogleDeployment": false,
   "liveGoogleSheetReadOrWrite": false,
   "scopesGranted": false,
-  "sourceFingerprints": {
-    "collector/core.js": "DBB9A82E33C46882A7307CD38C846C084D4CBFA0FD10978EFEE46E82D271B581",
-    "collector/adapter.gs": "9385A77DCF80F0C8F2AC8237F5229EF3C07068B8236FFFD20EB6DBFD850A4B64",
-    "collector/generated/Code.gs": "9A988624F2C9BE138D94BCCEAB1B09C068FB393346C44182A24F1C129FFC00B9",
-    "tests/collector.test.js": "3DBBCD3B926ED80C415B002E5B179707F1B9F7EEC1824481CAB1579DBE8E8B87",
-    "scripts/build-collector.js": "838383F27C011DD186F965258C9B1966CE065B0E8B84D9A81344412C0FDCB2A7"
-  }
+  "pushed": false,
+  "liveLoginRedirectVerified": false,
+  "localBuildOnly": true,
+  "limitations": [
+    "Offline API/DOM stubs do not verify actual OAuth or private sharing.",
+    "Google login and same-origin RPC must be tested with synthetic events after approval.",
+    "Self-declared IDs, a shared code and event caps are not identity or attendance authentication."
+  ]
 }

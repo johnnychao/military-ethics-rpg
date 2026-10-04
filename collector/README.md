@@ -1,35 +1,45 @@
-本目錄是私人 Google Sheets 收件程式的交付原始碼；目前沒有 Google 部署、持續授權、學生資料或實際 Sheets 寫入。GitHub Pages 的遊戲入口可先供練習，收件設定未完成時保持停用。
+# 私人收件器：離線待批准版本
 
-點名條件已核准為「完成當週指定關卡＋填完反思，不以答對率判定出席」。伺服器使用本專案的 13 章定義與 `RPGEngine.validateState` 重播驗證同一次完整關卡，要求 `phase === 'complete'`、老師指定章節、兩欄反思非空。戰術失敗也可收件，沒有勝率、答對率或反思字數門檻。伺服器收件時間必須在老師設定的課次時窗內。
+本分支只交付本機程式與虛構資料測試。Google OAuth、建表及 Web App 部署尚未獲批准，也沒有執行；公開 Pages 仍使用先前版本，收件設定 `enabled:false`。本機產生 `Code.gs` 不會呼叫 Google。
 
-完成紀錄來自學生瀏覽器，重播驗證只能驗證紀錄結構、章節與戰術結果一致，不能證明誰操作、是否當堂完成或未使用匯入紀錄。學號、姓名均為自填；每筆固定標為 `pending_teacher_review`，老師核對身分、當堂參與及指定課次後才能判定正式出席。客戶端完成時間另存為 `client_completed_at_untrusted`，不當成可信收件或出席時間。
+點名條件沿用已核准的「完成當週指定關卡＋填完反思，不以答對率判定出席」。兩欄「理由與教材依據」「何時會修正」為原遊戲既有欄位，每欄最多 6000 字，只要求非空。服務端用可信 13 章資料與原引擎重播同一次 complete 紀錄；戰術失敗也有效。自填學號、姓名、裝置完成時間與匯入紀錄不構成本人／當堂操作證明；收件一律 `pending_teacher_review`，不改正式出席表。
 
-同一 `eventId` 的相同內容在腳本鎖內去重；不同內容沿用同一編號會拒收。新事件只有寫入、`SpreadsheetApp.flush()` 並整列讀回一致且無公式後才顯示「收件成功，待教師核實」。網路中斷或寫入後回應不明時，請用同一筆內容與編號重送。已收件的相同事件可於時窗結束後重新取得原回執，不新增資料；原始列被修改或損毀會拒絕回傳成功。
+## 比已發布 108 項基準的變更
 
-學生由 HTML form POST 在新分頁開啟收件頁，欄位只有 `payload` JSON；不使用跨來源 `fetch(..., mode:'no-cors')` 或前端完成畫面推定 Sheets 成功。回執只顯示事件編號、伺服器時間及待核實狀態，不回傳學號、姓名、反思或工作表資料。`doGet` 不查詢或公開紀錄，腳本不發信、不連其他服務、不寫正式出席系統。工作表 ID 保存在 Script Properties，禁止放入公開前端。
+- 移除 `SpreadsheetApp` 存取，改 Advanced Sheets service v4；manifest 唯一 OAuth scope 為 `https://www.googleapis.com/auth/drive.file`。它可處理此 app 建立／獲授權的文件，仍不是 OAuth 固定單一 ID 的能力。程式只操作 Script Properties 指定的新收件表。
+- 以 `valueInputOption: RAW` 保留字串、前導零及布林，讀回核對完整 A:O 列，另檢查儲存型態沒有 `formulaValue`；不只查看 append 或 RPC 的成功狀態。
+- 同一 Script Lock 內找事件、核對、計數、追加及讀回。相同事件與內容可恢復原回執，不消耗新名額；相同事件不同內容拒收。
+- 課次可設定 `maxEvents`（預設 500，上限 10000）及 `maxStudentEvents`（預設 3，上限 100 且不超過課次上限）。兩者都是正整數。若課次上限小於 3，省略的學號上限自動取課次上限。只計數新的持久事件，寫入後讀回失敗仍佔名額；使用同一 ID 重試。
+- 課次可選通行碼，只有 SHA256 留在 Script Properties 的 `CLASS_ACCESS_CODE_HASHES`。通行碼為獨立 transport 參數，不進 payload、event fingerprint、工作表、網址、localStorage 或回執。沒有配置 hash 的課次不要求碼。需要課堂碼時應使用足夠長且不易猜的隨機值，私下發放。
+- 改為直接開啟 GAS 的 GET 提交頁，登入後貼事件內容並輸入課堂碼，再以 `google.script.run` 提交。跨站 POST、fetch、opaque response 都不視為收件證據。
 
-Google 啟用前仍需使用者明確同意以下持續權限與執行方式：
+## 精確權限及待批准步驟
 
-- OAuth scope 為 `https://www.googleapis.com/auth/spreadsheets`。程式只用 `SPREADSHEET_ID` 開啟一份指定表；Google scope 本身允許查看、編輯、建立與刪除帳戶全部 Google Sheets，不能宣稱僅獲授權這一份表。Web App 的 `openById` 需要此完整 scope，不能用 `spreadsheets.currentonly` 代替。
-- 若部署成「以擁有者身分執行」、允許任何人提交，持有 Web App URL 的人會透過此程式將資料寫入擁有者的指定私人表。這不公開工作表、也不提供讀取端點；但匿名呼叫者可偽造身分或大量提交，程式的重播驗證與 event 去重不能提供身分認證或防代玩證明。Google／學校管理政策也可能禁止此存取模式。
-- 這份 manifest 沒有 `webapp` 公開設定，也沒有授權部署 API、Drive、Gmail、外部網路或觸發器。沒有新 OAuth client、API key 或憑證。
-
-上述權限、存取模式與私有目標表尚未獲批准，請不要先行啟用或收集學生。以下步驟只在明確批准後執行：
-
-1. 選定使用者擁有的私人 Google Sheets 與專用空白工作表分頁 `ethics_game_receipts`，保持分享為限制存取。不要選正式出席表或放有其他資料的分頁；老師審核另用私人審核表／分頁，保留原始 15 欄收件資料不改動。
-2. 本機執行 `node scripts/build-collector.js`，把產生的 `collector/generated/Code.gs` 與 `appsscript.json` 放入使用者自己的 Apps Script 專案。此建置只產生檔案，完全不部署或存取 Google。
-3. 在 Script Properties 設定 `SPREADSHEET_ID`、`RECORDS_SHEET`、`CLASS_SESSIONS`、`COLLECTOR_ENABLED`。`CLASS_SESSIONS` 必須是陣列，每項具有 `id`、`chapterId`、`opensAt`、`closesAt`；只有老師指定的章節，沒有預設第 1 章或示範第 3 章。`COLLECTOR_ENABLED` 尚未準備好時維持 `false`。
-4. 課次 JSON 形狀如下；`__TEACHER_ASSIGNED_CHAPTER__` 是故意無效的佔位值，必須由老師確認實際 `u01`–`u13`，不能直接照貼當成 10/6 指定關卡：
+1. 帳號在目前唯讀 profile 為 `johnny2cindy@gmail.com`；實際 Google 編輯器帳號仍須確認。使用者批准新持續 `drive.file` 權限、新私人收件表、Web App 執行身分與學生存取範圍後，才可執行以下 Google 步驟。若 Google 顯示額外 scope 或設計失敗，停止並回報，不自動升級 `spreadsheets`、Drive 全 scope、外部請求或新 OAuth client。
+2. 執行 `node scripts/build-collector.js` 只產生本機 bundle。批准後由教師在自己的 Apps Script 編輯器建立獨立專案，貼入生成 Code.gs 與 manifest。manifest 啟用 Sheets v4；預設 Cloud project 會自動啟用對應 API，不需 UrlFetch、Picker 或第二套 OAuth client。
+3. 在 Script Properties 明確設 `INITIALIZE_NEW_PRIVATE_SHEET=true`、`COLLECTOR_ENABLED=false`，由教師在編輯器執行 **`initializePrivateCollector_`**。它由同一 app 建立新的收件表，寫入固定 `SPREADSHEET_ID`；已有 ID 就拒絕再建。尾底線使管理函式無法由 `google.script.run` 呼叫。不要用另一個 connector 或手動建表再直接填 ID，聲稱此 app 已獲文件授權。
+4. 在 Google Share 介面核對新表為「限制存取」，只有教師／明確授權人員；不要公開或使用含其他資料的表。老師審核另記，保留原始 15 欄收件列，不排序／修改／插入公式，以免重送核對失敗。
+5. 設 `RECORDS_SHEET`（預設 `ethics_game_receipts`）、`CLASS_SESSIONS`、可選 `CLASS_ACCESS_CODE_HASHES`。CLASS_SESSIONS 每項至少 id、chapterId、opensAt、closesAt，可加上述兩個事件上限。下列 chapter 佔位值故意無效，10/6 指定章節仍待老師決定：
 
 ```json
-[{"id":"teacher-chosen-session-id","chapterId":"__TEACHER_ASSIGNED_CHAPTER__","opensAt":"2026-10-06T13:30:00+08:00","closesAt":"2026-10-06T15:20:00+08:00"}]
+[{"id":"teacher-chosen-session-id","chapterId":"__TEACHER_ASSIGNED_CHAPTER__","opensAt":"2026-10-06T13:30:00+08:00","closesAt":"2026-10-06T15:20:00+08:00","maxEvents":500,"maxStudentEvents":3}]
 ```
 
-5. 使用者批准完整 Sheets scope 與 Web App 執行／存取模式後再部署 `/exec` URL，先用明確虛構身分驗證實際收到一列、前導零學號、伺服器時間、同 event 重送不新增、不同內容衝突、錯課次、錯章節、超時及敗局完成。未完成此實測不能宣稱 Sheets 寫入已驗證。
-6. 確認私人表與收件測試後，把 `/exec` URL 和同一老師課次／章節加入前端公開設定；前端不包含工作表 ID、授權 token 或學生紀錄。最後再完成真機手機、鍵盤、恢復、教師收件及設備失敗替代驗收。
+6. 若使用通行碼，輸入總長最多 128 字，不允許控制字元；在可信本機將 trim 後原碼以 UTF-8 計算 SHA256，僅把 sessionId→64位十六進位 hash 的 JSON map 放入 `CLASS_ACCESS_CODE_HASHES`；原碼與 hash 都不放前端／版本庫／log。只存 hash 不代表原碼能抵抗猜測，低熵碼仍不安全。
+7. Web App 採 `USER_DEPLOYING`（教師身分）。建議學生 access=`ANYONE`（任意已登入 Google 使用者）；`ANYONE_ANONYMOUS` 含免登入訪客，需另外明確批准。這不授予學生工作表讀取權，但登入不代表本班本人，execute-as-owner 也不能依賴 active-user email。初驗只設 `MYSELF`；測試 Google 真正授權／建表／寫入時，用獨立虛構課次與身份。
+8. 批准後的實測需核對：實際 consent 只有 drive.file、同 app 建表、私人分享、RAW 型態、追加後完整列讀回、前導零、同事件去重、事件衝突、敗局完成、缺反思／錯章／錯課次／超時／錯碼／限額拒收、登入重導後 GET 提交頁與 RPC 回執。離線 stub 不替代此項。
+9. 確認真實回執和表列相符後，另依既有發布流程啟用 public config 的 URL／課次／指定章節；工作表 ID、code、hash、token 不進 public config。本分支不自行推送或發布。
 
-傳輸協定：`{format:'ndmu-ethics-submission',version:1,eventId:UUIDv4,sessionId,student:{id,name},attempt:完整Engine state}`。`sessionId` 僅限 1–80 字 `[A-Za-z0-9._:-]` 且首字為英數；自填學號／姓名 trim 後各 1–80 字、不允許控制字元。完整 payload 最多 60,000 個 UTF-16 字元，attempt canonical JSON 最多 45,000 個字元；不截斷紀錄。反思依原遊戲規格各最多 6,000 字，內容可以很短，只要求非空。測試的 `u03` 及 `SYNTHETIC-ONLY-*` 只供離線案例，不是當堂指派或真學生。
+## 登入及可確認回執
 
-離線驗證執行 `node --test tests/collector.test.js`。測試用可信 13 章產生虛構關卡，包含戰術失敗仍有效、缺反思／偽造／錯章、時窗、去重、鎖、寫入／同步／讀回失敗、損毀重送、公式注入及 Apps Script stub。這些測試不開啟 Google，也不能替代實際 Google 授權與虛構收件測試。
+Pages 先在同意後準備可重送的 event，學生複製事件內容，明確開 `/exec` GET 新分頁；若 clipboard 不可用，提供可手動複製文字。事件不放 query、fragment 或 postMessage。GAS 頁在登入後接受貼上的 JSON 和獨立 password 欄位，以 `google.script.run.handleClassroomSubmission(raw, accessCode)` 呼叫伺服器。
 
-Google 官方依據（2026-10-05 查核）：[Sheets scope 的查看、編輯、建立、刪除範圍](https://developers.google.com/workspace/sheets/api/scopes)、[openById 的完整 Sheets scope](https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app#openById(String))、[Web App 的 doPost 與擁有者執行權限](https://developers.google.com/apps-script/guides/web#permissions)、[setValues 的公式行為](https://developers.google.com/apps-script/reference/spreadsheet/range#setValues(Object))、[Script LockService](https://developers.google.com/apps-script/reference/lock/lock-service)、[OAuth scopes](https://developers.google.com/apps-script/concepts/scopes)。
+服務端只有在 trusted replay、門檻、鎖、寫入與整列讀回均成功後回傳 `{ok,eventId,serverReceivedAt,reviewStatus,duplicate}`。頁面再核對事件 ID、ISO 伺服器時間及 pending_teacher_review。RPC failure、無效回應或逾時只顯示「尚未確認」，保留事件讓學生以同一編號重送；不回傳姓名、學號、反思、Sheet ID 或設定，不提供公開查詢紀錄端點。
+
+上限限制寫入數量，通行碼限制入口；自填學號可更換、碼可被轉傳，兩者均不驗證本人或防代玩。錯碼請求仍會消耗 Apps Script 執行配額；程式內上限不是抵抗 DDoS 的保證。教師可關閉 `COLLECTOR_ENABLED`，並按已公告的設備失敗替代流程處理。
+
+## 離線驗證
+
+執行 `npm test`，包括原 67 項遊戲檢查、既有收件與前端案例，以及 Advanced service、事件上限／碼、GAS 頁的新增測試。全部為虛構資料／API stub，不存取 Google、學生資料、8766 或原 G 專案。`npm run build` 只產生本機 bundle／allowlisted site；不是部署。Google 端與真機、趣味性、音樂聽感仍待驗收。
+
+官方依據：[Sheets scopes](https://developers.google.com/workspace/sheets/api/scopes)、[同 app 建表](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/create)、[Advanced services](https://developers.google.com/apps-script/guides/services/advanced)、[RAW](https://developers.google.com/workspace/sheets/api/reference/rest/v4/ValueInputOption)、[ExtendedValue](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/other#ExtendedValue)、[Web App access](https://developers.google.com/apps-script/manifest/web-app-api-executable)、[google.script.run](https://developers.google.com/apps-script/guides/html/reference/run)、[私有 helper](https://developers.google.com/apps-script/guides/html/communication#private_functions)、[Session 身分限制](https://developers.google.com/apps-script/reference/base/session#getActiveUser())。

@@ -67,6 +67,7 @@ function dependencies(options = {}) {
     releaseLock() { actions.push('release'); this.locked = false; } };
   const store = {
     findByEventId(id) { assert.equal(lock.locked, true); actions.push('find'); return rows.find(row => row[0] === id) || null; },
+    countEvents(sessionId, studentId) { assert.equal(lock.locked, true); actions.push('count'); return { sessionEvents: rows.filter(row => row[3] === sessionId).length, studentEvents: rows.filter(row => row[3] === sessionId && row[4] === Core.safeCell(studentId)).length }; },
     append(row) { assert.equal(lock.locked, true); actions.push('append'); if (options.appendFails) throw new Error('write failed'); rows.push(copy(row)); return rows.length; },
     flush() { assert.equal(lock.locked, true); actions.push('flush'); if (options.flushFails) throw new Error('flush failed'); },
     read(number) { assert.equal(lock.locked, true); actions.push('read'); if (options.readFails) throw new Error('read failed');
@@ -85,7 +86,7 @@ test('trusted replay accepts a completed tactical failure with both reflections;
   const deps = dependencies();
   assert.equal(COMPLETE.tactical.result.success, false);
   const receipt = accept(payload(), deps);
-  assert.deepEqual(deps.actions, ['lock', 'find', 'append', 'flush', 'read', 'release']);
+  assert.deepEqual(deps.actions, ['lock', 'find', 'count', 'append', 'flush', 'read', 'release']);
   assert.deepEqual(receipt, { ok: true, eventId: payload().eventId, serverReceivedAt: NOW.toISOString(),
     reviewStatus: 'pending_teacher_review', duplicate: false });
   assert.equal(deps.rows[0][7], true); assert.equal(deps.rows[0][8], true);
@@ -220,115 +221,10 @@ test('formula strings are escaped for Sheets and HTML; receipt never renders stu
   assert.equal(Core.escapeHtml('<script>"&\''), '&lt;script&gt;&quot;&amp;&#39;');
 });
 
-function appsScriptHarness(options = {}) {
-  const rows = [], formulas = [], calls = [], properties = {
-    COLLECTOR_ENABLED: 'true', SPREADSHEET_ID: 'SYNTHETIC_SPREADSHEET_ID_0001',
-    CLASS_SESSIONS: JSON.stringify(CONFIG.sessions)
-  };
-  if (options.properties) Object.assign(properties, options.properties);
-  const sheet = {
-    getLastRow: () => rows.length,
-    getRange(row, column, count, width) {
-      return {
-        setNumberFormat(format) { assert.equal(format, '@'); calls.push('textFormat'); return this; },
-        setValues(values) {
-          calls.push('write'); if (options.writeFails) throw new Error('access denied');
-          for (let i = 0; i < count; i++) {
-            rows[row - 1 + i] = values[i].map(value => typeof value === 'string' && value.startsWith("'") ? value.slice(1) : value);
-            formulas[row - 1 + i] = values[i].map(value => typeof value === 'string' && value.startsWith('=') ? value : '');
-          }
-        },
-        getValues() { calls.push('read'); if (options.readFails) throw new Error('read denied');
-          return Array.from({ length: count }, (_, i) => (rows[row - 1 + i] || Array(width).fill('')).slice(column - 1, column - 1 + width)); },
-        getFormulas() { return Array.from({ length: count }, (_, i) => (formulas[row - 1 + i] || Array(width).fill('')).slice(column - 1, column - 1 + width)); },
-        createTextFinder(eventId) {
-          const finder = {
-            matchEntireCell() { return finder; }, useRegularExpression() { return finder; },
-            findAll() { return rows.flatMap((values, index) => index >= row - 1 && index < row - 1 + count && values[0] === eventId ? [{ getRow: () => index + 1 }] : []); }
-          };
-          return finder;
-        }
-      };
-    }
-  };
-  class Clock extends Date { constructor(value) { super(value === undefined ? NOW.getTime() : value); } }
-  const context = vm.createContext({ Date: Clock,
-    PropertiesService: { getScriptProperties: () => ({ getProperty: key => properties[key] || null }) },
-    Utilities: { DigestAlgorithm: { SHA_256: 'sha256' }, Charset: { UTF_8: 'utf8' },
-      computeDigest: (_, text) => Array.from(crypto.createHash('sha256').update(text).digest()).map(value => value > 127 ? value - 256 : value) },
-    LockService: { getScriptLock: () => ({ tryLock: () => !options.lockFails, releaseLock: () => calls.push('release') }) },
-    SpreadsheetApp: {
-      openById(id) { assert.equal(id, properties.SPREADSHEET_ID); calls.push('openSheet'); return { getSheetByName: name => name === 'ethics_game_receipts' ? sheet : null }; },
-      flush() { calls.push('flush'); if (options.flushFails) throw new Error('flush denied'); }
-    },
-    HtmlService: { createHtmlOutput: html => ({ html, title: '', setTitle(title) { this.title = title; return this; } }) }
-  });
-  const root = path.resolve(__dirname, '..');
-  for (const relative of ['js/data/rpg_chapters.js', 'js/engine/rpg_engine.js', 'collector/core.js', 'collector/adapter.gs']) {
-    vm.runInContext(fs.readFileSync(path.join(root, relative), 'utf8'), context, { filename: relative });
-  }
-  return { context, rows, formulas, calls, properties, post: value => context.doPost({ parameter: { payload: JSON.stringify(value) }, parameters: { payload: [JSON.stringify(value)] } }) };
-}
-
-test('Apps Script adapter writes only configured private Sheet and returns safe success after verified persistence', () => {
-  const harness = appsScriptHarness(), value = payload();
-  value.student.name = '=1+1'; value.attempt.reflection.reason = '=IMPORTXML("https://example.invalid")';
-  const result = harness.post(value);
-  assert.equal(result.title, '收件成功，待教師核實');
-  assert.equal(harness.rows.length, 2); assert.equal(harness.rows[1][0], value.eventId);
-  assert.equal(harness.formulas.flat().some(Boolean), false);
-  assert.equal(result.html.includes(value.student.name), false);
-  assert.equal(result.html.includes(value.attempt.reflection.reason), false);
-  assert.equal(result.html.includes(NOW.toISOString()), true);
-  const duplicate = harness.post(value); assert.equal(harness.rows.length, 2);
-  assert.equal(duplicate.html.includes('沒有重複新增'), true);
-});
-
-test('Apps Script adapter preserves leading-zero IDs, leading apostrophes and ISO server time as text', () => {
-  const harness = appsScriptHarness(), value = payload();
-  value.student.id = '001234'; value.student.name = "'Synthetic";
-  assert.equal(harness.post(value).title, '收件成功，待教師核實');
-  assert.equal(harness.rows[1][4], '001234'); assert.equal(harness.rows[1][5], "'Synthetic");
-  assert.equal(harness.rows[1][2], NOW.toISOString()); assert.equal(typeof harness.rows[1][2], 'string');
-  assert.equal(harness.calls.includes('textFormat'), true);
-});
-
-test('Apps Script adapter refuses formula tampering, malformed headers and duplicate persisted event rows', () => {
-  for (const mutation of [harness => harness.formulas[1][12] = '=IMPORTXML("https://example.invalid")',
-    harness => harness.rows[0][0] = 'wrong_schema',
-    harness => { harness.rows.push(copy(harness.rows[1])); harness.formulas.push(copy(harness.formulas[1])); },
-    harness => harness.rows[1][12] = 'damaged stored reflection']) {
-    const harness = appsScriptHarness(), value = payload();
-    assert.equal(harness.post(value).title, '收件成功，待教師核實'); mutation(harness);
-    assert.equal(harness.post(value).title, '尚未確認收件');
-    assert.equal(harness.calls.at(-1), 'release');
-  }
-});
-
-test('Apps Script adapter refuses disabled configuration, invalid payload, ambiguous POST and wrong session before Sheet access', () => {
-  const disabled = appsScriptHarness({ properties: { COLLECTOR_ENABLED: 'false' } });
-  assert.equal(disabled.post(payload()).title, '尚未確認收件'); assert.deepEqual(disabled.calls, []);
-  const unknown = appsScriptHarness(), value = payload(); value.sessionId = 'not-configured';
-  assert.equal(unknown.post(value).title, '尚未確認收件'); assert.deepEqual(unknown.calls, []);
-  const ambiguous = appsScriptHarness();
-  const result = ambiguous.context.doPost({ parameter: { payload: JSON.stringify(payload()) }, parameters: { payload: ['one', 'two'] } });
-  assert.equal(result.title, '尚未確認收件'); assert.deepEqual(ambiguous.calls, []);
-});
-
-test('Apps Script adapter never labels write/flush/read failure as successful and public GET never reads Sheet records', () => {
-  for (const option of ['writeFails', 'flushFails', 'readFails', 'lockFails']) {
-    const harness = appsScriptHarness({ [option]: true });
-    assert.equal(harness.post(payload()).title, '尚未確認收件');
-    assert.equal(harness.post(payload()).html.includes('access denied'), false);
-  }
-  const harness = appsScriptHarness();
-  const result = harness.context.doGet({ parameter: { eventId: payload().eventId, student: '<script>' } });
-  assert.deepEqual(harness.calls, []); assert.equal(result.html.includes('<script>'), false);
-});
-
-test('Apps Script manifest declares the actual spreadsheets scope and no network, email, Drive or deployment grant', () => {
+test('Apps Script manifest declares drive.file only and enables Advanced Sheets v4 without deployment grants', () => {
   const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../collector/appsscript.json'), 'utf8'));
-  assert.deepEqual(manifest.oauthScopes, ['https://www.googleapis.com/auth/spreadsheets']);
+  assert.deepEqual(manifest.oauthScopes, ['https://www.googleapis.com/auth/drive.file']);
+  assert.deepEqual(manifest.dependencies.enabledAdvancedServices, [{ userSymbol: 'Sheets', serviceId: 'sheets', version: 'v4' }]);
   assert.equal(manifest.timeZone, 'Asia/Taipei'); assert.equal(manifest.runtimeVersion, 'V8');
   assert.equal('webapp' in manifest, false); assert.equal(manifest.exceptionLogging, 'NONE');
 });
@@ -354,6 +250,54 @@ test('actual frontend prepareEvent protocol interoperates with trusted collector
   const repeated = ReceiptClient.prepareEvent(options), recovered = Core.accept(JSON.stringify(repeated), deps);
   assert.equal(repeated.eventId, first.eventId); assert.equal(recovered.duplicate, true);
   assert.equal(deps.rows.length, 1); assert.equal(recovered.serverReceivedAt, receipt.serverReceivedAt);
+});
+
+test('default per-session and per-identity limits reject new events while existing event recovery stays available', () => {
+  const deps = dependencies(), value = payload();
+  const ids = ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd'];
+  for (const eventId of ids.slice(0, 3)) { value.eventId = eventId; assert.equal(accept(value, deps).ok, true); }
+  value.eventId = ids[3]; assert.throws(() => accept(value, deps), error => error.code === 'STUDENT_EVENT_LIMIT');
+  assert.equal(deps.rows.length, 3); value.eventId = ids[0]; assert.equal(accept(value, deps).duplicate, true);
+  const sessionFull = dependencies(); sessionFull.store.countEvents = () => ({ sessionEvents: 500, studentEvents: 0 });
+  rejects(payload(), 'SESSION_EVENT_LIMIT', sessionFull);
+});
+
+test('invalid limits and malformed event-count contracts fail closed before append', () => {
+  for (const change of [session => session.maxEvents = 0, session => session.maxEvents = 10001,
+    session => session.maxEvents = 1.5, session => session.maxStudentEvents = 101,
+    session => { session.maxEvents = 1; session.maxStudentEvents = 2; }]) {
+    const deps = dependencies(); change(deps.config.sessions[0]); rejects(payload(), 'SESSION_CONFIGURATION_INVALID', deps);
+    assert.deepEqual(deps.actions, []);
+  }
+  for (const counts of [null, {}, { sessionEvents: 1, studentEvents: 2 }, { sessionEvents: -1, studentEvents: 0 },
+    { sessionEvents: 0.5, studentEvents: 0 }, { sessionEvents: '1', studentEvents: 0 }]) {
+    const deps = dependencies(); deps.store.countEvents = () => counts; rejects(payload(), 'COLLECTOR_STORE_INVALID', deps);
+    assert.equal(deps.lock.locked, false);
+  }
+});
+
+test('optional shared class code is separate transport, checked before replay and never included in rows or digest', () => {
+  const syntheticCode = crypto.randomUUID();
+  for (const code of [undefined, '', crypto.randomUUID(), syntheticCode + '\u0000']) {
+    const deps = dependencies(); deps.config.accessCodeHashes = { [CONFIG.sessions[0].id]: sha256(syntheticCode) }; deps.accessCode = code;
+    deps.engine = { validateState() { assert.fail('Unauthorized access must be rejected before replay.'); } };
+    assert.throws(() => accept(payload(), deps), error => ['ACCESS_CODE_REQUIRED', 'ACCESS_CODE_INVALID'].includes(error.code));
+    assert.deepEqual(deps.actions, []);
+  }
+  const plain = dependencies(), protectedDeps = dependencies();
+  protectedDeps.config.accessCodeHashes = { [CONFIG.sessions[0].id]: sha256(syntheticCode).toUpperCase() };
+  protectedDeps.accessCode = '  ' + syntheticCode + '  ';
+  accept(payload(), plain); accept(payload(), protectedDeps);
+  assert.deepEqual(protectedDeps.rows[0], plain.rows[0]); assert.equal(JSON.stringify(protectedDeps.rows).includes(syntheticCode), false);
+  const injected = payload(); injected.accessCode = syntheticCode; rejects(injected, 'INVALID_PAYLOAD');
+});
+
+test('invalid class code map or unknown session code cannot silently bypass configuration', () => {
+  for (const accessCodeHashes of [null, [], 'bad', { unknown: sha256(crypto.randomUUID()) }, { [CONFIG.sessions[0].id]: 'not-a-hash' }]) {
+    const deps = dependencies(); deps.config.accessCodeHashes = accessCodeHashes;
+    rejects(payload(), 'ACCESS_CONFIGURATION_INVALID', deps); assert.deepEqual(deps.actions, []);
+  }
 });
 
 test('generated Apps Script delivery parses and its SHA256 evidence matches every trusted source', () => {

@@ -58,13 +58,45 @@
       const opens = timestamp(session.opensAt, 'SESSION_CONFIGURATION_INVALID');
       const closes = timestamp(session.closesAt, 'SESSION_CONFIGURATION_INVALID');
       if (closes <= opens) fail('SESSION_CONFIGURATION_INVALID');
+      eventLimits(session);
     });
+    if (config.accessCodeHashes !== undefined) {
+      if (!isObject(config.accessCodeHashes)) fail('ACCESS_CONFIGURATION_INVALID');
+      Object.entries(config.accessCodeHashes).forEach(([id, digest]) => {
+        if (!ids.has(id) || typeof digest !== 'string' || !/^[0-9a-f]{64}$/i.test(digest)) fail('ACCESS_CONFIGURATION_INVALID');
+      });
+    }
+  }
+  function eventLimits(session) {
+    const maxEvents = session.maxEvents === undefined ? 500 : session.maxEvents;
+    const maxStudentEvents = session.maxStudentEvents === undefined ? Math.min(3, maxEvents) : session.maxStudentEvents;
+    if (!Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 10000 ||
+        !Number.isInteger(maxStudentEvents) || maxStudentEvents < 1 || maxStudentEvents > 100 || maxStudentEvents > maxEvents) {
+      fail('SESSION_CONFIGURATION_INVALID');
+    }
+    return { maxEvents, maxStudentEvents };
+  }
+  function checkAccessCode(checked, deps) {
+    const hashes = deps.config.accessCodeHashes || {};
+    const expected = Object.prototype.hasOwnProperty.call(hashes, checked.session.id) ? hashes[checked.session.id] : null;
+    const supplied = deps.accessCode === undefined ? '' : deps.accessCode;
+    if (typeof supplied !== 'string' || supplied.length > 128 || /[\u0000-\u001f\u007f-\u009f]/.test(supplied)) fail('ACCESS_CODE_INVALID');
+    if (!expected) return;
+    const code = supplied.trim();
+    if (!code) fail('ACCESS_CODE_REQUIRED');
+    const actual = deps.sha256(code);
+    if (typeof actual !== 'string' || !/^[0-9a-f]{64}$/.test(actual)) fail('DIGEST_INVALID');
+    // Fixed-length comparison avoids early exits on individual digest characters.
+    let difference = 0;
+    const normalized = expected.toLowerCase();
+    for (let i = 0; i < 64; i++) difference |= actual.charCodeAt(i) ^ normalized.charCodeAt(i);
+    if (difference !== 0) fail('ACCESS_CODE_INVALID');
   }
   function parsePayload(raw) {
     if (typeof raw !== 'string' || !raw || raw.length > MAX_PAYLOAD_CHARS) fail('PAYLOAD_TOO_LARGE');
     try { return JSON.parse(raw); } catch (_) { fail('INVALID_JSON'); }
   }
-  function validateRequest(raw, config, engine, data) {
+  function validateRequest(raw, config, engine, data, authorize) {
     validateConfig(config, data);
     const payload = parsePayload(raw);
     keys(payload, ['format', 'version', 'eventId', 'sessionId', 'student', 'attempt'], 'INVALID_PAYLOAD');
@@ -73,6 +105,8 @@
     if (typeof payload.sessionId !== 'string' || !SESSION_ID.test(payload.sessionId)) fail('INVALID_SESSION_ID');
     const session = config.sessions.find(item => item.id === payload.sessionId);
     if (!session) fail('UNKNOWN_SESSION');
+    // Authenticate the class gate before expensive trusted-engine replay or any Sheet access.
+    if (authorize) authorize({ session });
     keys(payload.student, ['id', 'name'], 'INVALID_IDENTITY');
     const normalized = { ...payload, eventId: payload.eventId.toLowerCase(),
       student: { id: identityField(payload.student.id), name: identityField(payload.student.name) } };
@@ -117,13 +151,12 @@
   }
   function rowMatches(expected, actual) {
     if (!Array.isArray(actual) || actual.length !== expected.length) return false;
-    return expected.every((cell, i) => cell === actual[i] ||
-      // Sheets may omit the leading apostrophe used to force literal text.
-      (typeof cell === 'string' && cell.startsWith("'") && cell.slice(1) === actual[i]));
+    // Advanced Sheets RAW writes preserve every literal character, including apostrophes.
+    return expected.every((cell, i) => cell === actual[i]);
   }
   function accept(raw, dependencies) {
     const deps = dependencies;
-    const checked = validateRequest(raw, deps.config, deps.engine, deps.data);
+    const checked = validateRequest(raw, deps.config, deps.engine, deps.data, gate => checkAccessCode(gate, deps));
     const digest = deps.sha256(checked.canonicalPayload);
     if (typeof digest !== 'string' || !/^[0-9a-f]{64}$/.test(digest)) fail('DIGEST_INVALID');
     if (!deps.lock.tryLock(10000)) fail('COLLECTOR_BUSY');
@@ -137,6 +170,15 @@
         return publicReceipt(existing, true);
       }
       const serverReceivedAt = checkWindow(checked.session, deps.now());
+      if (typeof deps.store.countEvents !== 'function') fail('COLLECTOR_STORE_INVALID');
+      const counts = deps.store.countEvents(checked.payload.sessionId, checked.payload.student.id);
+      if (!isObject(counts) || !Number.isSafeInteger(counts.sessionEvents) || counts.sessionEvents < 0 ||
+          !Number.isSafeInteger(counts.studentEvents) || counts.studentEvents < 0 || counts.studentEvents > counts.sessionEvents) {
+        fail('COLLECTOR_STORE_INVALID');
+      }
+      const limits = eventLimits(checked.session);
+      if (counts.sessionEvents >= limits.maxEvents) fail('SESSION_EVENT_LIMIT');
+      if (counts.studentEvents >= limits.maxStudentEvents) fail('STUDENT_EVENT_LIMIT');
       const row = makeRow(checked, digest, serverReceivedAt);
       const rowNumber = deps.store.append(row);
       deps.store.flush();
@@ -160,7 +202,11 @@
     COLLECTOR_BUSY: '收件服務忙碌，請稍後使用同一收件編號重送。',
     PAYLOAD_TOO_LARGE: '提交內容過大，請保留本機備份並告知老師。',
     ATTEMPT_TOO_LARGE: '此關卡累積紀錄過大，請保留本機備份並告知老師。',
-    RECEIPT_READBACK_FAILED: '寫入後未能確認紀錄，請使用同一收件編號重送並告知老師。'
+    RECEIPT_READBACK_FAILED: '寫入後未能確認紀錄，請使用同一收件編號重送並告知老師。',
+    ACCESS_CODE_REQUIRED: '請輸入老師在課堂提供的通行碼。',
+    ACCESS_CODE_INVALID: '通行碼未通過；請向老師確認。',
+    SESSION_EVENT_LIMIT: '本課次的新事件數已達上限。已收件的同一事件仍可重送確認；請告知老師。',
+    STUDENT_EVENT_LIMIT: '此自填學號的新事件數已達上限。請沿用已提交事件重送確認，或告知老師。'
   });
   function renderReceipt(result, errorCode) {
     const success = result && result.ok === true && result.reviewStatus === 'pending_teacher_review' && UUID.test(result.eventId);
@@ -177,5 +223,5 @@
   }
   return { FORMAT, VERSION, MAX_PAYLOAD_CHARS, MAX_ATTEMPT_CHARS, HEADERS,
     canonicalJson, parsePayload, validateRequest, checkWindow, safeCell, makeRow,
-    rowMatches, accept, escapeHtml, renderReceipt };
+    eventLimits, checkAccessCode, rowMatches, accept, escapeHtml, renderReceipt };
 }));

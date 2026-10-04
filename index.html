@@ -45,7 +45,7 @@
     <p id="classroom-task">當堂課程與指定關卡待老師啟用。</p>
     <p>完成老師指定的關卡，填完「理由與教材依據」及「何時會修正」兩欄反思，並保存完成。戰術勝敗與答對率不作為此條件。</p>
     <p id="classroom-status" class="classroom-status" role="status" aria-live="polite">老師尚未啟用收件。遊戲仍可使用；請先保留遊戲 JSON 備份。</p>
-    <form id="classroom-form" method="post" target="_blank" rel="noopener noreferrer" accept-charset="UTF-8">
+    <form id="classroom-form" autocomplete="off">
       <fieldset id="classroom-fields" disabled>
         <legend>交給老師核對的學習紀錄</legend>
         <label for="classroom-attempt">完整紀錄</label>
@@ -56,11 +56,19 @@
           <div><label for="classroom-student-name">姓名</label><input id="classroom-student-name" type="text" maxlength="80" required autocomplete="off"></div>
         </div>
         <label class="classroom-consent" for="classroom-consent"><input id="classroom-consent" type="checkbox" required><span>我同意將所填姓名、學號、當堂課程與所選關卡的完整行動及兩欄反思送交老師的收件服務核對，並暫存於此裝置供重送。</span></label>
-        <p class="classroom-privacy">提交會開啟 Google Apps Script 收件分頁。請以該頁的事件編號與伺服器收件時間確認回執；填寫的身分仍待老師核實。此處不會自動登記正式出席，也不會公開學生紀錄。共用裝置操作後可清除待提交資料。<a href="privacy.html">收件與隱私說明</a></p>
-        <button id="classroom-submit" class="classroom-submit" type="submit" disabled>開啟收件頁並提交紀錄</button>
+        <p class="classroom-privacy">先準備並複製提交資料，再直接開啟 Google 收件頁；依 Google 提示登入後貼上資料並送出。若老師啟用課堂通行碼，只在收件頁輸入，這個遊戲頁不會詢問或保存通行碼。請以收件頁的事件編號與伺服器收件時間確認回執；填寫的身分仍待老師核實。此處不會自動登記正式出席，也不會公開學生紀錄。共用裝置操作後可清除待提交資料。<a href="privacy.html">收件與隱私說明</a></p>
+        <button id="classroom-submit" class="classroom-submit" type="submit" disabled>準備當堂提交資料</button>
       </fieldset>
-      <input id="classroom-payload" type="hidden" name="payload" value="">
     </form>
+    <section id="classroom-transfer" class="classroom-transfer" aria-labelledby="classroom-transfer-heading" hidden>
+      <h3 id="classroom-transfer-heading">登入後貼上提交</h3>
+      <p>① 複製下列提交資料。② 直接開啟 Google 收件頁並登入。③ 在該頁貼上資料，必要時填老師提供的課堂通行碼，再按送出。登入重導不會帶走這段資料，請回此頁重新複製即可。</p>
+      <label for="classroom-prepared-payload">待提交資料（含姓名、學號與所選關卡紀錄，請勿公開分享）</label>
+      <textarea id="classroom-prepared-payload" readonly autocomplete="off" spellcheck="false" aria-describedby="classroom-transfer-note"></textarea>
+      <p id="classroom-transfer-note" class="classroom-privacy">如果自動複製失敗，可在文字框全選後複製。準備、複製或開啟收件頁都不代表老師已收件；請等收件頁顯示伺服器回執。</p>
+      <button id="classroom-copy" type="button">複製提交資料</button>
+      <a id="classroom-open-page" class="classroom-open-page" target="_blank" rel="noopener noreferrer">直接開啟 Google 收件頁</a>
+    </section>
     <button id="classroom-clear" type="button" disabled>清除此裝置的姓名、學號與待提交資料</button>
   </section>
   <input id="import-file" type="file" accept=".json,application/json" hidden>

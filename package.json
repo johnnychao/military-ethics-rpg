@@ -4,11 +4,10 @@
   "private": true,
   "description": "國醫倫理冒險｜2D策略RPG",
   "scripts": {
-    "test": "node --test tests/rpg-data.test.js tests/rpg-engine.test.js tests/rpg-store.test.js tests/collector.test.js tests/receipt-client.test.js tests/publication.test.js",
+    "test": "node --test tests/rpg-data.test.js tests/rpg-engine.test.js tests/rpg-store.test.js tests/collector.test.js tests/collector-abuse.test.js tests/collector-adapter.test.js tests/receipt-client.test.js tests/submission-page.test.js tests/publication.test.js",
     "build": "node scripts/build-collector.js && node scripts/build-site.js"
   },
   "engines": {
     "node": ">=22"
   }
 }
-

@@ -7,6 +7,7 @@ const sources = [
   'js/data/rpg_chapters.js',
   'js/engine/rpg_engine.js',
   'collector/core.js',
+  'collector/submission_page.js',
   'collector/adapter.gs'
 ];
 const sections = sources.map(relative => {

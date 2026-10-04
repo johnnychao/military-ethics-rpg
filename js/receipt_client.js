@@ -145,6 +145,8 @@
     const task = $('classroom-task'), select = $('classroom-attempt'), consent = $('classroom-consent');
     const id = $('classroom-student-id'), name = $('classroom-student-name'), clear = $('classroom-clear');
     const button = $('classroom-submit'), configResult = checkConfig(config, chapters);
+    const transfer = $('classroom-transfer'), preparedText = $('classroom-prepared-payload');
+    const copy = $('classroom-copy'), openPage = $('classroom-open-page');
     let candidates = [], lastRaw, lastChoices, statusMessage = '';
     function announce(message) { if (statusMessage !== message) { statusMessage = message; status.textContent = message; } }
     // Clearing previously consented data remains available even if the teacher disables collection.
@@ -152,7 +154,8 @@
     clear.disabled = false;
     clear.addEventListener('click', () => {
       try {
-        clearOutbox(host.localStorage); id.value = ''; name.value = ''; consent.checked = false; $('classroom-payload').value = '';
+        clearOutbox(host.localStorage); id.value = ''; name.value = ''; consent.checked = false;
+        preparedText.value = ''; transfer.hidden = true;
         announce('已清除此裝置的姓名、學號與待提交資料。遊戲紀錄仍保留；老師已收到的紀錄不會被清除。');
       } catch (error) { announce(error.message); }
     });
@@ -161,7 +164,8 @@
       task.textContent = '當堂課程與指定關卡待老師啟用。'; announce(configResult.message); return;
     }
     fields.disabled = false; clear.disabled = false;
-    form.action = config.collectorUrl;
+    // Open the collector as a direct GET after login. Never put student data in its URL.
+    openPage.href = config.collectorUrl;
     task.textContent = '課程：' + config.sessionId + ' · 指定第 ' + configResult.chapter.number + ' 章：' + configResult.chapter.title;
     function refresh(force) {
       try {
@@ -206,11 +210,20 @@
         const attempt = selectAttempt(candidates, select.value);
         const payload = prepareEvent({ config, chapters, student: { id: id.value, name: name.value }, attempt,
           consent: consent.checked, storage: host.localStorage, crypto: host.crypto });
-        $('classroom-payload').value = JSON.stringify(payload);
-        // A browser form navigation is not an acknowledgement of a Sheet write.
-        host.HTMLFormElement.prototype.submit.call(form);
-        announce('已開啟收件頁，尚未確認；請在該頁確認回執。事件編號：' + payload.eventId + '。若分頁未開啟，可再按提交沿用相同事件編號。');
+        preparedText.value = JSON.stringify(payload); transfer.hidden = false;
+        announce('已準備提交資料，尚未傳送或確認收件。請複製資料，直接開啟 Google 收件頁，登入後貼上並送出。事件編號：' + payload.eventId + '。只有收件頁的伺服器回執可確認收件；同一資料重送沿用事件編號。');
       } catch (error) { announce(error.message || '尚未傳送。請保留遊戲 JSON 備份並請老師協助。'); }
+    });
+    copy.addEventListener('click', async () => {
+      if (!preparedText.value || transfer.hidden) return;
+      try {
+        if (!host.navigator?.clipboard || typeof host.navigator.clipboard.writeText !== 'function') throw new Error('clipboard unavailable');
+        await host.navigator.clipboard.writeText(preparedText.value);
+        announce('已複製提交資料，尚未傳送或確認收件。請直接開啟 Google 收件頁，登入後貼上資料；通行碼只在該頁輸入。');
+      } catch (_) {
+        preparedText.focus(); preparedText.select();
+        announce('此瀏覽器無法自動複製。已選取提交資料，請用複製指令或長按複製，再開啟 Google 收件頁貼上。尚未確認收件。');
+      }
     });
     host.addEventListener('storage', event => { if (event.key === Store.KEY) refresh(true); });
     host.addEventListener('focus', () => refresh(true));

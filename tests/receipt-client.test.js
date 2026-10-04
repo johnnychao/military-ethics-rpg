@@ -149,7 +149,7 @@ test('disabled collection still lets a student manually clear old outbox without
   const elements = new Map();
   for (const id of ['classroom-receipt', 'classroom-form', 'classroom-fields', 'classroom-status', 'classroom-task',
     'classroom-attempt', 'classroom-consent', 'classroom-student-id', 'classroom-student-name', 'classroom-clear',
-    'classroom-submit', 'classroom-payload']) {
+    'classroom-submit', 'classroom-transfer', 'classroom-prepared-payload', 'classroom-copy', 'classroom-open-page']) {
     elements.set(id, { value: '', checked: false, disabled: true, handlers: {},
       addEventListener(type, handler) { this.handlers[type] = handler; } });
   }
@@ -180,12 +180,69 @@ test('event IDs require cryptographic UUID v4 generation', () => {
   assert.match(Client.newEventId(crypto), /^[0-9a-f-]{36}$/); assert.throws(() => Client.newEventId(null));
   const fallback = Client.newEventId({ getRandomValues: array => { array.fill(0); return array; } }); assert.equal(fallback, firstId.replace(/1$/, '0'));
 });
-test('published form opens actual receipt page and does not use fetch no-cors or auto-submit', () => {
+test('prepared payload goes to a direct GET page via copy and paste, without cross-origin submission', () => {
   const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
   const script = fs.readFileSync(path.join(__dirname, '../js/receipt_client.js'), 'utf8');
-  assert.match(html, /id="classroom-form" method="post" target="_blank" rel="noopener noreferrer"/);
-  assert.match(html, /id="classroom-fields" disabled/); assert.match(html, /name="payload"/);
-  assert.doesNotMatch(script, /\bfetch\s*\(/); assert.match(script, /已開啟收件頁，尚未確認/);
+  assert.match(html, /id="classroom-form" autocomplete="off"/);
+  assert.match(html, /id="classroom-fields" disabled/); assert.match(html, /id="classroom-prepared-payload" readonly/);
+  assert.match(html, /id="classroom-open-page"[^>]*target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(html, /name="payload"|id="classroom-access-code"/);
+  assert.doesNotMatch(script, /\bfetch\s*\(|HTMLFormElement|\.postMessage\s*\(|\.open\s*\(/);
+  assert.match(script, /已準備提交資料，尚未傳送或確認收件/);
   assert.match(script, /validator\.validate\(parsed\)/); assert.match(script, /if \(!configResult\.ready\)/);
   assert.deepEqual(require('../js/classroom_config'), { enabled: false, collectorUrl: '', sessionId: '', assignedChapter: '' });
+});
+
+function mountClient(options = {}) {
+  const saved = completedSave(); const elements = new Map(); const clipboard = [];
+  function node() {
+    return { value: '', checked: false, disabled: false, hidden: true, handlers: {}, children: [],
+      addEventListener(type, handler) { this.handlers[type] = handler; },
+      replaceChildren(...children) { this.children = children; }, append(child) { this.children.push(child); },
+      focus() { this.focused = true; }, select() { this.selected = true; }, contains() { return false; } };
+  }
+  for (const id of ['classroom-receipt', 'classroom-form', 'classroom-fields', 'classroom-status', 'classroom-task',
+    'classroom-attempt', 'classroom-consent', 'classroom-student-id', 'classroom-student-name', 'classroom-clear',
+    'classroom-submit', 'classroom-transfer', 'classroom-prepared-payload', 'classroom-copy', 'classroom-open-page']) elements.set(id, node());
+  const document = { getElementById: id => elements.get(id), createElement: node, addEventListener() {} };
+  const host = { localStorage: saved.storage, crypto, addEventListener() {}, setInterval() {},
+    navigator: options.noClipboard ? {} : { clipboard: { async writeText(value) { clipboard.push(value); } } } };
+  Client.mount(document, options.config || config, chapters, host);
+  return { saved, elements, clipboard, host };
+}
+test('preparing consented data opens no network and preserves UUID across login or reload', async () => {
+  const env = mountClient();
+  env.elements.get('classroom-student-id').value = 'FAKE-001'; env.elements.get('classroom-student-name').value = '虛構甲';
+  env.elements.get('classroom-consent').checked = true;
+  const handler = env.elements.get('classroom-form').handlers.submit;
+  handler({ preventDefault() {} });
+  const raw = env.elements.get('classroom-prepared-payload').value, payload = JSON.parse(raw);
+  assert.equal(env.elements.get('classroom-transfer').hidden, false);
+  assert.equal(env.elements.get('classroom-open-page').href, config.collectorUrl);
+  assert.equal(env.elements.get('classroom-form').action, undefined);
+  assert.match(env.elements.get('classroom-status').textContent, /尚未傳送或確認收件/);
+  assert.equal(Client.readOutbox(env.saved.storage).entries.length, 1);
+  handler({ preventDefault() {} });
+  assert.equal(JSON.parse(env.elements.get('classroom-prepared-payload').value).eventId, payload.eventId);
+  await env.elements.get('classroom-copy').handlers.click();
+  assert.deepEqual(env.clipboard, [raw]); assert.equal(env.elements.get('classroom-open-page').href.includes(payload.eventId), false);
+  assert.match(env.elements.get('classroom-status').textContent, /尚未傳送或確認收件/);
+});
+test('clipboard failure gives explicit selected-text fallback without claiming submission', async () => {
+  const env = mountClient({ noClipboard: true });
+  env.elements.get('classroom-student-id').value = 'FAKE-001'; env.elements.get('classroom-student-name').value = '虛構甲';
+  env.elements.get('classroom-consent').checked = true; env.elements.get('classroom-form').handlers.submit({ preventDefault() {} });
+  await env.elements.get('classroom-copy').handlers.click();
+  assert.equal(env.elements.get('classroom-prepared-payload').selected, true);
+  assert.match(env.elements.get('classroom-status').textContent, /無法自動複製/);
+  assert.match(env.elements.get('classroom-status').textContent, /尚未確認收件/);
+});
+test('OFF mode does not prepare, copy or expose any Google navigation', () => {
+  const env = mountClient({ config: { ...config, enabled: false } });
+  assert.equal(env.elements.get('classroom-fields').disabled, true);
+  assert.equal(env.elements.get('classroom-open-page').href, undefined);
+  assert.equal(env.elements.get('classroom-form').handlers.submit, undefined);
+  assert.equal(env.elements.get('classroom-copy').handlers.click, undefined);
+  assert.equal(env.elements.get('classroom-prepared-payload').value, '');
+  assert.equal(env.clipboard.length, 0); assert.equal(env.saved.storage.values.has(Client.OUTBOX_KEY), false);
 });

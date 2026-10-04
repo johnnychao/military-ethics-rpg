@@ -763,13 +763,45 @@
       const opens = timestamp(session.opensAt, 'SESSION_CONFIGURATION_INVALID');
       const closes = timestamp(session.closesAt, 'SESSION_CONFIGURATION_INVALID');
       if (closes <= opens) fail('SESSION_CONFIGURATION_INVALID');
+      eventLimits(session);
     });
+    if (config.accessCodeHashes !== undefined) {
+      if (!isObject(config.accessCodeHashes)) fail('ACCESS_CONFIGURATION_INVALID');
+      Object.entries(config.accessCodeHashes).forEach(([id, digest]) => {
+        if (!ids.has(id) || typeof digest !== 'string' || !/^[0-9a-f]{64}$/i.test(digest)) fail('ACCESS_CONFIGURATION_INVALID');
+      });
+    }
+  }
+  function eventLimits(session) {
+    const maxEvents = session.maxEvents === undefined ? 500 : session.maxEvents;
+    const maxStudentEvents = session.maxStudentEvents === undefined ? Math.min(3, maxEvents) : session.maxStudentEvents;
+    if (!Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 10000 ||
+        !Number.isInteger(maxStudentEvents) || maxStudentEvents < 1 || maxStudentEvents > 100 || maxStudentEvents > maxEvents) {
+      fail('SESSION_CONFIGURATION_INVALID');
+    }
+    return { maxEvents, maxStudentEvents };
+  }
+  function checkAccessCode(checked, deps) {
+    const hashes = deps.config.accessCodeHashes || {};
+    const expected = Object.prototype.hasOwnProperty.call(hashes, checked.session.id) ? hashes[checked.session.id] : null;
+    const supplied = deps.accessCode === undefined ? '' : deps.accessCode;
+    if (typeof supplied !== 'string' || supplied.length > 128 || /[\u0000-\u001f\u007f-\u009f]/.test(supplied)) fail('ACCESS_CODE_INVALID');
+    if (!expected) return;
+    const code = supplied.trim();
+    if (!code) fail('ACCESS_CODE_REQUIRED');
+    const actual = deps.sha256(code);
+    if (typeof actual !== 'string' || !/^[0-9a-f]{64}$/.test(actual)) fail('DIGEST_INVALID');
+    // Fixed-length comparison avoids early exits on individual digest characters.
+    let difference = 0;
+    const normalized = expected.toLowerCase();
+    for (let i = 0; i < 64; i++) difference |= actual.charCodeAt(i) ^ normalized.charCodeAt(i);
+    if (difference !== 0) fail('ACCESS_CODE_INVALID');
   }
   function parsePayload(raw) {
     if (typeof raw !== 'string' || !raw || raw.length > MAX_PAYLOAD_CHARS) fail('PAYLOAD_TOO_LARGE');
     try { return JSON.parse(raw); } catch (_) { fail('INVALID_JSON'); }
   }
-  function validateRequest(raw, config, engine, data) {
+  function validateRequest(raw, config, engine, data, authorize) {
     validateConfig(config, data);
     const payload = parsePayload(raw);
     keys(payload, ['format', 'version', 'eventId', 'sessionId', 'student', 'attempt'], 'INVALID_PAYLOAD');
@@ -778,6 +810,8 @@
     if (typeof payload.sessionId !== 'string' || !SESSION_ID.test(payload.sessionId)) fail('INVALID_SESSION_ID');
     const session = config.sessions.find(item => item.id === payload.sessionId);
     if (!session) fail('UNKNOWN_SESSION');
+    // Authenticate the class gate before expensive trusted-engine replay or any Sheet access.
+    if (authorize) authorize({ session });
     keys(payload.student, ['id', 'name'], 'INVALID_IDENTITY');
     const normalized = { ...payload, eventId: payload.eventId.toLowerCase(),
       student: { id: identityField(payload.student.id), name: identityField(payload.student.name) } };
@@ -822,13 +856,12 @@
   }
   function rowMatches(expected, actual) {
     if (!Array.isArray(actual) || actual.length !== expected.length) return false;
-    return expected.every((cell, i) => cell === actual[i] ||
-      // Sheets may omit the leading apostrophe used to force literal text.
-      (typeof cell === 'string' && cell.startsWith("'") && cell.slice(1) === actual[i]));
+    // Advanced Sheets RAW writes preserve every literal character, including apostrophes.
+    return expected.every((cell, i) => cell === actual[i]);
   }
   function accept(raw, dependencies) {
     const deps = dependencies;
-    const checked = validateRequest(raw, deps.config, deps.engine, deps.data);
+    const checked = validateRequest(raw, deps.config, deps.engine, deps.data, gate => checkAccessCode(gate, deps));
     const digest = deps.sha256(checked.canonicalPayload);
     if (typeof digest !== 'string' || !/^[0-9a-f]{64}$/.test(digest)) fail('DIGEST_INVALID');
     if (!deps.lock.tryLock(10000)) fail('COLLECTOR_BUSY');
@@ -842,6 +875,15 @@
         return publicReceipt(existing, true);
       }
       const serverReceivedAt = checkWindow(checked.session, deps.now());
+      if (typeof deps.store.countEvents !== 'function') fail('COLLECTOR_STORE_INVALID');
+      const counts = deps.store.countEvents(checked.payload.sessionId, checked.payload.student.id);
+      if (!isObject(counts) || !Number.isSafeInteger(counts.sessionEvents) || counts.sessionEvents < 0 ||
+          !Number.isSafeInteger(counts.studentEvents) || counts.studentEvents < 0 || counts.studentEvents > counts.sessionEvents) {
+        fail('COLLECTOR_STORE_INVALID');
+      }
+      const limits = eventLimits(checked.session);
+      if (counts.sessionEvents >= limits.maxEvents) fail('SESSION_EVENT_LIMIT');
+      if (counts.studentEvents >= limits.maxStudentEvents) fail('STUDENT_EVENT_LIMIT');
       const row = makeRow(checked, digest, serverReceivedAt);
       const rowNumber = deps.store.append(row);
       deps.store.flush();
@@ -865,7 +907,11 @@
     COLLECTOR_BUSY: '收件服務忙碌，請稍後使用同一收件編號重送。',
     PAYLOAD_TOO_LARGE: '提交內容過大，請保留本機備份並告知老師。',
     ATTEMPT_TOO_LARGE: '此關卡累積紀錄過大，請保留本機備份並告知老師。',
-    RECEIPT_READBACK_FAILED: '寫入後未能確認紀錄，請使用同一收件編號重送並告知老師。'
+    RECEIPT_READBACK_FAILED: '寫入後未能確認紀錄，請使用同一收件編號重送並告知老師。',
+    ACCESS_CODE_REQUIRED: '請輸入老師在課堂提供的通行碼。',
+    ACCESS_CODE_INVALID: '通行碼未通過；請向老師確認。',
+    SESSION_EVENT_LIMIT: '本課次的新事件數已達上限。已收件的同一事件仍可重送確認；請告知老師。',
+    STUDENT_EVENT_LIMIT: '此自填學號的新事件數已達上限。請沿用已提交事件重送確認，或告知老師。'
   });
   function renderReceipt(result, errorCode) {
     const success = result && result.ok === true && result.reviewStatus === 'pending_teacher_review' && UUID.test(result.eventId);
@@ -882,112 +928,337 @@
   }
   return { FORMAT, VERSION, MAX_PAYLOAD_CHARS, MAX_ATTEMPT_CHARS, HEADERS,
     canonicalJson, parsePayload, validateRequest, checkWindow, safeCell, makeRow,
-    rowMatches, accept, escapeHtml, renderReceipt };
+    eventLimits, checkAccessCode, rowMatches, accept, escapeHtml, renderReceipt };
 }));
 
 
+// Source: collector/submission_page.js
+(function (root, factory) {
+  'use strict';
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.EthicsSubmissionPage = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  // Self-contained so the same function can be embedded in the Apps Script HTML page
+  // and executed against DOM/RPC stubs without network access in offline tests.
+  function mountSubmissionPage(document, host) {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const form = $('submission-form'), fields = $('submission-fields'), rawInput = $('submission-payload');
+    const codeInput = $('submission-access-code'), submit = $('submission-send'), status = $('submission-status');
+    const receipt = $('submission-receipt'), eventOutput = $('receipt-event-id'), timeOutput = $('receipt-server-time');
+    const reviewOutput = $('receipt-review-status'), duplicateOutput = $('receipt-duplicate');
+    const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const SERVER_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+    let generation = 0, busy = false, timer = null;
+    const rpc = host.google && host.google.script && host.google.script.run;
+    function unconfirmed(message) { status.textContent = message; receipt.hidden = true; }
+    function finish(token) {
+      if (!busy || token !== generation) return false;
+      busy = false; submit.disabled = false;
+      if (timer !== null) { host.clearTimeout(timer); timer = null; }
+      return true;
+    }
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (busy) return;
+      receipt.hidden = true;
+      let raw, expectedId;
+      try {
+        raw = rawInput.value;
+        if (typeof raw !== 'string' || !raw.trim() || raw.length > 60000) throw new Error('invalid payload');
+        const payload = JSON.parse(raw);
+        if (!payload || typeof payload !== 'object' || payload.format !== 'ndmu-ethics-submission' ||
+          payload.version !== 1 || typeof payload.eventId !== 'string' || !UUID.test(payload.eventId)) throw new Error('invalid payload');
+        expectedId = payload.eventId.toLowerCase();
+        if (typeof codeInput.value !== 'string' || codeInput.value.length > 128) throw new Error('invalid access code');
+        if (!rpc || typeof rpc.withSuccessHandler !== 'function' || typeof rpc.withFailureHandler !== 'function') throw new Error('RPC unavailable');
+      } catch (_) {
+        codeInput.value = '';
+        unconfirmed('尚未確認收件。請貼上遊戲頁「準備當堂提交資料」產生的完整資料，並在 Google 收件頁內操作；不要貼上遊戲備份或名冊。');
+        return;
+      }
+      busy = true; submit.disabled = true; const token = ++generation;
+      const accessCode = codeInput.value; codeInput.value = '';
+      unconfirmed('正在等待伺服器收件與讀回核對，尚未確認收件。請保留遊戲頁的相同事件編號。');
+      timer = host.setTimeout(() => {
+        if (!finish(token)) return;
+        unconfirmed('等待逾時，尚未確認收件；請保留相同提交資料及事件編號，重新填寫必要的通行碼後重送。逾時不代表伺服器一定未收到。');
+      }, 30000);
+      try {
+        rpc.withSuccessHandler(result => {
+          if (!finish(token)) return;
+          const allowed = ['ok', 'eventId', 'serverReceivedAt', 'reviewStatus', 'duplicate'];
+          const valid = result && typeof result === 'object' && !Array.isArray(result) &&
+            Object.keys(result).every(key => allowed.includes(key)) && result.ok === true &&
+            result.eventId === expectedId && UUID.test(result.eventId) &&
+            result.reviewStatus === 'pending_teacher_review' && typeof result.duplicate === 'boolean' &&
+            typeof result.serverReceivedAt === 'string' && SERVER_ISO.test(result.serverReceivedAt) &&
+            Number.isFinite(Date.parse(result.serverReceivedAt)) && new Date(result.serverReceivedAt).toISOString() === result.serverReceivedAt;
+          if (!valid) {
+            unconfirmed('伺服器未提供可核對的回執，尚未確認收件。請保留相同事件編號並請老師協助。'); return;
+          }
+          // Render only receipt fields. No identity, reflection, payload or access code is echoed.
+          eventOutput.textContent = result.eventId; timeOutput.textContent = result.serverReceivedAt;
+          reviewOutput.textContent = '待教師核實（pending_teacher_review）';
+          duplicateOutput.textContent = result.duplicate ? '相同事件已收件，本次回傳原回執。' : '這筆事件已由伺服器收件並完成讀回核對。';
+          receipt.hidden = false;
+          status.textContent = '伺服器已確認收件，仍待教師核實身分、當堂參與與指定關卡；此回執不會自動登記正式出席。';
+        }).withFailureHandler(() => {
+          if (!finish(token)) return;
+          // Server errors may contain sensitive context; display a fixed safe message instead.
+          unconfirmed('收件失敗或授權未就緒，尚未確認收件。請核對完整資料與必要的課堂通行碼，保留相同事件編號重送，或請老師協助。');
+        }).handleClassroomSubmission(raw, accessCode);
+      } catch (_) {
+        if (!finish(token)) return;
+        unconfirmed('無法聯絡收件服務，尚未確認收件。請保留相同提交資料與事件編號並請老師協助。');
+      }
+    });
+    host.addEventListener('pagehide', () => { codeInput.value = ''; });
+    if (rpc && typeof rpc.withSuccessHandler === 'function' && typeof rpc.withFailureHandler === 'function') {
+      fields.disabled = false;
+      unconfirmed('請貼上已在遊戲頁同意交給老師的提交資料；必要時在本頁輸入課堂通行碼。尚未確認收件。');
+    } else {
+      fields.disabled = true;
+      unconfirmed('目前不是可提交的 Google 收件頁，尚未確認收件。請依老師提供的 /exec 收件網址登入後再試。');
+    }
+  }
+  function renderSubmissionPage() {
+    return '<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1"><base target="_top">' +
+      '<title>當堂紀錄收件</title><style>' +
+      'body{margin:0;background:#f6f3e8;color:#19382c;font:18px/1.65 system-ui,sans-serif}' +
+      'main{max-width:46rem;margin:auto;padding:1.2rem}h1{font-size:1.6rem}p{overflow-wrap:anywhere}' +
+      'fieldset{border:0;padding:0;margin:1rem 0;min-width:0}label{display:block;font-weight:600;margin:.8rem 0 .4rem}' +
+      'textarea,input,button{box-sizing:border-box;font:inherit;border:1px solid #62746a;border-radius:.4rem}' +
+      'textarea,input{width:100%;padding:.7rem;background:white;color:#19382c}textarea{min-height:12rem;font-size:.9rem}' +
+      'button{min-height:44px;padding:.7rem 1rem;background:#19382c;color:white;font-weight:700;cursor:pointer}' +
+      'button:disabled{background:#e7e7e2;color:#606963;cursor:default}:focus-visible{outline:3px solid #ad620c;outline-offset:3px}' +
+      '.status{padding:.8rem;border-left:4px solid #ad620c;background:white}dl{background:white;padding:1rem}' +
+      'dt{font-weight:700}dd{margin:0 0 .8rem;overflow-wrap:anywhere}[hidden]{display:none!important}' +
+      '@media(max-width:640px){button{width:100%}}</style></head><body><main>' +
+      '<h1>當堂紀錄收件</h1><p>請依 Google 提示登入，再把遊戲頁「準備當堂提交資料」產生的內容貼在下方。登入重導不需要攜帶 POST 資料；仍可回到遊戲頁重新複製相同事件。</p>' +
+      '<p>這裡只接受已同意交給老師的單筆學習事件。不要貼上名冊或整份遊戲備份。通行碼只在本頁使用，本頁程式不會將它存入瀏覽器、提交資料或回執。</p>' +
+      '<p id="submission-status" class="status" role="status" aria-live="polite">尚未確認收件。</p>' +
+      '<form id="submission-form" autocomplete="off"><fieldset id="submission-fields" disabled>' +
+      '<legend>貼上單筆提交資料</legend><label for="submission-payload">遊戲頁準備的提交資料</label>' +
+      '<textarea id="submission-payload" required maxlength="60000" autocomplete="off" spellcheck="false"></textarea>' +
+      '<label for="submission-access-code">課堂通行碼（老師啟用時才需填寫）</label>' +
+      '<input id="submission-access-code" type="password" maxlength="128" autocomplete="off" spellcheck="false">' +
+      '<p>通行碼送出後會從輸入框清除。若需重送，請重新輸入；相同資料維持原事件編號。</p>' +
+      '<button id="submission-send" type="submit">送出並等待伺服器回執</button></fieldset></form>' +
+      '<section id="submission-receipt" hidden aria-labelledby="receipt-heading"><h2 id="receipt-heading">伺服器收件回執</h2>' +
+      '<dl><dt>事件編號</dt><dd id="receipt-event-id"></dd><dt>伺服器收件時間</dt><dd id="receipt-server-time"></dd>' +
+      '<dt>教師核實狀態</dt><dd id="receipt-review-status"></dd></dl><p id="receipt-duplicate"></p>' +
+      '<p>請保留事件編號與伺服器收件時間，供老師核對。戰術勝敗與答對率不作為唯一出席依據；身分與當堂參與仍待老師核實。</p></section>' +
+      '<noscript><p>此收件頁需要 JavaScript。尚未確認收件；請保留遊戲 JSON 備份並請老師協助。</p></noscript>' +
+      '<script>(' + mountSubmissionPage.toString() + ')(document,window);</script></main></body></html>';
+  }
+  return { renderSubmissionPage, mountSubmissionPage };
+});
+
+
 // Source: collector/adapter.gs
-/** No deployment is performed by this file. Enable only after owner approval. */
+/** Offline source only. No OAuth, deployment or Google call occurs on file load. */
 function collectorConfiguration_() {
   const properties = PropertiesService.getScriptProperties();
-  let sessions;
-  try { sessions = JSON.parse(properties.getProperty('CLASS_SESSIONS') || 'null'); }
-  catch (_) { throw new Error('SESSION_CONFIGURATION_INVALID'); }
+  let sessions, accessCodeHashes;
+  try {
+    sessions = JSON.parse(properties.getProperty('CLASS_SESSIONS') || 'null');
+    accessCodeHashes = JSON.parse(properties.getProperty('CLASS_ACCESS_CODE_HASHES') || '{}');
+  } catch (_) { throw new Error('SESSION_CONFIGURATION_INVALID'); }
   return {
     enabled: properties.getProperty('COLLECTOR_ENABLED') === 'true',
     spreadsheetId: properties.getProperty('SPREADSHEET_ID'),
     sheetName: properties.getProperty('RECORDS_SHEET') || 'ethics_game_receipts',
-    sessions: sessions
+    sessions: sessions, accessCodeHashes: accessCodeHashes
   };
 }
 function collectorSha256_(text) {
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8)
     .map(value => (value < 0 ? value + 256 : value).toString(16).padStart(2, '0')).join('');
 }
+function collectorRange_(sheetName, cells) {
+  if (typeof sheetName !== 'string' || !sheetName || sheetName.length > 100 || /[\u0000-\u001f\u007f]/.test(sheetName)) {
+    throw new Error('COLLECTOR_NOT_CONFIGURED');
+  }
+  return "'" + sheetName.replace(/'/g, "''") + "'!" + cells;
+}
+function collectorGridRows_(response, sheetName, expectedStartRow) {
+  const sheets = response && response.sheets;
+  if (!Array.isArray(sheets) || sheets.length !== 1 || !sheets[0].properties || sheets[0].properties.title !== sheetName) {
+    throw new Error('RECEIPT_READBACK_FAILED');
+  }
+  const grid = sheets[0].data || [];
+  if (!Array.isArray(grid) || grid.length > 1) throw new Error('RECEIPT_READBACK_FAILED');
+  if (!grid.length) return [];
+  if ((grid[0].startRow || 0) !== expectedStartRow || (grid[0].startColumn || 0) !== 0) {
+    throw new Error('RECEIPT_READBACK_FAILED');
+  }
+  const rows = grid[0].rowData || [];
+  if (!Array.isArray(rows)) throw new Error('RECEIPT_READBACK_FAILED');
+  return rows.map(row => {
+    const cells = row.values || [];
+    if (!Array.isArray(cells) || cells.length > EthicsCollectorCore.HEADERS.length) throw new Error('SHEET_SCHEMA_MISMATCH');
+    return Array.from({ length: EthicsCollectorCore.HEADERS.length }, (_, index) => {
+      const cell = cells[index], entered = cell && cell.userEnteredValue;
+      if (!entered) return '';
+      if (Object.prototype.hasOwnProperty.call(entered, 'formulaValue')) throw new Error('RECEIPT_READBACK_FAILED');
+      let value;
+      if (Object.prototype.hasOwnProperty.call(entered, 'stringValue')) value = entered.stringValue;
+      else if (Object.prototype.hasOwnProperty.call(entered, 'boolValue')) value = entered.boolValue;
+      else if (Object.prototype.hasOwnProperty.call(entered, 'numberValue')) value = entered.numberValue;
+      else throw new Error('RECEIPT_READBACK_FAILED');
+      const effective = cell.effectiveValue;
+      if (effective) {
+        const effectiveValue = Object.prototype.hasOwnProperty.call(effective, 'stringValue') ? effective.stringValue :
+          (Object.prototype.hasOwnProperty.call(effective, 'boolValue') ? effective.boolValue : effective.numberValue);
+        if (value !== effectiveValue) throw new Error('RECEIPT_READBACK_FAILED');
+      }
+      return value;
+    });
+  });
+}
 function collectorStore_(configuration) {
-  // openById is deliberate: getActiveSpreadsheet() is not reliable in a Web App.
   if (typeof configuration.spreadsheetId !== 'string' || !/^[A-Za-z0-9_-]{20,}$/.test(configuration.spreadsheetId)) {
     throw new Error('COLLECTOR_NOT_CONFIGURED');
   }
-  const spreadsheet = SpreadsheetApp.openById(configuration.spreadsheetId);
-  const sheet = spreadsheet.getSheetByName(configuration.sheetName);
-  if (!sheet) throw new Error('COLLECTOR_NOT_CONFIGURED');
+  const id = configuration.spreadsheetId, name = configuration.sheetName;
   const headers = EthicsCollectorCore.HEADERS;
-  function ensureHeaders(allowInitialize) {
-    if (sheet.getLastRow() === 0) {
-      if (!allowInitialize) return false;
-      sheet.getRange(1, 1, 1, headers.length).setValues([headers.slice()]);
-      SpreadsheetApp.flush();
-    }
-    const actual = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-    if (!EthicsCollectorCore.rowMatches(headers, actual)) throw new Error('SHEET_SCHEMA_MISMATCH');
-    return true;
+  let appendAcknowledged = false;
+  function readRange(cells, startRow) {
+    const response = Sheets.Spreadsheets.get(id, {
+      ranges: [collectorRange_(name, cells)], includeGridData: true,
+      fields: 'sheets(properties(title),data(startRow,startColumn,rowData(values(userEnteredValue,effectiveValue))))'
+    });
+    return collectorGridRows_(response, name, startRow);
   }
-  function readVerifiedRow(number) {
-    const range = sheet.getRange(number, 1, 1, headers.length);
-    if (range.getFormulas()[0].some(formula => formula !== '')) throw new Error('RECEIPT_READBACK_FAILED');
-    return range.getValues()[0];
+  function table() {
+    const rows = readRange('A1:O', 0);
+    while (rows.length && rows[rows.length - 1].every(value => value === '')) rows.pop();
+    if (!rows.length || !EthicsCollectorCore.rowMatches(headers, rows[0])) throw new Error('SHEET_SCHEMA_MISMATCH');
+    rows.slice(1).forEach(row => {
+      if (!row[0] || typeof row[3] !== 'string' || !row[3] || typeof row[4] !== 'string' || !row[4]) {
+        throw new Error('SHEET_SCHEMA_MISMATCH');
+      }
+    });
+    return rows;
   }
   return {
     findByEventId: function (eventId) {
-      if (!ensureHeaders(false)) return null;
-      const last = sheet.getLastRow();
-      if (last < 2) return null;
-      const matches = sheet.getRange(2, 1, last - 1, 1).createTextFinder(eventId)
-        .matchEntireCell(true).useRegularExpression(false).findAll();
+      const matches = table().slice(1).filter(row => row[0] === eventId);
       if (matches.length > 1) throw new Error('DUPLICATE_EVENT_ROWS');
-      if (!matches.length) return null;
-      return readVerifiedRow(matches[0].getRow());
+      return matches.length ? matches[0] : null;
+    },
+    countEvents: function (sessionId, studentId) {
+      const rows = table().slice(1), storedStudentId = EthicsCollectorCore.safeCell(studentId);
+      return {
+        sessionEvents: rows.filter(row => row[3] === sessionId).length,
+        studentEvents: rows.filter(row => row[3] === sessionId && row[4] === storedStudentId).length
+      };
     },
     append: function (row) {
-      ensureHeaders(true);
-      const number = sheet.getLastRow() + 1;
-      // Keep leading zeros in IDs and ISO timestamps as strings. Booleans stay booleans.
-      sheet.getRange(number, 1, 1, headers.length).setNumberFormat('@').setValues([row]);
-      return number;
+      if (!Array.isArray(row) || row.length !== headers.length) throw new Error('SHEET_SCHEMA_MISMATCH');
+      const rowNumber = table().length + 1;
+      // The validated contiguous table determines the expected row. INSERT_ROWS safely extends the grid.
+      const response = Sheets.Spreadsheets.Values.append({ majorDimension: 'ROWS', values: [row] }, id,
+        collectorRange_(name, 'A1:O'), { valueInputOption: 'RAW', insertDataOption: 'INSERT_ROWS' });
+      const update = response && response.updates;
+      const targetCells = 'A' + rowNumber + ':O' + rowNumber;
+      if (!response || response.spreadsheetId !== id || !update || update.updatedRows !== 1 || update.updatedColumns !== headers.length ||
+          update.updatedCells !== headers.length || typeof update.updatedRange !== 'string' ||
+          ![collectorRange_(name, targetCells), name + '!' + targetCells].includes(update.updatedRange)) {
+        throw new Error('RECEIPT_READBACK_FAILED');
+      }
+      appendAcknowledged = true;
+      return rowNumber;
     },
-    flush: function () { SpreadsheetApp.flush(); },
+    flush: function () {
+      // Advanced Sheets RAW append is synchronous; no SpreadsheetApp write buffer or full Sheets scope is used.
+      if (!appendAcknowledged) throw new Error('RECEIPT_READBACK_FAILED');
+    },
     read: function (rowNumber) {
-      // Verify no untrusted input became an executable formula.
-      return readVerifiedRow(rowNumber);
+      if (!Number.isInteger(rowNumber) || rowNumber < 2) throw new Error('RECEIPT_READBACK_FAILED');
+      const rows = readRange('A' + rowNumber + ':O' + rowNumber, rowNumber - 1);
+      if (rows.length !== 1) throw new Error('RECEIPT_READBACK_FAILED');
+      return rows[0];
     }
   };
 }
-function doPost(event) {
-  let receipt = null, errorCode = null;
-  try {
-    if (!event || !event.parameter || typeof event.parameter.payload !== 'string' ||
-        (event.parameters && event.parameters.payload && event.parameters.payload.length !== 1)) {
-      throw new Error('INVALID_PAYLOAD');
+function collectorAccept_(raw, accessCode) {
+  const configuration = collectorConfiguration_();
+  let store;
+  function currentStore() { if (!store) store = collectorStore_(configuration); return store; }
+  return EthicsCollectorCore.accept(raw, {
+    config: configuration, engine: RPGEngine, data: RPGData, accessCode: accessCode,
+    sha256: collectorSha256_, now: function () { return new Date(); },
+    lock: LockService.getScriptLock(),
+    store: {
+      findByEventId: function (eventId) { return currentStore().findByEventId(eventId); },
+      countEvents: function (sessionId, studentId) { return currentStore().countEvents(sessionId, studentId); },
+      append: function (row) { return currentStore().append(row); },
+      flush: function () { return currentStore().flush(); },
+      read: function (number) { return currentStore().read(number); }
     }
-    const configuration = collectorConfiguration_();
-    // Validate before accessing any Sheet, even when permissions already exist.
-    EthicsCollectorCore.validateRequest(event.parameter.payload, configuration, RPGEngine, RPGData);
-    let store;
-    const lazyStore = {
-      findByEventId: function (eventId) {
-        store = collectorStore_(configuration);
-        return store.findByEventId(eventId);
-      },
-      append: function (row) { return store.append(row); },
-      flush: function () { return store.flush(); },
-      read: function (number) { return store.read(number); }
-    };
-    receipt = EthicsCollectorCore.accept(event.parameter.payload, {
-      config: configuration, engine: RPGEngine, data: RPGData,
-      sha256: collectorSha256_, now: function () { return new Date(); },
-      lock: LockService.getScriptLock(), store: lazyStore
-    });
-  } catch (error) {
-    // Never log/echo payload, student identity, reflections, Sheet ID or raw error messages.
-    errorCode = error && error.code ? error.code : (error && /^[A-Z_]+$/.test(error.message) ? error.message : 'COLLECTOR_UNAVAILABLE');
-  }
-  return HtmlService.createHtmlOutput(EthicsCollectorCore.renderReceipt(receipt, errorCode))
-    .setTitle(receipt ? '收件成功，待教師核實' : '尚未確認收件');
+  });
+}
+function collectorSafeErrorCode_(error) {
+  return error && error.code && /^[A-Z_]+$/.test(error.code) ? error.code :
+    (error && /^[A-Z_]+$/.test(error.message) ? error.message : 'COLLECTOR_UNAVAILABLE');
+}
+function handleClassroomSubmission(raw, accessCode) {
+  try { return collectorAccept_(raw, accessCode); }
+  catch (error) { throw new Error(collectorSafeErrorCode_(error)); }
+}
+function doPost() {
+  // Cross-origin POST is disabled. Use the same-origin Apps Script page/RPC.
+  return HtmlService.createHtmlOutput(EthicsCollectorCore.renderReceipt(null, 'COLLECTOR_NOT_CONFIGURED'))
+    .setTitle('尚未確認收件');
 }
 function doGet() {
-  // No public lookup endpoint, no Sheet data, no query-parameter reflection.
+  try {
+    if (collectorConfiguration_().enabled && typeof EthicsSubmissionPage !== 'undefined') {
+      return HtmlService.createHtmlOutput(EthicsSubmissionPage.renderSubmissionPage()).setTitle('軍事倫理學收件');
+    }
+  } catch (_) { /* Never expose Script Properties on a configuration error. */ }
   return HtmlService.createHtmlOutput(EthicsCollectorCore.renderReceipt(null, 'COLLECTOR_NOT_CONFIGURED'))
     .setTitle('軍事倫理學收件服務');
+}
+function initializePrivateCollector_() {
+  // Editor-only: underscore makes this unavailable through google.script.run.
+  // Run only after owner approval and explicit one-time Script Property setup.
+  const properties = PropertiesService.getScriptProperties();
+  if (properties.getProperty('INITIALIZE_NEW_PRIVATE_SHEET') !== 'true') throw new Error('INITIALIZATION_NOT_APPROVED');
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) throw new Error('COLLECTOR_BUSY');
+  try {
+    // Recheck inside the lock: another editor execution may have consumed the gate while this one waited.
+    if (properties.getProperty('INITIALIZE_NEW_PRIVATE_SHEET') !== 'true') throw new Error('INITIALIZATION_NOT_APPROVED');
+    if (properties.getProperty('SPREADSHEET_ID')) throw new Error('COLLECTOR_ALREADY_INITIALIZED');
+    properties.setProperty('COLLECTOR_ENABLED', 'false');
+    // Consume before create: an uncertain result requires owner review, never an automatic second create.
+    properties.setProperty('INITIALIZE_NEW_PRIVATE_SHEET', 'false');
+    const name = 'ethics_game_receipts';
+    const spreadsheet = Sheets.Spreadsheets.create({
+      properties: { title: '軍事倫理學｜私人遊戲收件', timeZone: 'Asia/Taipei' },
+      sheets: [{ properties: { title: name, gridProperties: { rowCount: 1000, columnCount: 15 } } }]
+    }, { fields: 'spreadsheetId' });
+    const id = spreadsheet && spreadsheet.spreadsheetId;
+    if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{20,}$/.test(id)) throw new Error('INITIALIZATION_FAILED');
+    properties.setProperties({ SPREADSHEET_ID: id, RECORDS_SHEET: name });
+    const response = Sheets.Spreadsheets.Values.update({ majorDimension: 'ROWS', values: [EthicsCollectorCore.HEADERS.slice()] },
+      id, collectorRange_(name, 'A1:O1'), { valueInputOption: 'RAW' });
+    if (!response || response.spreadsheetId !== id || response.updatedRows !== 1 || response.updatedColumns !== 15 || response.updatedCells !== 15) {
+      throw new Error('INITIALIZATION_FAILED');
+    }
+    const headers = Sheets.Spreadsheets.get(id, {
+      ranges: [collectorRange_(name, 'A1:O1')], includeGridData: true,
+      fields: 'sheets(properties(title),data(startRow,startColumn,rowData(values(userEnteredValue,effectiveValue))))'
+    });
+    const rows = collectorGridRows_(headers, name, 0);
+    if (rows.length !== 1 || !EthicsCollectorCore.rowMatches(EthicsCollectorCore.HEADERS, rows[0])) throw new Error('INITIALIZATION_FAILED');
+    // No sharing API is called. The new app-owned file retains its private sharing default.
+    return { initialized: true, enabled: false };
+  } finally { lock.releaseLock(); }
 }
 

@@ -1,31 +1,21 @@
 # 教師啟用與當堂驗收
 
-公開遊戲可以先遊玩。Google 收件保持停用，直到老師核准下列持續權限、完成設定並以虛構事件確認回執與私人工作表一致。
+這是本機隔離分支的待批准收件版本，尚未推送／發布。原學生入口仍可玩原已發布遊戲，Google 收件保持 OFF。詳細權限、設定、登入提交及測試邊界見 [collector/README.md](collector/README.md)。
 
-## 需要老師明確核准的 Google 權限
+Google 端需明確批准：以 `johnny2cindy@gmail.com` 建立一份新私人收件表、同一 Apps Script 只授予 `https://www.googleapis.com/auth/drive.file`、啟用 Advanced Sheets service、以 `USER_DEPLOYING` 執行，以及學生 access 範圍。建議 `ANYONE` 要求 Google 登入；免登入的 `ANYONE_ANONYMOUS` 是另一個須批准的選項。學生不獲工作表讀取權，程式只回事件編號／伺服器時間／待核實狀態。
 
-- Apps Script manifest 只要求 `https://www.googleapis.com/auth/spreadsheets`。Google 的此 scope 涵蓋老師可存取的工作表，並非只授權一份工作表；程式使用私人 Script Properties 中的 `SPREADSHEET_ID`，只對指定工作表執行收件。不要求 Drive、Gmail、外部請求或背景 trigger 權限。
-- Web App 若以部署者／老師身分執行，學生的有效提交會使用老師的授權寫入私人工作表。學生不取得工作表讀取權；程式沒有公開查詢學生成績或紀錄的介面。
-- 要讓學生開啟收件頁，需核准 Web App 的使用者範圍。可採學校網域允許的登入範圍；若開放任何人或匿名，公開端點可能收到冒名與濫用提交。程式驗證課次、章節、時窗、完整行動與反思，但不證明真人身分，因此一律標記 `pending_teacher_review`。
+此版本移除需要全帳號 Sheets 權限的 SpreadsheetApp，不以 currentonly 假裝 Web App 已縮權。drive.file 僅處理此 app 建立／獲授權的文件，但仍非 OAuth 固定單一 ID；程序固定 ID，拒絕學生指定目的表。若 Google 要求其他 scope 或設定不適用，停止回報，不自行擴權。
 
-以上權限與 Web App 發布尚未啟用。若 Google 要求不同或額外的權限，應停止並確認其影響，不自行新增 OAuth client、憑證或修改安全政策。
+核准後由教師在 Apps Script 編輯器初始化同 app 新表，確認分享限制存取，設定課次、指定章節、時間窗、事件上限及可選通行碼 hash。所有私人值留在 Script Properties；原碼私下發放、不進前端／repo／網址／log。先採 MYSELF 與虛構課次驗證真正 consent、RAW 型態、讀回、去重、拒收及登入後提交頁，才開學生 access 和公共收件設定。
 
-官方依據：[Web App 執行身分與發布](https://developers.google.com/apps-script/guides/web)、[最小且明確的 OAuth scopes](https://developers.google.com/apps-script/concepts/scopes)、[openById 所需權限](https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app#openById(String))。Web App 中不能依賴 bound script 的 `getActiveSpreadsheet()`，因此不宣稱使用 `spreadsheets.currentonly` 即可完成此收件服務。
+10/6 13:30–15:20（台灣）D84、26 教室的正式指定章節仍待老師決定。點名條件已核准為「完成指定關卡＋填完反思」，不設答對率或戰術勝敗門檻。兩欄反思本來就在遊戲。登入、通行碼及自填學號上限不能證明本人，老師仍需核對當堂參與和學習內容後，走原正式點名流程。
 
-## 核准後的最少步驟
+當堂驗收尚需：
 
-1. 在老師帳號準備私人工作表及獨立收件分頁；不公開工作表，也不更改學生檔案分享。把 `collector/generated/Code.gs` 與 `collector/generated/appsscript.json` 放進老師自己的 Apps Script 專案。
-2. 在 Script Properties 設定工作表 ID、收件分頁、課次與指定關卡；所有私人值留在 Google 端，勿 commit。具體鍵名、schema 與生成命令見 `collector/README.md`。先使用明確標示虛構的驗證課次，不把測試資料當正式出席。
-3. 核准 manifest 權限與 Web App 執行／使用者範圍，取得真正 `/exec` URL。先測一筆完整虛構事件，再重送同 eventId；應只留一筆，回執使用相同伺服器收件時間。拒絕缺反思、未完成、錯章、錯課次與收件時窗外的事件；故障不得產生成功回執。
-4. 10/6 13:30–15:20（台灣）D84、26 教室的正式指定章節尚待老師決定。使用已核准的「完成指定關卡＋填完反思」，不設答對率或戰術勝敗門檻。將同一課次與章節設定到 Google 服務及 `js/classroom_config.js`；只公開課次代碼、章節與收件 URL，不公開工作表 ID。
-5. 完成 Google 真實寫入／回執驗收後才將公共設定的 `enabled` 改為 `true` 並透過 Pages 工作流重新發布。現有 `enabled:false` 不收集姓名或學號。
+- 從學生網址進入指定章節，完成同次兩欄反思，複製事件、直接開 GAS 頁登入、貼上提交，老師確實收到與回執一致的列。
+- 真機手機觸控、鍵盤、重新整理／JSON 備份恢復、剪貼簿失敗的手動複製、登入過期／RPC 逾時重送同一 ID、音樂喇叭。
+- 非正式試玩觀察資源取捨、四隊員協作、新事件、完成時間與趣味性；戰術結果不是道德評分。
+- 故障先保留 JSON，依老師允許的裝置恢復同一份紀錄；紙本／口頭替代由老師核定，程式不自動認定故障或未收件者出席。
+- 公告收件用途、資料保存期限與刪除／更正流程；保留原始收件列，教師判讀另記，不讀名冊或自動改寫正式出席表。
 
-## 尚需當堂驗收
-
-- 從學生網址進入、選指定章節、完成兩欄反思、送出及教師確實收到同一次紀錄。
-- 真機手機的觸控與桌機鍵盤、重新整理／JSON 備份還原、背景頁籤及音樂喇叭試聽。
-- 完成時間與趣味性：請用非正式試玩觀察學生能否理解資源取捨、隊員協作、事件與反思；不將策略勝敗當道德評分。
-- 設備故障時先保留 JSON 備份、使用老師允許的裝置恢復同一份紀錄；若只能紙本或口頭完成，替代出席方式由老師明確核定。此程式不自動把設備故障、紙本或未收件的進度算成出席。
-- 老師核對自填身分、指定課次與學習內容後，才在原有正式點名流程處理；本程式不讀名冊或改寫正式出席表。
-
-資料保存期限與刪除、更正流程由老師訂定，向學生公告後再啟用正式收件。
+離線測試與產物只證明本機邏輯及 API mock；不得表述為 Google 已部署、已授權或已收到真學生紀錄。
