@@ -1,0 +1,2 @@
+# Preserve reviewed bytes and source fingerprints across Windows and CI checkouts.
+* -text

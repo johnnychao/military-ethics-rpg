@@ -1,0 +1,77 @@
+{
+  "description": "Original reviewed 2D source metadata; original project untouched; index intentionally extended only in this isolated publication",
+  "files": [
+    {
+      "relativePath": "index.html",
+      "sha256": "9CB569BA49631A252078EB95CB529D7EDBB971EC5C26FD82B886FF548716EFAB",
+      "bytes": 5138,
+      "sourceModifiedUtc": "2026-10-04T13:12:04.262Z"
+    },
+    {
+      "relativePath": "css/rpg.css",
+      "sha256": "39D63B8F4969F9B12BC2898597BD25787951ED96287B5B6AA72D314D8C29A3BE",
+      "bytes": 19905,
+      "sourceModifiedUtc": "2026-10-04T13:12:04.286Z"
+    },
+    {
+      "relativePath": "js/rpg_app.js",
+      "sha256": "E8AF62699B343C30C9159606634FDD021B98D4259F20EC70F8615B25B518A755",
+      "bytes": 37026,
+      "sourceModifiedUtc": "2026-10-04T13:07:55.838Z"
+    },
+    {
+      "relativePath": "js/data/rpg_chapters.js",
+      "sha256": "3254C56AD8A05661C8B3A7EA081EF3A1E6677816E30769E9F43943857DB65084",
+      "bytes": 71457,
+      "sourceModifiedUtc": "2026-10-04T12:06:37.072Z"
+    },
+    {
+      "relativePath": "js/engine/rpg_engine.js",
+      "sha256": "4F55297152EB93E35934A27E49E4169F9A9D265F2D8F955C1E19D798B73394E8",
+      "bytes": 19056,
+      "sourceModifiedUtc": "2026-10-04T11:48:04.589Z"
+    },
+    {
+      "relativePath": "js/engine/rpg_store.js",
+      "sha256": "07F6C093A382ED755067118D8FB12ADB11A8FB05EE8799E3A52DF487255604A5",
+      "bytes": 12981,
+      "sourceModifiedUtc": "2026-10-04T13:02:39.715Z"
+    },
+    {
+      "relativePath": "js/engine/rpg_world.js",
+      "sha256": "9A13A07E45B5AF9269265C5BC22ED6DD013822A6440D2AB0A3556D4BECB7FBB0",
+      "bytes": 10005,
+      "sourceModifiedUtc": "2026-10-04T13:06:04.4Z"
+    },
+    {
+      "relativePath": "js/engine/rpg_audio.js",
+      "sha256": "252159E284C7F4DA68C9F09B5F5E7A51AFA462041B2CEBAD2D178DFBF2E9B89B",
+      "bytes": 10031,
+      "sourceModifiedUtc": "2026-10-04T13:04:34.795Z"
+    },
+    {
+      "relativePath": "tests/rpg-data.test.js",
+      "sha256": "2693449C14C26524E353747D0F1FF39311BB38A3CE88838D777497A774E0B88C",
+      "bytes": 8669,
+      "sourceModifiedUtc": "2026-10-04T12:06:40.181Z"
+    },
+    {
+      "relativePath": "tests/rpg-engine.test.js",
+      "sha256": "F9EE9A328A964DFFA9A69B4BF6A5937C6BE896CC4AF6C79F851811B184B5344F",
+      "bytes": 15683,
+      "sourceModifiedUtc": "2026-10-04T11:48:04.606Z"
+    },
+    {
+      "relativePath": "tests/rpg-store.test.js",
+      "sha256": "D3A4B14231E28F44DD406895F7ED32BE387FF79BF300E7CE5830894F8B421E34",
+      "bytes": 24091,
+      "sourceModifiedUtc": "2026-10-04T13:02:39.795Z"
+    },
+    {
+      "relativePath": "assets/rpg/README.md",
+      "sha256": "50600158ECCEE94782B9B09EEE0D6ACF582A7CD4DAA88FEA3D5E98CF14BA47ED",
+      "bytes": 1521,
+      "sourceModifiedUtc": "2026-10-04T13:12:45.492Z"
+    }
+  ]
+}
