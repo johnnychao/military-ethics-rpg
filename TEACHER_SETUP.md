@@ -1,8 +1,10 @@
 # 教師啟用與當堂驗收
 
-這是已獲使用者授權續接部署的收件版本，Google 真實收件仍須驗收，本機 Google 收件設定保持 OFF。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準。詳細權限、設定、登入提交及測試邊界見 [collector/README.md](collector/README.md)。
+2026-10-05（台灣）已完成 Google 真實收件的虛構資料驗收，主入口收件設定已啟用；`/preview/u03/` 視覺預覽仍關閉收件。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準。詳細權限、設定、登入提交及測試邊界見 [collector/README.md](collector/README.md)。
 
-Google 端已明確核准：以 `johnny2cindy@gmail.com` 新建私人表「軍事倫理學遊戲紀錄｜2026秋」，同一 Apps Script 只授予 `https://www.googleapis.com/auth/drive.file`，啟用 Advanced Sheets service，採 `USER_DEPLOYING` 執行與 `ANYONE`（須登入 Google）。`ANYONE_ANONYMOUS` 不在授權範圍。學生不獲工作表讀取權，程式只回事件編號／伺服器時間／待核實狀態；實際 consent、私有分享與收件仍須驗證。
+Google 端已明確核准並完成：以 `johnny2cindy@gmail.com` 新建私人表「軍事倫理學遊戲紀錄｜2026秋」，同一 Apps Script 只授予 `https://www.googleapis.com/auth/drive.file`，啟用 Advanced Sheets service，採 `USER_DEPLOYING` 執行與 `ANYONE`（須登入 Google）。`ANYONE_ANONYMOUS` 不在授權範圍。Google 分享畫面及權限讀回均確認只有教師本人；無登入的 GET 會導向 Google 登入。程式只回事件編號／伺服器時間／待核實狀態。
+
+實測驗證 RAW 型態與完整列讀回、前導零、伺服器時間、敗局完成、同事件去重，以及缺反思、錯章、事件衝突、錯課次、錯碼、時間窗與事件限額拒收。表中保留兩筆明確標示的虛構 QA 紀錄，QA 課次已移除，不能當作正式出席。非教師 Google 帳戶及實際學生裝置尚未另行驗收；私人課堂通行碼不放本文或版本庫。
 
 此版本移除需要全帳號 Sheets 權限的 SpreadsheetApp，不以 currentonly 假裝 Web App 已縮權。drive.file 僅處理此 app 建立／獲授權的文件，但仍非 OAuth 固定單一 ID；程序固定 ID，拒絕學生指定目的表。若 Google 要求其他 scope 或設定不適用，停止回報，不自行擴權。
 

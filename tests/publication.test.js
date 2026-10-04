@@ -15,12 +15,24 @@ test('Public entry loads only allowlisted local scripts/styles',()=>{
  assert.ok(!/<script[^>]+src="https?:/i.test(html));
  assert.ok(!/<link[^>]+href="https?:/i.test(html));
 });
-test('Unactivated classroom configuration fails closed without student collection',()=>{
+test('Activated root classroom configuration contains only the verified public routing fields',()=>{
  const vm=require('node:vm'), sandbox={};
  vm.runInNewContext(fs.readFileSync(path.join(root,'js/classroom_config.js'),'utf8'),sandbox);
  const config=sandbox.RPGClassroomConfig||sandbox.RPG_CLASSROOM_CONFIG||sandbox.ClassroomConfig;
  assert.ok(config,'Expected public classroom config');
+ assert.deepEqual(Object.keys(config).sort(),['assignedChapter','collectorUrl','enabled','sessionId']);
+ assert.equal(config.enabled,true);
+ assert.equal(config.collectorUrl,'https://script.google.com/macros/s/AKfycbxXZwRVoQYSZNz_DkX5mDEbw2uO7gqsbxZuegByuPt9tOdnYaGcUIZCM-5jQRtk2Wlt/exec');
+ assert.equal(config.sessionId,'2026-10-06-d84-26-u03'); assert.equal(config.assignedChapter,'u03');
+});
+
+test('Isolated u03 visual preview keeps classroom collection disabled',()=>{
+ const vm=require('node:vm'), sandbox={window:{}};
+ const html=fs.readFileSync(path.join(root,'preview/u03/index.html'),'utf8');
+ const script=html.match(/<script>(window\.ClassroomConfig=\{[^<]+)<\/script>/);
+ assert.ok(script,'Expected explicit isolated preview configuration');
+ vm.runInNewContext(script[1],sandbox);
+ const config=sandbox.window.ClassroomConfig;
  assert.equal(config.enabled,false); assert.equal(config.collectorUrl,'');
  assert.equal(config.sessionId,''); assert.equal(config.assignedChapter,'');
 });
-

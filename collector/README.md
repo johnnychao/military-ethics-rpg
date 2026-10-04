@@ -1,6 +1,6 @@
 # 私人收件器：已核准範圍與部署驗收
 
-本分支交付本機程式與虛構資料測試。使用者已核准下述 Google 權限、建表、Web App 執行與登入範圍，以及 10/6 的 `u03` 關卡。Google 真實收件仍須驗收，本機收件設定 `enabled:false`。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準。本機產生 `Code.gs` 不會呼叫 Google。
+使用者已核准下述 Google 權限、建表、Web App 執行與登入範圍，以及 10/6 的 `u03` 關卡。2026-10-05（台灣）已完成同 app 私人建表、drive.file-only consent、教師登入的虛構資料真實收件與拒收驗證，主入口 `enabled:true`；`/preview/u03/` 仍關閉收件。工作表只給教師本人；Web App 為 `USER_DEPLOYING`＋`ANYONE`，未登入 GET 會導向 Google 登入。非教師帳戶與實際學生裝置未另行驗收。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準；本機產生 `Code.gs` 本身不會呼叫 Google。
 
 點名條件沿用已核准的「完成當週指定關卡＋填完反思，不以答對率判定出席」。兩欄「理由與教材依據」「何時會修正」為原遊戲既有欄位，每欄最多 6000 字，只要求非空。服務端用可信 13 章資料與原引擎重播同一次 complete 紀錄；戰術失敗也有效。自填學號、姓名、裝置完成時間與匯入紀錄不構成本人／當堂操作證明；收件一律 `pending_teacher_review`，不改正式出席表。
 

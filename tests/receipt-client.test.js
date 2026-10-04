@@ -190,7 +190,11 @@ test('prepared payload goes to a direct GET page via copy and paste, without cro
   assert.doesNotMatch(script, /\bfetch\s*\(|HTMLFormElement|\.postMessage\s*\(|\.open\s*\(/);
   assert.match(script, /已準備提交資料，尚未傳送或確認收件/);
   assert.match(script, /validator\.validate\(parsed\)/); assert.match(script, /if \(!configResult\.ready\)/);
-  assert.deepEqual(require('../js/classroom_config'), { enabled: false, collectorUrl: '', sessionId: '', assignedChapter: '' });
+  const publicConfig = require('../js/classroom_config');
+  assert.equal(Client.checkConfig(publicConfig, chapters).ready, true);
+  assert.equal(publicConfig.assignedChapter, 'u03');
+  assert.equal(Client.checkConfig({ ...publicConfig, enabled: false }, chapters).ready, false,
+    'The same deployed configuration must still fail closed when the teacher disables it.');
 });
 
 function mountClient(options = {}) {
