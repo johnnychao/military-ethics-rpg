@@ -9,10 +9,11 @@
 .classroom-receipt .classroom-identity { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
 .classroom-receipt .classroom-consent { display: flex; gap: .7rem; align-items: flex-start; font-weight: 400; line-height: 1.6; }
 .classroom-receipt input[type="checkbox"] { flex: 0 0 auto; margin-top: .4rem; width: 1.25rem; height: 1.25rem; }
-.classroom-receipt button { min-height: 44px; padding: .65rem 1rem; font: inherit; border: 1px solid #62746a; border-radius: .4rem; cursor: pointer; }
+.classroom-receipt button { min-height: 44px; padding: .65rem 1rem; font: inherit; border: 1px solid #62746a; border-radius: .4rem; cursor: pointer; background: white; color: #19382c; }
 .classroom-receipt button:disabled { cursor: default; background: #e7e7e2; color: #606963; opacity: 1; }
 .classroom-receipt .classroom-submit { background: #19382c; color: white; font-weight: 700; }
 .classroom-receipt :focus-visible { outline: 3px solid #ad620c; outline-offset: 3px; }
 .classroom-receipt .classroom-status { padding: .7rem; border-left: 4px solid #ad620c; background: #fffaf0; overflow-wrap: anywhere; }
 .classroom-receipt .classroom-privacy { font-size: .92rem; }
+.classroom-receipt a { color: #7c4308; text-decoration: underline; }
 @media (max-width: 640px) { .classroom-receipt { margin: 1rem .6rem; padding: 1rem; } .classroom-receipt .classroom-identity { grid-template-columns: 1fr; gap: 0; } .classroom-receipt button { width: 100%; margin-bottom: .5rem; } }
