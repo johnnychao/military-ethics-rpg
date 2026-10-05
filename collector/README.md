@@ -1,4 +1,4 @@
-# 私人收件器：已核准範圍與部署驗收
+# 私人收件器：權限範圍與部署驗收
 
 使用者已核准下述 Google 權限、建表、Web App 執行與登入範圍，以及 10/6 的 `u03` 關卡。2026-10-05（台灣）已完成同 app 私人建表、drive.file-only consent、教師登入的虛構資料真實收件與拒收驗證，主入口 `enabled:true`；`/preview/u03/` 仍關閉收件。工作表只給教師本人；Web App 為 `USER_DEPLOYING`＋`ANYONE`，未登入 GET 會導向 Google 登入。非教師帳戶與實際學生裝置未另行驗收。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準；本機產生 `Code.gs` 本身不會呼叫 Google。
 
@@ -15,7 +15,7 @@
 
 ## 已核准的精確權限及部署步驟
 
-1. 使用者已核准以 `johnny2cindy@gmail.com`，同一 app 僅用新持續 `drive.file` 範圍新建私人表「軍事倫理學遊戲紀錄｜2026秋」，採 `USER_DEPLOYING`＋`ANYONE`（須登入 Google）。實際 Google 編輯器帳號仍須核對。禁止匿名存取；若 Google 顯示額外 scope 或設計失敗，停止受限步驟並回報，不自動升級 `spreadsheets`、Drive 全 scope、外部請求或新 OAuth client。
+1. 以教師指定的 Google 帳戶執行，同一 app 僅用 `drive.file` 範圍新建私人表「軍事倫理學遊戲紀錄｜2026秋」，採 `USER_DEPLOYING`＋`ANYONE`（須登入 Google）。實際 Google 編輯器帳號仍須核對。禁止匿名存取；若 Google 顯示額外 scope 或設計失敗，停止受限步驟並回報，不自動升級 `spreadsheets`、Drive 全 scope、外部請求或新 OAuth client。
 2. 執行 `node scripts/build-collector.js` 只產生本機 bundle。由教師在自己的 Apps Script 編輯器建立獨立專案，貼入生成 Code.gs 與 manifest。manifest 啟用 Sheets v4；預設 Cloud project 會自動啟用對應 API，不需 UrlFetch、Picker 或第二套 OAuth client。
 3. 在 Script Properties 明確設 `INITIALIZE_NEW_PRIVATE_SHEET=true`、`COLLECTOR_ENABLED=false`，由教師在編輯器執行 **`initializePrivateCollector_`**。它由同一 app 建立新的收件表，寫入固定 `SPREADSHEET_ID`；已有 ID 就拒絕再建。尾底線使管理函式無法由 `google.script.run` 呼叫。不要用另一個 connector 或手動建表再直接填 ID，聲稱此 app 已獲文件授權。
 4. 在 Google Share 介面核對新表為「限制存取」，只有教師／明確授權人員；不要公開或使用含其他資料的表。老師審核另記，保留原始 15 欄收件列，不排序／修改／插入公式，以免重送核對失敗。
