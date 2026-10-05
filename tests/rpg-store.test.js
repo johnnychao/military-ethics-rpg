@@ -161,7 +161,7 @@ test('實際舊版不同欄位與破損JSON顯示白話訊息，記憶體及磁�
     profile: { id: 'old-learner', nickname: '舊學員', code: '' },
     player: { x: 0, z: 110, yaw: 0, biking: false },
     settings: { lowMotion: false, avatar: 'female' }, missions: {}, updatedAt: new Date().toISOString() };
-  const legacyMessage = '不是此版本的國醫倫理冒險紀錄；舊版紀錄不能直接匯入。';
+  const legacyMessage = '不是此版本的國醫軍事倫理冒險紀錄；舊版紀錄不能直接匯入。';
   const parseMessage = 'JSON無法讀取，請確認貼上完整備份；未修改目前紀錄。';
   for (const [raw, expected] of [[JSON.stringify(old), legacyMessage],
     [JSON.stringify({ version: 0, progress: [1, 2], oldNickname: '舊學員' }), legacyMessage],

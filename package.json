@@ -2,9 +2,9 @@
   "name": "military-ethics-rpg",
   "version": "1.0.0",
   "private": true,
-  "description": "國醫倫理冒險｜2D策略RPG",
+  "description": "國醫軍事倫理冒險｜2D策略RPG",
   "scripts": {
-    "test": "node --test tests/rpg-data.test.js tests/rpg-engine.test.js tests/rpg-store.test.js tests/collector.test.js tests/collector-abuse.test.js tests/collector-adapter.test.js tests/receipt-client.test.js tests/submission-page.test.js tests/publication.test.js tests/rpg-audio.test.js tests/rpg-world.test.js tests/rpg-maps.test.js tests/rpg-bonus.test.js tests/rpg-bonus-ui.test.js",
+    "test": "node --test tests/rpg-data.test.js tests/rpg-engine.test.js tests/rpg-store.test.js tests/collector.test.js tests/collector-abuse.test.js tests/collector-adapter.test.js tests/receipt-client.test.js tests/submission-page.test.js tests/publication.test.js tests/rpg-audio.test.js tests/rpg-world.test.js tests/rpg-maps.test.js tests/rpg-bonus.test.js tests/rpg-bonus-ui.test.js tests/rpg-avatar.test.js tests/rpg-avatar-ui.test.js tests/rpg-chapter-audio.test.js tests/rpg-avatar-app.test.js tests/rpg-release.test.js",
     "build": "node scripts/build-collector.js && node scripts/build-site.js",
     "preview:bundle": "node scripts/build-preview.js"
   },

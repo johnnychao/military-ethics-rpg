@@ -86,7 +86,7 @@
     }
     validate(value) {
       checkTree(value);
-      if (!plain(value) || value.format !== FORMAT || value.version !== 1) fail('不是此版本的國醫倫理冒險紀錄；舊版紀錄不能直接匯入。');
+      if (!plain(value) || value.format !== FORMAT || value.version !== 1) fail('不是此版本的國醫軍事倫理冒險紀錄；舊版紀錄不能直接匯入。');
       keys(value, ['format', 'version', 'nickname', 'createdAt', 'updatedAt', 'activeChapter', 'settings', 'records'], '存檔');
       text(value.nickname, '暱稱', 40); date(value.createdAt, '建立時間'); date(value.updatedAt, '更新時間');
       this.definition(value.activeChapter);

@@ -11,7 +11,8 @@
   let state,chapter,selection={unitId:null,actionId:null,destination:null},toastTimer,walkTimer=null,routeTimer=null,walking=false,submitting=false;
   const modal=$('modal'), body=$('modal-body');
   const store=new window.RPGStore({storage,chapters:D.chapters,onWarning:warning});
-  const world=new window.RPGWorld($('scene'),{party:D.party});world.start();
+  const avatarStore=new window.RPGAvatar.Store(storage);
+  const world=new window.RPGWorld($('scene'),{party:D.party,avatar:avatarStore.value});world.start();
   const music=new window.RPGMusic({onStatus:renderMusicStatus});
   const bonus=window.RPGBonusUI&&window.RPGBonus&&window.RPGBonusContent?new window.RPGBonusUI({storage,getProfile:()=>store.save,getChapter:()=>chapter,getChapters:()=>D.chapters,getState:()=>state,show,close,toast,routeTo,download,onUpdate:()=>{world.bonusMarkers=bonus.markers();world.draw();updateNearby();},effect:kind=>music.effect(kind)}):null;
   function renderMusicStatus(status){
@@ -35,11 +36,11 @@
   function syncMusic(){
     const prefs=store.save?.settings,status=music.getStatus();
     if(prefs){if(status.enabled!==prefs.musicEnabled)music.setEnabled(prefs.musicEnabled);if(status.volume!==prefs.musicVolume)music.setVolume(prefs.musicVolume);}
-    music.setScene(state.phase);renderMusicStatus(music.getStatus());
+    music.setChapter(chapter.id);music.setScene(modal.open?'dialogue':state.phase);renderMusicStatus(music.getStatus());
   }
   function warning(message){const w=$('storage-warning');w.hidden=false;w.replaceChildren(el('span',message),btn('匯出目前紀錄',()=>{if(store.save)backupText();}));$('save-status').textContent='存檔需要注意，請立即備份';}
   function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,3500);}
-  function show(title,nodes,kicker='FIELD NOTES'){stopWalking();modal.dataset.kind=kicker==='WELCOME, CADET'?'welcome':kicker==='DISCOVERY'?'discovery':'notes';$('modal-title').textContent=title;$('modal-kicker').textContent=kicker;body.replaceChildren(...(Array.isArray(nodes)?nodes:[nodes]));if(!modal.open)modal.showModal();modal.scrollTop=0;}
+  function show(title,nodes,kicker='FIELD NOTES'){stopWalking();modal.dataset.kind=kicker==='WELCOME, CADET'?'welcome':kicker==='YOUR CHARACTER'?'avatar':kicker==='DISCOVERY'?'discovery':'notes';music.setScene('dialogue');$('modal-title').textContent=title;$('modal-kicker').textContent=kicker;body.replaceChildren(...(Array.isArray(nodes)?nodes:[nodes]));if(!modal.open)modal.showModal();modal.scrollTop=0;}
   function focusTactics(){const target=selection.unitId?$('destination-select'):document.querySelector('#task-body [data-unit-id]:not(:disabled)');target?.focus({preventScroll:true});}
   function close(){modal.close();if(state.phase==='tactics')focusTactics();else $('scene').focus({preventScroll:true});}
   function ask(title,message,action){show(title,[el('p',message),btn('確認繼續',()=>{close();action();},'gold-button wide'),btn('取消',close,'wide')],'PLEASE CONFIRM');}
@@ -113,9 +114,23 @@
   function hint(){if(state.phase==='exploration'){const target=chapter.clues.find(c=>!state.clues.includes(c.id))||{...chapter.map.gate,name:'任務站'};routeTo(target);}else if(state.phase==='tactics')show('部署提示',[el('p','每回合兩次指令，同一隊員不能重複。方案需要的行動列在任務卡上，但仍可選其他行動承擔不同結果。'),el('p','選技能可帶入最近可用位置；在地圖或目的地選單改位置後，確認預覽仍顯示可執行。')]);else toast('請依任務指示繼續；手機可在地圖下方查看。');}
   function chapterMenu(){const list=el('nav',undefined,'chapter-modal-list');list.setAttribute('aria-label','自由選擇章節');D.chapters.forEach(c=>list.append(chapterButton(c)));show('選擇本週的冒險',[el('p','每章都有完整起始隊伍與資源。主線進度不會限制自由選章。','muted'),list],'THIRTEEN CHAPTERS');}
   function concepts(){const nodes=[el('p',chapter.topic,'muted')];chapter.concepts.forEach(c=>{const n=el('section',undefined,'concept');n.append(el('strong',c.term),el('p',c.text));nodes.push(n);});if(['u07','u10'].includes(chapter.id)){const links=el('div',undefined,'source-links');links.append(el('p','制度資料請注意日期與效力；政策規劃不等於法律已生效。'));D.sources.filter(s=>chapter.id==='u07'?s.id==='aac':s.id!=='aac').forEach(s=>{if(!s.url?.startsWith('https://'))return;const a=el('a',s.title+(s.checked?' · 查核 '+s.checked:''));a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';links.append(a);});nodes.push(links);}show('本章概念 · '+chapter.title,nodes,'CONCEPT CARDS');}
-  function onboarding(){const art=el('div','探索地圖　／　指揮夥伴　／　留下理由','onboarding-art'),form=el('form'),label=el('label','你的暱稱','label'),input=el('input');input.type='text';input.id='nickname';input.name='nickname';input.maxLength=40;input.required=true;input.placeholder='例如：新進學員';input.autocomplete='off';label.htmlFor=input.id;const submit=el('button','加入小隊，開始本週任務 →','gold-button wide');submit.type='submit';form.append(label,input,el('p','不需要真實姓名或學號。紀錄保存在這個瀏覽器，換裝置前請匯出 JSON。','muted'),submit);form.addEventListener('submit',event=>{event.preventDefault();try{store.newProfile(input.value);state=store.getCurrent();const requested=new URLSearchParams(location.search).get('chapter');const entry=D.chapters.find(c=>c.id===requested)||D.chapters.find(c=>c.id==='u03')||D.chapters[0];state=store.startChapter(entry.id);chapter=entry;modal.close();render();toast('歡迎加入小隊，先閱讀本章任務簡報。');}catch(error){toast(error.message);}});show('小隊集合，準備出發',[art,partyRow(),el('p','你將和軍醫、聯絡員與後勤士官一起處理服務與救援任務。事情常有不只一種做法，你的理由會跟著行動留下。'),form],'WELCOME, CADET');}
+  function saveAvatar(value){const persisted=avatarStore.save(value);world.setAvatar(avatarStore.value);return persisted;}
+  function avatarEditor(){
+    const studio=new window.RPGAvatarUI({value:avatarStore.value}),actions=el('div',undefined,'avatar-actions');
+    actions.append(btn('保存角色外觀',()=>{const persisted=saveAvatar(studio.getValue());close();toast(persisted?'角色外觀已保存在此瀏覽器。':'外觀已套用；此瀏覽器無法保存，重新開啟後可能還原。');},'gold-button'),btn('取消',close));
+    show('整備室 · 自由搭配',[studio.element,actions],'YOUR CHARACTER');
+  }
+  function onboarding(){
+    const studio=new window.RPGAvatarUI({value:avatarStore.value}),form=el('form'),identity=el('div',undefined,'avatar-identity'),label=el('label','你的暱稱','label'),input=el('input');
+    input.type='text';input.id='nickname';input.name='nickname';input.maxLength=40;input.required=true;input.placeholder='例如：新進學員';input.autocomplete='off';label.htmlFor=input.id;
+    const submit=el('button','加入小隊，開始本週任務 →','gold-button wide');submit.type='submit';
+    identity.append(label,input,el('p','不需要真實姓名或學號。學習紀錄保存在此瀏覽器，換裝置前請匯出 JSON。','muted'));
+    form.append(studio.element,identity,submit);
+    form.addEventListener('submit',event=>{event.preventDefault();try{store.newProfile(input.value);state=store.getCurrent();const requested=new URLSearchParams(location.search).get('chapter');const entry=D.chapters.find(c=>c.id===requested)||D.chapters.find(c=>c.id==='u03')||D.chapters[0];state=store.startChapter(entry.id);chapter=entry;const persisted=saveAvatar(studio.getValue());modal.close();render();toast(persisted?'歡迎加入小隊，先閱讀本章任務簡報。':'角色已套用，但瀏覽器無法保存外觀。');}catch(error){toast(error.message);}});
+    show('小隊集合，選擇你的角色',[el('p','和軍醫、聯絡員與後勤士官一起探索、查證與決策。之後隨時可用上方「角色」換裝。'),form],'WELCOME, CADET');
+  }
   function download(filename,text,type){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=el('a');a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);toast('已送出下載；若沒有檔案，可用「查看備份文字」。');}
-  function exportFile(kind){try{const date=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Taipei'});download('國醫倫理冒險-'+date+'.'+kind,kind==='json'?store.exportJSON():store.exportCSV(),kind==='json'?'application/json;charset=utf-8':'text/csv;charset=utf-8');}catch(error){toast(error.message);}}
+  function exportFile(kind){try{const date=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Taipei'});download('國醫軍事倫理冒險-'+date+'.'+kind,kind==='json'?store.exportJSON():store.exportCSV(),kind==='json'?'application/json;charset=utf-8':'text/csv;charset=utf-8');}catch(error){toast(error.message);}}
   function backupText(){try{const json=el('textarea',undefined,'backup-text');json.readOnly=true;json.setAttribute('aria-label','完整 JSON 備份文字');json.value=store.exportJSON();const csv=el('textarea',undefined,'backup-text');csv.readOnly=true;csv.setAttribute('aria-label','CSV 摘要文字');csv.value=store.exportCSV();show('備份文字',[el('p','下載若被攔截，可選取下方完整文字，另存 .json 或 .csv。JSON 才能完整復原。'),el('h3','JSON 完整備份'),json,btn('選取 JSON',()=>{json.focus();json.select();},'wide'),el('h3','CSV 學習摘要'),csv]);}catch(error){toast(error.message);}}
   function restoreJSON(raw){stopWalking();store.importJSON(raw);state=store.getCurrent();selection={unitId:null,actionId:null,destination:null};if(modal.open)modal.close();render();toast('新版備份已復原；若顯示存檔失敗，請立即匯出。');}
   function pasteBackup(){const label=el('label','完整 JSON 備份','label'),input=el('textarea',undefined,'backup-text');input.id='restore-json';input.spellcheck=false;label.htmlFor=input.id;show('貼上備份還原',[el('p','先備份目前紀錄，再貼上完整 JSON。格式或紀錄不符合規則時，會保留目前紀錄。'),label,input,btn('驗證並還原',()=>{const raw=input.value;ask('還原備份','確認以這份 JSON 取代目前新版紀錄？',()=>{try{restoreJSON(raw);}catch(error){toast(error.message);}});},'gold-button wide')],'RESTORE BACKUP');}
@@ -127,15 +142,15 @@
     const section=el('section',undefined,'music-setting'),enabled=el('input'),enabledLabel=el('label',undefined,'check-row');enabled.id='settings-music-enabled';enabled.type='checkbox';enabled.checked=music.getStatus().enabled;enabledLabel.append(enabled,el('span','播放原創背景音樂'));
     enabled.addEventListener('change',()=>{if(musicSettings({musicEnabled:enabled.checked})&&enabled.checked)music.unlock();});
     const volumeLabel=el('label','音量','label'),value=el('output',Math.round(music.getStatus().volume*100)+'%'),range=el('input');value.id='settings-music-value';value.htmlFor='settings-music-volume';volumeLabel.htmlFor='settings-music-volume';volumeLabel.append(value);range.id='settings-music-volume';range.type='range';range.min='0';range.max='100';range.step='5';range.value=String(Math.round(music.getStatus().volume*100));range.addEventListener('input',()=>musicSettings({musicVolume:Number(range.value)/100}));
-    section.append(enabledLabel,volumeLabel,range,el('p','第一次操作後開始播放。音樂與提示音共用音量與開關；背景頁籤會暫停，返回後續播。設定會跟著紀錄保存。','muted'));
-    show('設定與操作說明',[section,label,...helpNodes(),el('p','清除瀏覽資料或改用不同網址可能看不到紀錄；資料夾中的程式備份不等於學生存檔。','warning-text')]);
+    section.append(enabledLabel,volumeLabel,range,el('p','第一次操作後開始播放。每章有不同原創配樂，閱讀視窗會降低音量。音樂與提示音共用音量與開關；背景頁籤會暫停，返回後續播。設定會跟著紀錄保存。','muted'));
+    show('設定與操作說明',[btn('角色外觀與配件',()=>store.save?avatarEditor():onboarding(),'wide'),section,label,...helpNodes(),el('p','清除瀏覽資料或改用不同網址可能看不到紀錄；資料夾中的程式備份不等於學生存檔。','warning-text')]);
   }
   $('music-button').addEventListener('click',()=>{const status=music.getStatus();if(status.enabled&&status.playing)musicSettings({musicEnabled:false});else if(musicSettings({musicEnabled:true}))music.unlock();});
   $('music-volume').addEventListener('input',event=>musicSettings({musicVolume:Number(event.target.value)/100}));
   // 音源只從真正的使用者操作啟動；讀檔與畫面重繪不建立音源。
   const unlockMusic=event=>{if(event.isTrusted&&!event.target.closest('#music-button')&&!event.ctrlKey&&!event.metaKey&&!event.altKey)music.unlock();};
   document.addEventListener('pointerdown',unlockMusic,{capture:true});document.addEventListener('keydown',unlockMusic,{capture:true});
-  $('modal-close').addEventListener('click',close);modal.addEventListener('cancel',stopWalking);$('chapters-button').addEventListener('click',chapterMenu);$('concepts-button').addEventListener('click',concepts);$('records-button').addEventListener('click',records);$('settings-button').addEventListener('click',settings);$('help-button').addEventListener('click',()=>show('操作說明',helpNodes()));$('interact-button').addEventListener('click',interact);$('hint-button').addEventListener('click',hint);
+  $('modal-close').addEventListener('click',close);modal.addEventListener('cancel',stopWalking);modal.addEventListener('close',()=>music.setScene(modal.open?'dialogue':state.phase));$('avatar-button').addEventListener('click',()=>store.save?avatarEditor():onboarding());$('chapters-button').addEventListener('click',chapterMenu);$('concepts-button').addEventListener('click',concepts);$('records-button').addEventListener('click',records);$('settings-button').addEventListener('click',settings);$('help-button').addEventListener('click',()=>show('操作說明',helpNodes()));$('interact-button').addEventListener('click',interact);$('hint-button').addEventListener('click',hint);
   $('bonus-button').addEventListener('click',()=>bonus?bonus.open():toast('支線內容尚未載入。'));
   document.querySelectorAll('.header-actions button').forEach(button=>button.addEventListener('click',()=>music.effect('menu')));
   $('import-file').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{if(file.size>2*1024*1024)throw new Error('JSON 超過 2 MB，未修改目前紀錄。');restoreJSON(await file.text());}catch(error){toast(error.message);}finally{event.target.value='';}});
