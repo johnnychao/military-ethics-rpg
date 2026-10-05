@@ -152,6 +152,8 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
 .avatar-controls h3{color:#f5e9c6;font-size:1.05rem;margin:0 0 12px;}
 .avatar-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .avatar-preset{display:flex;align-items:center;flex-direction:column;gap:3px;min-width:0;padding:9px 4px 10px;background:#faf3dc;border:2px solid transparent;border-radius:10px;color:#294b42;min-height:132px;}
+.avatar-preset:not(:disabled):hover{background:#e5edda;color:#294b42;}
+.avatar-preset[aria-pressed="true"]:not(:disabled):hover{background:#d9e8d5;color:#294b42;}
 .avatar-preset[aria-pressed="true"]{background:#d9e8d5;border-color:#2e7164;box-shadow:0 0 0 2px #d4b16444;}
 .avatar-preset canvas{width:58px;height:68px;image-rendering:pixelated;}
 .avatar-preset strong{font-size:.78rem;}.avatar-preset small{font-size:.63rem;line-height:1.4;color:#657264;}
@@ -167,6 +169,9 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
 @media(max-width:680px){#modal[data-kind="welcome"],#modal[data-kind="avatar"]{width:calc(100vw - 20px);padding:16px;}.avatar-studio{grid-template-columns:1fr;gap:18px;margin-top:15px;}.avatar-stage{position:relative;display:grid;grid-template-columns:130px 1fr;grid-template-rows:auto auto 1fr;padding:14px 12px;text-align:left;min-height:164px;align-items:center;column-gap:10px;}.avatar-stage canvas{grid-column:1;grid-row:1/5;width:130px;}.avatar-stage .eyebrow,.avatar-stage h3,.avatar-summary,.avatar-stage-note{grid-column:2;}.avatar-stage::before{display:none;}.avatar-stage h3{font-size:.95rem;margin:5px 0;}.avatar-summary{font-size:.66rem;margin:5px 0;line-height:1.55;}.avatar-stage-note{display:none;}.avatar-presets{gap:5px;}.avatar-preset{min-height:118px;}.avatar-preset strong{font-size:.7rem;}.avatar-preset small{font-size:.58rem;}.avatar-field select{font-size:16px;}.avatar-fields-grid{gap:12px;}.avatar-actions{flex-wrap:wrap;}.avatar-actions button{min-height:44px;}}
 @media(prefers-reduced-motion:reduce){.avatar-preset{transition:none;}}
 </style>
+
+
+
 
 
 
@@ -2655,6 +2660,7 @@ RPGWorld.portrait=portrait;RPGWorld.WIDTH=W;RPGWorld.HEIGHT=H;RPGWorld.TILE=T;re
   return RPGMusic;
 });
 </script>
+<script>window.ClassroomSyncConfig={enabled:false,endpoint:'',bridgeOrigin:''};</script>
 <script>/* 國醫倫理冒險 UI：只經引擎變更狀態；文字輸入一律以 textContent 顯示。 */
 (() => {
   'use strict';

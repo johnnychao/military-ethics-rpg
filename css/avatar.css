@@ -11,6 +11,8 @@
 .avatar-controls h3{color:#f5e9c6;font-size:1.05rem;margin:0 0 12px;}
 .avatar-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .avatar-preset{display:flex;align-items:center;flex-direction:column;gap:3px;min-width:0;padding:9px 4px 10px;background:#faf3dc;border:2px solid transparent;border-radius:10px;color:#294b42;min-height:132px;}
+.avatar-preset:not(:disabled):hover{background:#e5edda;color:#294b42;}
+.avatar-preset[aria-pressed="true"]:not(:disabled):hover{background:#d9e8d5;color:#294b42;}
 .avatar-preset[aria-pressed="true"]{background:#d9e8d5;border-color:#2e7164;box-shadow:0 0 0 2px #d4b16444;}
 .avatar-preset canvas{width:58px;height:68px;image-rendering:pixelated;}
 .avatar-preset strong{font-size:.78rem;}.avatar-preset small{font-size:.63rem;line-height:1.4;color:#657264;}
