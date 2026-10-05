@@ -89,11 +89,23 @@ function collectorStore_(configuration) {
       if (matches.length > 1) throw new Error('DUPLICATE_EVENT_ROWS');
       return matches.length ? matches[0] : null;
     },
-    countEvents: function (sessionId, studentId) {
-      const rows = table().slice(1), storedStudentId = EthicsCollectorCore.safeCell(studentId);
+    countEvents: function (sessionId, studentId, window) {
+      let rows = table().slice(1).filter(row => row[3] === sessionId);
+      const storedStudentId = EthicsCollectorCore.safeCell(studentId);
+      if (window !== undefined) {
+        const iso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+        if (!window || !iso.test(window.afterExclusive) || !iso.test(window.throughInclusive) ||
+            !Number.isFinite(Date.parse(window.afterExclusive)) || !Number.isFinite(Date.parse(window.throughInclusive)) ||
+            Date.parse(window.afterExclusive) >= Date.parse(window.throughInclusive)) throw new Error('COLLECTOR_STORE_INVALID');
+        rows.forEach(row => {
+          if (typeof row[2] !== 'string' || !iso.test(row[2]) || !Number.isFinite(Date.parse(row[2])) ||
+              new Date(row[2]).toISOString() !== row[2] || Date.parse(row[2]) > Date.parse(window.throughInclusive)) throw new Error('COLLECTOR_STORE_INVALID');
+        });
+        rows = rows.filter(row => Date.parse(row[2]) > Date.parse(window.afterExclusive));
+      }
       return {
-        sessionEvents: rows.filter(row => row[3] === sessionId).length,
-        studentEvents: rows.filter(row => row[3] === sessionId && row[4] === storedStudentId).length
+        sessionEvents: rows.length,
+        studentEvents: rows.filter(row => row[4] === storedStudentId).length
       };
     },
     append: function (row) {
@@ -134,7 +146,7 @@ function collectorAccept_(raw, accessCode) {
     lock: LockService.getScriptLock(),
     store: {
       findByEventId: function (eventId) { return currentStore().findByEventId(eventId); },
-      countEvents: function (sessionId, studentId) { return currentStore().countEvents(sessionId, studentId); },
+      countEvents: function (sessionId, studentId, window) { return currentStore().countEvents(sessionId, studentId, window); },
       append: function (row) { return currentStore().append(row); },
       flush: function () { return currentStore().flush(); },
       read: function (number) { return currentStore().read(number); }

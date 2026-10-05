@@ -11,19 +11,19 @@
     },
     {
       "path": "collector/core.js",
-      "sha256": "94706145e3f4f15b14c6361fa6cc1525f64c1ee104523b4380536dd76264c7fe"
+      "sha256": "43c45c7571bf955c3a4e1abf9ae33cd213a9fff8cd9688bfdd07364f41424e94"
     },
     {
       "path": "collector/submission_page.js",
-      "sha256": "33337328633ee2e0529af5b33d7c0e469c6c57958159496fbb76b08438c3c197"
+      "sha256": "222e6c20b48bfb1e7e05bb2b2939b393d671c34285429db3755a0096318f7caa"
     },
     {
       "path": "collector/adapter.gs",
-      "sha256": "ab6efeeecb6f119a71ba8ede7e1b4a4f73c00bc0969a53e7a2fb5955858b3c37"
+      "sha256": "dc3eebc656940035bdc6f7f8a7077c422e60028a69244aed2cf94383ba06176a"
     }
   ],
   "generated": {
     "path": "collector/generated/Code.gs",
-    "sha256": "dff513af2354178869c48720059540b0472a53628728c0a428ec516bc8d1677d"
+    "sha256": "90daa1c9b614b43dd8a4a516c74aab1edf7013ec4e6cf4a99f87245ade21360f"
   }
 }

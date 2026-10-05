@@ -53,7 +53,8 @@ function dependencies() {
   function locked() { assert.equal(lock.held, true); }
   const store = {
     findByEventId(id) { locked(); actions.push('find'); return rows.find(row => row[0] === id) || null; },
-    countEvents(sessionId, studentId) { locked(); actions.push('count'); const selected = rows.filter(row => row[3] === sessionId);
+    countEvents(sessionId, studentId, window) { locked(); actions.push('count'); const selected = rows.filter(row => row[3] === sessionId &&
+      (!window || (Date.parse(row[2]) > Date.parse(window.afterExclusive) && Date.parse(row[2]) <= Date.parse(window.throughInclusive))));
       return { sessionEvents: selected.length, studentEvents: selected.filter(row => row[4] === Core.safeCell(studentId)).length }; },
     append(row) { locked(); actions.push('append'); rows.push(copy(row)); return rows.length; },
     flush() { locked(); actions.push('flush'); },
@@ -73,6 +74,36 @@ test('safe defaults and configured event limits reject noninteger, zero and exce
     const deps = dependencies(); Object.assign(deps.config.sessions[0], bad);
     rejects(payload(), deps, 'SESSION_CONFIGURATION_INVALID'); assert.deepEqual(deps.actions, []);
   }
+});
+test('explicit rolling policy allows more than three distinct attempts, retains throttled event, and cools down at the exact boundary', () => {
+  const deps = dependencies(), s = deps.config.sessions[0]; delete s.maxEvents; delete s.maxStudentEvents;
+  s.rollingLimit = { windowSeconds: 600, maxEvents: 300, maxStudentEvents: 10 };
+  for (let i = 1; i <= 10; i++) assert.equal(accept(payload(i), deps).ok, true);
+  assert.equal(deps.rows.length, 10);
+  const pending = payload(11); rejects(pending, deps, 'STUDENT_EVENT_LIMIT');
+  assert.equal(accept(payload(1), deps).duplicate, true); assert.equal(deps.rows.length, 10);
+  deps.now = () => new Date(now.getTime() + 600000);
+  const receipt = accept(pending, deps); assert.equal(receipt.eventId, pending.eventId); assert.equal(receipt.duplicate, false);
+  assert.equal(deps.rows.length, 11); assert.equal(deps.rows[0][2], now.toISOString());
+  assert.equal(receipt.serverReceivedAt, '2026-10-06T06:25:00.000Z');
+});
+test('rolling class limit applies across self-declared identities and never blocks exact-event recovery', () => {
+  const deps = dependencies(), s = deps.config.sessions[0]; delete s.maxEvents; delete s.maxStudentEvents;
+  s.rollingLimit = { windowSeconds: 600, maxEvents: 3, maxStudentEvents: 2 };
+  for (let i = 1; i <= 3; i++) accept(payload(i, 'SYNTHETIC-ONLY-' + i), deps);
+  rejects(payload(4, 'SYNTHETIC-ONLY-4'), deps, 'SESSION_EVENT_LIMIT');
+  assert.equal(accept(payload(1, 'SYNTHETIC-ONLY-1'), deps).duplicate, true);
+  assert.equal(deps.rows.length, 3);
+});
+test('rolling policy rejects partial, ambiguous or excessive settings before accessing Sheets', () => {
+  for (const rolling of [{}, { windowSeconds: 0, maxEvents: 300, maxStudentEvents: 10 },
+    { windowSeconds: 600, maxEvents: 2, maxStudentEvents: 3 }, { windowSeconds: 600, maxEvents: 300, maxStudentEvents: 101 },
+    { windowSeconds: 600, maxEvents: 300, maxStudentEvents: 10, other: true }]) {
+    const deps = dependencies(), s = deps.config.sessions[0]; delete s.maxEvents; delete s.maxStudentEvents; s.rollingLimit = rolling;
+    rejects(payload(), deps, 'SESSION_CONFIGURATION_INVALID'); assert.deepEqual(deps.actions, []);
+  }
+  const deps = dependencies(); deps.config.sessions[0].rollingLimit = { windowSeconds: 600, maxEvents: 300, maxStudentEvents: 10 };
+  rejects(payload(), deps, 'SESSION_CONFIGURATION_INVALID'); assert.deepEqual(deps.actions, []);
 });
 test('per-student event limit rejects new IDs but permits another self-declared ID within the class cap', () => {
   const deps = dependencies(); assert.equal(accept(payload(), deps).ok, true);

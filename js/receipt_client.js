@@ -120,7 +120,7 @@
       return signature(rest) === wanted;
     });
     if (previous) return clone(previous);
-    if (outbox.entries.length >= 20) fail('本機待提交紀錄已達上限；請先確認收件頁，再清除此裝置的待提交資料。遊戲紀錄不會被清除。');
+    if (outbox.entries.length >= 20) fail('本機待提交紀錄已達 20 份上限，這筆尚未準備或傳送。請先匯出待提交備份與遊戲 JSON，保留原事件編號；不要刪除未收件資料，請老師協助逐筆確認。');
     const eventId = options.eventIdFactory ? options.eventIdFactory() : newEventId(options.crypto);
     if (typeof eventId !== 'string' || !UUID.test(eventId) || outbox.entries.some(item => item.eventId === eventId)) fail('事件編號無效或重複；請重新操作。');
     const payload = { ...body, eventId };
@@ -137,6 +137,12 @@
     storage.removeItem(OUTBOX_KEY);
     if (storage.getItem(OUTBOX_KEY) != null) fail('無法清除待提交資料；請在瀏覽器設定中移除本網站資料前先備份遊戲。');
   }
+  function pendingBackup(storage) {
+    const outbox = readOutbox(storage);
+    if (!outbox.entries.length) fail('目前沒有待提交紀錄可匯出。');
+    return { filename: 'military-ethics-pending-submissions.json', count: outbox.entries.length,
+      contents: JSON.stringify(outbox, null, 2) };
+  }
   function mount(document, config, chapters, host) {
     const panel = document.getElementById('classroom-receipt');
     if (!panel) return;
@@ -147,8 +153,22 @@
     const button = $('classroom-submit'), configResult = checkConfig(config, chapters);
     const transfer = $('classroom-transfer'), preparedText = $('classroom-prepared-payload');
     const copy = $('classroom-copy'), openPage = $('classroom-open-page');
+    const exportPending = $('classroom-export-pending');
     let candidates = [], lastRaw, lastChoices, statusMessage = '';
     function announce(message) { if (statusMessage !== message) { statusMessage = message; status.textContent = message; } }
+    if (exportPending) exportPending.addEventListener('click', () => {
+      let url;
+      try {
+        const backup = pendingBackup(host.localStorage);
+        if (!host.Blob || !host.URL || typeof host.URL.createObjectURL !== 'function') fail('此瀏覽器無法下載待提交備份；請保留遊戲 JSON 與提交原文並請老師協助。');
+        url = host.URL.createObjectURL(new host.Blob([backup.contents], { type: 'application/json;charset=utf-8' }));
+        const link = document.createElement('a'); link.href = url; link.download = backup.filename; link.click();
+        announce('已準備下載 ' + backup.count + ' 份待提交備份，請確認檔案已下載。原事件仍保留，尚未確認雲端收件；備份含姓名、學號與反思，請妥善保存勿公開。');
+      } catch (error) { announce(error.message); }
+      finally {
+        if (url) host.setTimeout(() => host.URL.revokeObjectURL(url), 1000);
+      }
+    });
     // Clearing previously consented data remains available even if the teacher disables collection.
     // No pending identity is read or displayed before a student explicitly uses this control.
     clear.disabled = false;
@@ -234,5 +254,5 @@
     }, true);
   }
   return { FORMAT, OUTBOX_KEY, LIMIT, checkConfig, validateComplete, readCandidates, selectAttempt,
-    normalizeStudent, eventBody, prepareEvent, readOutbox, clearOutbox, newEventId, mount };
+    normalizeStudent, eventBody, prepareEvent, readOutbox, clearOutbox, pendingBackup, newEventId, mount };
 });

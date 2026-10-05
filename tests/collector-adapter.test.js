@@ -52,7 +52,7 @@ function payload() {
     sessionId: SESSION.id, student: { id: '001234', name: 'Synthetic Student' }, attempt: copy(COMPLETE) };
 }
 function harness(options = {}) {
-  const rows = options.empty ? [] : [Core.HEADERS.slice()], formulas = [], calls = [], state = { wrote: false, failedReadOnce: false, gridRows: options.gridRows || 1000 };
+  const rows = options.empty ? [] : [Core.HEADERS.slice()], formulas = [], calls = [], state = { wrote: false, failedReadOnce: false, gridRows: options.gridRows || 1000, clockMillis: NOW.getTime() };
   const properties = { COLLECTOR_ENABLED: 'true', SPREADSHEET_ID: SHEET_ID, CLASS_SESSIONS: JSON.stringify([SESSION]),
     CLASS_ACCESS_CODE_HASHES: '{}' };
   Object.assign(properties, options.properties || {});
@@ -75,7 +75,7 @@ function harness(options = {}) {
     if (typeof value === 'number') return { numberValue: value };
     assert.fail('Unsupported RAW fixture value.');
   }
-  class Clock extends Date { constructor(value) { super(value === undefined ? NOW.getTime() : value); } }
+  class Clock extends Date { constructor(value) { super(value === undefined ? state.clockMillis : value); } }
   const context = vm.createContext({ Date: Clock,
     PropertiesService: { getScriptProperties: () => ({
       getProperty: key => properties[key] === undefined ? null : properties[key],
@@ -302,4 +302,28 @@ test('only public submission RPC and GET/POST exist; initializer/private helpers
   const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../collector/appsscript.json'), 'utf8'));
   assert.deepEqual(manifest.oauthScopes, ['https://www.googleapis.com/auth/drive.file']);
   assert.deepEqual(manifest.dependencies.enabledAdvancedServices, [{ userSymbol: 'Sheets', serviceId: 'sheets', version: 'v4' }]);
+});
+
+test('RAW adapter rolling quota uses server times, permits ten new attempts, and releases slots at the boundary', () => {
+  const configured = { ...SESSION, rollingLimit: { windowSeconds: 600, maxEvents: 300, maxStudentEvents: 10 } };
+  const fixture = harness({ properties: { CLASS_SESSIONS: JSON.stringify([configured]) } });
+  const event = number => { const value = payload(); value.eventId = '00000000-0000-4000-8000-' + String(number).padStart(12, '0'); value.attempt.completedAt = '2000-01-01T00:00:00.000Z'; return value; };
+  for (let n = 1; n <= 10; n++) assert.equal(fixture.submit(event(n)).ok, true);
+  assert.equal(fixture.rows.length, 11);
+  assert.throws(() => fixture.submit(event(11)), /STUDENT_EVENT_LIMIT/);
+  assert.equal(fixture.submit(event(1)).duplicate, true); assert.equal(fixture.rows.length, 11);
+  fixture.state.clockMillis += 600000;
+  const accepted = fixture.submit(event(11)); assert.equal(accepted.eventId, event(11).eventId);
+  assert.equal(accepted.serverReceivedAt, '2026-10-06T06:25:00.000Z');
+  assert.equal(fixture.rows.length, 12); assert.equal(fixture.rows[1][2], NOW.toISOString());
+  assert.equal(fixture.rows[1][11], '2000-01-01T00:00:00.000Z');
+});
+test('rolling quota rejects malformed or future stored server timestamps instead of silently not counting them', () => {
+  for (const time of ['invalid', '2026-02-31T06:00:00.000Z', '2027-01-01T00:00:00.000Z']) {
+    const configured = { ...SESSION, rollingLimit: { windowSeconds: 600, maxEvents: 300, maxStudentEvents: 10 } };
+    const fixture = harness({ properties: { CLASS_SESSIONS: JSON.stringify([configured]) } });
+    fixture.submit(payload()); fixture.rows[1][2] = time;
+    const another = payload(); another.eventId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+    assert.throws(() => fixture.submit(another), /COLLECTOR_STORE_INVALID/); assert.equal(fixture.rows.length, 2);
+  }
 });

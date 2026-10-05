@@ -76,6 +76,17 @@ test('RPC failure and exception retain unconfirmed state without echoing sensiti
   const thrown = mounted({ throwRpc: true }); thrown.submit();
   assert.equal(thrown.elements.get('submission-receipt').hidden, true); assert.match(thrown.elements.get('submission-status').textContent, /尚未確認收件/);
 });
+test('only exact safe quota errors tell the learner to retain the original event and retry within the class window', () => {
+  for (const message of ['STUDENT_EVENT_LIMIT', 'Error: SESSION_EVENT_LIMIT']) {
+    const env = mounted(); env.submit(); env.fail(new Error(message));
+    assert.equal(env.elements.get('submission-receipt').hidden, true);
+    assert.match(env.elements.get('submission-status').textContent, /原事件編號/);
+    assert.match(env.elements.get('submission-status').textContent, /收件時間內重送/);
+    assert.equal(env.elements.get('submission-payload').value, raw);
+  }
+  const env = mounted(); env.submit(); env.fail(new Error('STUDENT_EVENT_LIMIT private-name'));
+  assert.doesNotMatch(env.elements.get('submission-status').textContent, /private-name/);
+});
 test('timeout ignores late acknowledgement; retry sends same event and code is entered again', () => {
   const env = mounted(); env.submit(raw, crypto.randomUUID()); const firstSuccess = env.successCallback();
   const oldCallback = [...env.timers.values()][0]; oldCallback();

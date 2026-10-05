@@ -198,21 +198,26 @@ test('prepared payload goes to a direct GET page via copy and paste, without cro
 });
 
 function mountClient(options = {}) {
-  const saved = completedSave(); const elements = new Map(); const clipboard = [];
+  const saved = completedSave(); const elements = new Map(); const clipboard = [], downloads = [], blobs = [], revoked = [];
   function node() {
     return { value: '', checked: false, disabled: false, hidden: true, handlers: {}, children: [],
       addEventListener(type, handler) { this.handlers[type] = handler; },
       replaceChildren(...children) { this.children = children; }, append(child) { this.children.push(child); },
-      focus() { this.focused = true; }, select() { this.selected = true; }, contains() { return false; } };
+      focus() { this.focused = true; }, select() { this.selected = true; }, contains() { return false; },
+      click() { downloads.push({ href: this.href, filename: this.download }); } };
   }
   for (const id of ['classroom-receipt', 'classroom-form', 'classroom-fields', 'classroom-status', 'classroom-task',
     'classroom-attempt', 'classroom-consent', 'classroom-student-id', 'classroom-student-name', 'classroom-clear',
     'classroom-submit', 'classroom-transfer', 'classroom-prepared-payload', 'classroom-copy', 'classroom-open-page']) elements.set(id, node());
+  if (options.withExport) elements.set('classroom-export-pending', node());
   const document = { getElementById: id => elements.get(id), createElement: node, addEventListener() {} };
   const host = { localStorage: saved.storage, crypto, addEventListener() {}, setInterval() {},
     navigator: options.noClipboard ? {} : { clipboard: { async writeText(value) { clipboard.push(value); } } } };
+  if (options.withExport) Object.assign(host, { Blob: class { constructor(parts) { this.contents = parts.join(''); } },
+    URL: { createObjectURL(blob) { blobs.push(blob); return 'blob:synthetic-pending'; }, revokeObjectURL(url) { revoked.push(url); } },
+    setTimeout(callback) { callback(); } });
   Client.mount(document, options.config || config, chapters, host);
-  return { saved, elements, clipboard, host };
+  return { saved, elements, clipboard, host, downloads, blobs, revoked };
 }
 test('preparing consented data opens no network and preserves UUID across login or reload', async () => {
   const env = mountClient();
@@ -249,4 +254,33 @@ test('OFF mode does not prepare, copy or expose any Google navigation', () => {
   assert.equal(env.elements.get('classroom-copy').handlers.click, undefined);
   assert.equal(env.elements.get('classroom-prepared-payload').value, '');
   assert.equal(env.clipboard.length, 0); assert.equal(env.saved.storage.values.has(Client.OUTBOX_KEY), false);
+});
+
+test('full pending queue never evicts older events and exports every original ID without claiming cloud receipt', () => {
+  const saved = completedSave(), attempt = saved.store.getCurrent();
+  for (let i = 1; i <= 20; i++) {
+    const next = JSON.parse(JSON.stringify(attempt)); next.reflection.reason = 'Fictional pending attempt ' + i;
+    Client.prepareEvent({ config, chapters, student, attempt: next, consent: true, storage: saved.storage,
+      eventIdFactory: () => '00000000-0000-4000-8000-' + String(i).padStart(12, '0') });
+  }
+  const before = saved.storage.getItem(Client.OUTBOX_KEY), gameBefore = saved.storage.getItem(Store.KEY);
+  const next = JSON.parse(JSON.stringify(attempt)); next.reflection.reason = 'Fictional pending attempt 21';
+  assert.throws(() => Client.prepareEvent({ config, chapters, student, attempt: next, consent: true, storage: saved.storage }), /不要刪除未收件資料/);
+  assert.equal(saved.storage.getItem(Client.OUTBOX_KEY), before); assert.equal(saved.storage.getItem(Store.KEY), gameBefore);
+  const backup = Client.pendingBackup(saved.storage);
+  assert.equal(backup.count, 20); assert.deepEqual(JSON.parse(backup.contents), JSON.parse(before));
+  assert.equal('receipt' in JSON.parse(backup.contents), false);
+  assert.equal(saved.storage.getItem(Client.OUTBOX_KEY), before);
+});
+test('optional backup button downloads a complete pending copy without clearing data or reporting receipt', () => {
+  const env = mountClient({ withExport: true });
+  env.elements.get('classroom-student-id').value = 'FAKE-001'; env.elements.get('classroom-student-name').value = '虛構甲';
+  env.elements.get('classroom-consent').checked = true; env.elements.get('classroom-form').handlers.submit({ preventDefault() {} });
+  const before = env.saved.storage.getItem(Client.OUTBOX_KEY);
+  env.elements.get('classroom-export-pending').handlers.click();
+  assert.deepEqual(JSON.parse(env.blobs[0].contents), JSON.parse(before));
+  assert.equal(env.downloads[0].filename, 'military-ethics-pending-submissions.json');
+  assert.equal(env.saved.storage.getItem(Client.OUTBOX_KEY), before);
+  assert.match(env.elements.get('classroom-status').textContent, /尚未確認雲端收件/);
+  assert.deepEqual(env.revoked, ['blob:synthetic-pending']);
 });

@@ -773,6 +773,16 @@
     }
   }
   function eventLimits(session) {
+    if (session.rollingLimit !== undefined) {
+      const rolling = session.rollingLimit;
+      keys(rolling, ['windowSeconds', 'maxEvents', 'maxStudentEvents'], 'SESSION_CONFIGURATION_INVALID');
+      if (session.maxEvents !== undefined || session.maxStudentEvents !== undefined ||
+          !Number.isInteger(rolling.windowSeconds) || rolling.windowSeconds < 60 || rolling.windowSeconds > 3600 ||
+          !Number.isInteger(rolling.maxEvents) || rolling.maxEvents < 1 || rolling.maxEvents > 10000 ||
+          !Number.isInteger(rolling.maxStudentEvents) || rolling.maxStudentEvents < 1 || rolling.maxStudentEvents > 100 ||
+          rolling.maxStudentEvents > rolling.maxEvents) fail('SESSION_CONFIGURATION_INVALID');
+      return { maxEvents: rolling.maxEvents, maxStudentEvents: rolling.maxStudentEvents, windowSeconds: rolling.windowSeconds };
+    }
     const maxEvents = session.maxEvents === undefined ? 500 : session.maxEvents;
     const maxStudentEvents = session.maxStudentEvents === undefined ? Math.min(3, maxEvents) : session.maxStudentEvents;
     if (!Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 10000 ||
@@ -876,12 +886,16 @@
       }
       const serverReceivedAt = checkWindow(checked.session, deps.now());
       if (typeof deps.store.countEvents !== 'function') fail('COLLECTOR_STORE_INVALID');
-      const counts = deps.store.countEvents(checked.payload.sessionId, checked.payload.student.id);
+      const limits = eventLimits(checked.session);
+      const window = limits.windowSeconds === undefined ? undefined : {
+        afterExclusive: new Date(Date.parse(serverReceivedAt) - limits.windowSeconds * 1000).toISOString(),
+        throughInclusive: serverReceivedAt
+      };
+      const counts = deps.store.countEvents(checked.payload.sessionId, checked.payload.student.id, window);
       if (!isObject(counts) || !Number.isSafeInteger(counts.sessionEvents) || counts.sessionEvents < 0 ||
           !Number.isSafeInteger(counts.studentEvents) || counts.studentEvents < 0 || counts.studentEvents > counts.sessionEvents) {
         fail('COLLECTOR_STORE_INVALID');
       }
-      const limits = eventLimits(checked.session);
       if (counts.sessionEvents >= limits.maxEvents) fail('SESSION_EVENT_LIMIT');
       if (counts.studentEvents >= limits.maxStudentEvents) fail('STUDENT_EVENT_LIMIT');
       const row = makeRow(checked, digest, serverReceivedAt);
@@ -1004,8 +1018,12 @@
           duplicateOutput.textContent = result.duplicate ? '相同事件已收件，本次回傳原回執。' : '這筆事件已由伺服器收件並完成讀回核對。';
           receipt.hidden = false;
           status.textContent = '伺服器已確認收件，仍待教師核實身分、當堂參與與指定關卡；此回執不會自動登記正式出席。';
-        }).withFailureHandler(() => {
+        }).withFailureHandler(error => {
           if (!finish(token)) return;
+          const message = error && typeof error.message === 'string' ? error.message : '';
+          if (/^(?:Error: )?(?:STUDENT_EVENT_LIMIT|SESSION_EVENT_LIMIT)$/.test(message)) {
+            unconfirmed('目前提交次數已達限制，這筆尚未確認收件。請保留這份資料與原事件編號，稍後在收件時間內重送；不要建立新編號。若仍無法收件，請交由老師協助。'); return;
+          }
           // Server errors may contain sensitive context; display a fixed safe message instead.
           unconfirmed('收件失敗或授權未就緒，尚未確認收件。請核對完整資料與必要的課堂通行碼，保留相同事件編號重送，或請老師協助。');
         }).handleClassroomSubmission(raw, accessCode);
@@ -1039,6 +1057,7 @@
       '@media(max-width:640px){button{width:100%}}</style></head><body><main>' +
       '<h1>當堂紀錄收件</h1><p>請依 Google 提示登入，再把遊戲頁「準備當堂提交資料」產生的內容貼在下方。登入重導不需要攜帶 POST 資料；仍可回到遊戲頁重新複製相同事件。</p>' +
       '<p>這裡只接受已同意交給老師的單筆學習事件。不要貼上名冊或整份遊戲備份。通行碼只在本頁使用，本頁程式不會將它存入瀏覽器、提交資料或回執。</p>' +
+      '<p>每次不同的完整闖關紀錄須個別提交。相同事件重送不會重複新增；只有顯示伺服器回執才代表這筆已收件。未收件資料請保留，不能視為已同步。</p>' +
       '<p id="submission-status" class="status" role="status" aria-live="polite">尚未確認收件。</p>' +
       '<form id="submission-form" autocomplete="off"><fieldset id="submission-fields" disabled>' +
       '<legend>貼上單筆提交資料</legend><label for="submission-payload">遊戲頁準備的提交資料</label>' +
@@ -1150,11 +1169,23 @@ function collectorStore_(configuration) {
       if (matches.length > 1) throw new Error('DUPLICATE_EVENT_ROWS');
       return matches.length ? matches[0] : null;
     },
-    countEvents: function (sessionId, studentId) {
-      const rows = table().slice(1), storedStudentId = EthicsCollectorCore.safeCell(studentId);
+    countEvents: function (sessionId, studentId, window) {
+      let rows = table().slice(1).filter(row => row[3] === sessionId);
+      const storedStudentId = EthicsCollectorCore.safeCell(studentId);
+      if (window !== undefined) {
+        const iso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+        if (!window || !iso.test(window.afterExclusive) || !iso.test(window.throughInclusive) ||
+            !Number.isFinite(Date.parse(window.afterExclusive)) || !Number.isFinite(Date.parse(window.throughInclusive)) ||
+            Date.parse(window.afterExclusive) >= Date.parse(window.throughInclusive)) throw new Error('COLLECTOR_STORE_INVALID');
+        rows.forEach(row => {
+          if (typeof row[2] !== 'string' || !iso.test(row[2]) || !Number.isFinite(Date.parse(row[2])) ||
+              new Date(row[2]).toISOString() !== row[2] || Date.parse(row[2]) > Date.parse(window.throughInclusive)) throw new Error('COLLECTOR_STORE_INVALID');
+        });
+        rows = rows.filter(row => Date.parse(row[2]) > Date.parse(window.afterExclusive));
+      }
       return {
-        sessionEvents: rows.filter(row => row[3] === sessionId).length,
-        studentEvents: rows.filter(row => row[3] === sessionId && row[4] === storedStudentId).length
+        sessionEvents: rows.length,
+        studentEvents: rows.filter(row => row[4] === storedStudentId).length
       };
     },
     append: function (row) {
@@ -1195,7 +1226,7 @@ function collectorAccept_(raw, accessCode) {
     lock: LockService.getScriptLock(),
     store: {
       findByEventId: function (eventId) { return currentStore().findByEventId(eventId); },
-      countEvents: function (sessionId, studentId) { return currentStore().countEvents(sessionId, studentId); },
+      countEvents: function (sessionId, studentId, window) { return currentStore().countEvents(sessionId, studentId, window); },
       append: function (row) { return currentStore().append(row); },
       flush: function () { return currentStore().flush(); },
       read: function (number) { return currentStore().read(number); }

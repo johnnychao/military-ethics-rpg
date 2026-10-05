@@ -69,8 +69,12 @@
           duplicateOutput.textContent = result.duplicate ? '相同事件已收件，本次回傳原回執。' : '這筆事件已由伺服器收件並完成讀回核對。';
           receipt.hidden = false;
           status.textContent = '伺服器已確認收件，仍待教師核實身分、當堂參與與指定關卡；此回執不會自動登記正式出席。';
-        }).withFailureHandler(() => {
+        }).withFailureHandler(error => {
           if (!finish(token)) return;
+          const message = error && typeof error.message === 'string' ? error.message : '';
+          if (/^(?:Error: )?(?:STUDENT_EVENT_LIMIT|SESSION_EVENT_LIMIT)$/.test(message)) {
+            unconfirmed('目前提交次數已達限制，這筆尚未確認收件。請保留這份資料與原事件編號，稍後在收件時間內重送；不要建立新編號。若仍無法收件，請交由老師協助。'); return;
+          }
           // Server errors may contain sensitive context; display a fixed safe message instead.
           unconfirmed('收件失敗或授權未就緒，尚未確認收件。請核對完整資料與必要的課堂通行碼，保留相同事件編號重送，或請老師協助。');
         }).handleClassroomSubmission(raw, accessCode);
@@ -104,6 +108,7 @@
       '@media(max-width:640px){button{width:100%}}</style></head><body><main>' +
       '<h1>當堂紀錄收件</h1><p>請依 Google 提示登入，再把遊戲頁「準備當堂提交資料」產生的內容貼在下方。登入重導不需要攜帶 POST 資料；仍可回到遊戲頁重新複製相同事件。</p>' +
       '<p>這裡只接受已同意交給老師的單筆學習事件。不要貼上名冊或整份遊戲備份。通行碼只在本頁使用，本頁程式不會將它存入瀏覽器、提交資料或回執。</p>' +
+      '<p>每次不同的完整闖關紀錄須個別提交。相同事件重送不會重複新增；只有顯示伺服器回執才代表這筆已收件。未收件資料請保留，不能視為已同步。</p>' +
       '<p id="submission-status" class="status" role="status" aria-live="polite">尚未確認收件。</p>' +
       '<form id="submission-form" autocomplete="off"><fieldset id="submission-fields" disabled>' +
       '<legend>貼上單筆提交資料</legend><label for="submission-payload">遊戲頁準備的提交資料</label>' +

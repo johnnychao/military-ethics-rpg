@@ -68,6 +68,16 @@
     }
   }
   function eventLimits(session) {
+    if (session.rollingLimit !== undefined) {
+      const rolling = session.rollingLimit;
+      keys(rolling, ['windowSeconds', 'maxEvents', 'maxStudentEvents'], 'SESSION_CONFIGURATION_INVALID');
+      if (session.maxEvents !== undefined || session.maxStudentEvents !== undefined ||
+          !Number.isInteger(rolling.windowSeconds) || rolling.windowSeconds < 60 || rolling.windowSeconds > 3600 ||
+          !Number.isInteger(rolling.maxEvents) || rolling.maxEvents < 1 || rolling.maxEvents > 10000 ||
+          !Number.isInteger(rolling.maxStudentEvents) || rolling.maxStudentEvents < 1 || rolling.maxStudentEvents > 100 ||
+          rolling.maxStudentEvents > rolling.maxEvents) fail('SESSION_CONFIGURATION_INVALID');
+      return { maxEvents: rolling.maxEvents, maxStudentEvents: rolling.maxStudentEvents, windowSeconds: rolling.windowSeconds };
+    }
     const maxEvents = session.maxEvents === undefined ? 500 : session.maxEvents;
     const maxStudentEvents = session.maxStudentEvents === undefined ? Math.min(3, maxEvents) : session.maxStudentEvents;
     if (!Number.isInteger(maxEvents) || maxEvents < 1 || maxEvents > 10000 ||
@@ -171,12 +181,16 @@
       }
       const serverReceivedAt = checkWindow(checked.session, deps.now());
       if (typeof deps.store.countEvents !== 'function') fail('COLLECTOR_STORE_INVALID');
-      const counts = deps.store.countEvents(checked.payload.sessionId, checked.payload.student.id);
+      const limits = eventLimits(checked.session);
+      const window = limits.windowSeconds === undefined ? undefined : {
+        afterExclusive: new Date(Date.parse(serverReceivedAt) - limits.windowSeconds * 1000).toISOString(),
+        throughInclusive: serverReceivedAt
+      };
+      const counts = deps.store.countEvents(checked.payload.sessionId, checked.payload.student.id, window);
       if (!isObject(counts) || !Number.isSafeInteger(counts.sessionEvents) || counts.sessionEvents < 0 ||
           !Number.isSafeInteger(counts.studentEvents) || counts.studentEvents < 0 || counts.studentEvents > counts.sessionEvents) {
         fail('COLLECTOR_STORE_INVALID');
       }
-      const limits = eventLimits(checked.session);
       if (counts.sessionEvents >= limits.maxEvents) fail('SESSION_EVENT_LIMIT');
       if (counts.studentEvents >= limits.maxStudentEvents) fail('STUDENT_EVENT_LIMIT');
       const row = makeRow(checked, digest, serverReceivedAt);
