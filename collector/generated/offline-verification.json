@@ -1,5 +1,5 @@
 {
-  "verifiedAtUtc": "2026-10-05T01:11:11.697642+00:00",
+  "verifiedAtUtc": "2026-10-05T01:14:44.352818+00:00",
   "phase": "rolling-quota-upgrade-offline-verification",
   "baselinePublishedCommit": "381c831cbec3f4231adf38b4c30f2d9166db77ff",
   "command": "npm test",
@@ -13,7 +13,7 @@
     "collector/adapter.gs": "dc3eebc656940035bdc6f7f8a7077c422e60028a69244aed2cf94383ba06176a",
     "collector/submission_page.js": "222e6c20b48bfb1e7e05bb2b2939b393d671c34285429db3755a0096318f7caa",
     "collector/appsscript.json": "0a8a35881677cdb344b5fb215c944faef3cdb3d44c2dfd44b4f4a6cd19b19f4e",
-    "collector/generated/Code.gs": "90daa1c9b614b43dd8a4a516c74aab1edf7013ec4e6cf4a99f87245ade21360f",
+    "collector/generated/Code.gs": "79f795993232950dd3778aa778a401cf1ee789aa607b22bd02aa2a16fcd88cdb",
     "js/receipt_client.js": "c84abca97865a009ae2ff1eff422212478fdd571c4bad8f77ddf306f4276c2ac"
   },
   "oauthScopes": [
@@ -34,5 +34,6 @@
     "This report does not establish deployment or live write/readback for this new version.",
     "The existing production version remains in effect until its Apps Script deployment and private configuration are updated.",
     "This narrow change does not enable 13-chapter automatic synchronization or private class rankings."
-  ]
+  ],
+  "bundleLineEndings": "LF"
 }

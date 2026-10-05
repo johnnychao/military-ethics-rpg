@@ -11,7 +11,7 @@ const sources = [
   'collector/adapter.gs'
 ];
 const sections = sources.map(relative => {
-  const text = fs.readFileSync(path.join(root, relative), 'utf8');
+  const text = fs.readFileSync(path.join(root, relative), 'utf8').replace(/\r\n/g, '\n');
   return '// Source: ' + relative + '\n' + text + '\n';
 });
 const generated = path.join(root, 'collector', 'generated');
