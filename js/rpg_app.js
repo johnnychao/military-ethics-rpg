@@ -7,6 +7,7 @@
   const phases={briefing:'任務簡報',exploration:'探索與查證',planning:'選擇行動方案',tactics:'三回合策略',outcome:'任務後果',review:'簡短回顧',complete:'章節已完成'};
   const regions={academy:'學院整備區',camp:'營區協作區',logistics:'補給與行政區',rescue:'救援演訓區'};
   let storage;try{storage=window.localStorage;}catch(_){storage=null;}
+  let taskViewKey='';
   let state,chapter,selection={unitId:null,actionId:null,destination:null},toastTimer,walkTimer=null,routeTimer=null,walking=false,submitting=false;
   const modal=$('modal'), body=$('modal-body');
   const store=new window.RPGStore({storage,chapters:D.chapters,onWarning:warning});
@@ -77,6 +78,7 @@
     if(state.phase==='planning'){b.append(el('p','兩個方案各有作用與限制。選擇後，透過隊伍指令把方案落實。'));chapter.scenario.paths.forEach(path=>{const card=btn('',()=>{selection={unitId:null,actionId:null,destination:null};if(transition(E.choosePath(state,chapter,path.id))){show('第一回合 · 指揮小隊',[el('p','① 點隊員　② 點目的格　③ 選技能並確認。每名隊員每回合只能行動一次；每回合兩次指令，三回合後查看結果。'),el('p','綠色格子是三步內可到的位置。技能須在目標一格內使用；可直接點技能，先帶入最近可用位置。'),btn('我知道了，開始部署',close,'gold-button wide')],'TACTICAL GUIDE');}},'path-card');card.append(el('strong',path.label),el('span',path.text),el('small',path.tradeoff),el('small',costText(path.cost),'branch-cost'));b.append(card);});}
     if(state.phase==='tactics')renderTactics(b);
     if(['outcome','review','complete'].includes(state.phase))renderOutcome(b);
+    const viewKey=chapter.id+':'+state.phase+':'+(selection.unitId||'');if(viewKey!==taskViewKey){b.parentElement.scrollTop=0;taskViewKey=viewKey;}
   }
   function chooseUnit(id){if(state.phase!=='tactics'||state.tactical.used.includes(id))return;selection={unitId:id,actionId:null,destination:null};render();focusTactics();}
   function command(){return {token:state.revision,unitId:selection.unitId,actionId:selection.actionId,x:selection.destination?.x,y:selection.destination?.y};}

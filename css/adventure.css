@@ -27,3 +27,5 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
 .chapter-banner>span:first-child{display:block;line-height:1.3}body[data-phase="tactics"] .chapter-banner>span:last-child,body[data-phase="outcome"] .chapter-banner>span:last-child,body[data-phase="review"] .chapter-banner>span:last-child,body[data-phase="complete"] .chapter-banner>span:last-child{position:absolute;top:10px;right:12px}
 
 @media(min-width:681px){body[data-phase="briefing"] .task-panel{top:222px;bottom:22px;max-height:none}}
+
+.task-panel{overflow-anchor:none}
