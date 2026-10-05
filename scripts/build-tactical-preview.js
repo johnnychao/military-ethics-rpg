@@ -7,7 +7,7 @@ const CORE=[
  'js/data/rpg_chapters.js','js/data/rpg_bonus_content.js','js/engine/rpg_bonus.js',
  'js/engine/rpg_avatar.js','js/data/rpg_music.js','js/engine/rpg_audio.js',
  'js/tactical/tactical_missions.js','js/tactical/tactical_engine.js',
- 'js/tactical/tactical_store.js','js/tactical/tactical_assets.js',
+ 'js/tactical/tactical_store.js','js/tactical/tactical_coach.js','js/tactical/tactical_assets.js',
  'js/tactical/tactical_renderer.js','js/tactical/tactical_app.js'
 ];
 const STYLES=['css/tactical.css'];
@@ -19,12 +19,13 @@ const ASSET_CANDIDATES=[
  ...ROLES.flatMap(role=>[`assets/tactical/portrait-${role}.png`,`assets/tactical/portrait-${role}-alt.png`]),
  ...ROLES.map(role=>`assets/tactical/portrait-${role}.webp`),
  'assets/tactical/training-drone.png','assets/tactical/civilian.png',
+ 'assets/tactical/key-art.webp',...['crate','barrier','tree','supply','beacon','stretcher'].map(k=>`assets/tactical/prop-${k}.png`),...['strike','scan','heal','hit'].map(k=>`assets/tactical/fx-${k}.png`),
  ...Array.from({length:13},(_,i)=>`assets/tactical/mission-${String(i+1).padStart(2,'0')}.webp`),
  ...ROLES.flatMap(role=>['select','attack','skill','rescue'].flatMap(cue=>[`assets/tactical/voice/${role}-${cue}.mp3`,`assets/tactical/voice/${role}-alt-${cue}.mp3`])),
  'assets/audio/menu.mp3','assets/audio/confirm.mp3','assets/audio/clue.mp3'
 ];
 function assetFiles(){return ASSET_CANDIDATES.filter(p=>fs.existsSync(path.join(root,p)));}
-function publicFiles(){return [`${PREFIX}/index.html`,...assetFiles().map(p=>`${PREFIX}/${p}`)];}
+function publicFiles(){return [`${PREFIX}/index.html`,`${PREFIX}/qa-layout.html`,...assetFiles().map(p=>`${PREFIX}/${p}`)];}
 function safeInput(rel,allowed){if(!allowed.includes(rel)||rel.includes('..')||path.isAbsolute(rel))throw new Error('Unapproved tactical dependency: '+rel);const p=path.join(root,rel);if(fs.lstatSync(p).isSymbolicLink()||!fs.statSync(p).isFile())throw new Error('Invalid tactical input '+rel);return fs.readFileSync(p,'utf8');}
 function build(){
  let html=fs.readFileSync(path.join(root,'tactical/index.html'),'utf8');
@@ -39,7 +40,8 @@ function build(){
  if(/AKfy[a-zA-Z0-9_-]{20,}|AIza[0-9A-Za-z_-]{20,}|ghp_[a-zA-Z0-9]{20,}|BEGIN .*PRIVATE KEY/.test(html))throw new Error('Routing credential or secret-like content in preview');
  if(/classroom_sync_boot|classroom_sync_client|receipt_client\.js|ClassroomSyncConfig\s*=\s*\{\s*enabled\s*:\s*true/.test(html))throw new Error('Classroom integration prohibited in tactical preview');
  const out=path.join(root,PREFIX);fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'index.html'),html);
- const hashes={'index.html':crypto.createHash('sha256').update(html).digest('hex')};
+ const harness=fs.readFileSync(path.join(root,'tactical/qa-layout.html'),'utf8');fs.writeFileSync(path.join(out,'qa-layout.html'),harness);
+ const hashes={'index.html':crypto.createHash('sha256').update(html).digest('hex'),'qa-layout.html':crypto.createHash('sha256').update(harness).digest('hex')};
  for(const rel of assetFiles()){
   const from=path.join(root,rel),to=path.join(out,rel);if(fs.lstatSync(from).isSymbolicLink()||!fs.statSync(from).isFile())throw new Error('Invalid tactical asset '+rel);
   const data=fs.readFileSync(from);if(data.length>15*1024*1024)throw new Error('Oversized tactical asset '+rel);fs.mkdirSync(path.dirname(to),{recursive:true});fs.writeFileSync(to,data);hashes[rel]=crypto.createHash('sha256').update(data).digest('hex');

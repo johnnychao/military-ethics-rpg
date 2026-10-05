@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-src 'self'; img-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<title>晨光行動｜隔離版面測試</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e9eee7;color:#213d39;font:15px/1.6 system-ui,sans-serif}header{padding:20px 24px;background:#fffdf5;border-bottom:1px solid #cdd9ca}h1{font-size:21px;margin:0 0 5px}p{margin:5px 0}nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}button,a{font:inherit}button{min-height:44px;padding:8px 13px;border:1px solid #aabdab;border-radius:9px;background:#fff;color:#274e48;cursor:pointer}button[aria-pressed=true]{background:#2b746b;color:white;border-color:#2b746b}button:focus-visible,a:focus-visible{outline:3px solid #d7952e;outline-offset:3px}a{color:#1e625c}main{overflow:auto;padding:24px;min-height:700px}.frame-holder{width:max-content;margin:auto;padding:12px;border:1px solid #b8c8b3;border-radius:18px;background:#2f4843;box-shadow:0 10px 28px #304e3c24}iframe{display:block;border:0;border-radius:8px;background:#fff;width:390px;height:844px}.notice{font-size:13px;max-width:1050px;color:#53695d}#dimensions{font-weight:700}footer{padding:0 24px 20px;font-size:13px;color:#53695d}
+</style>
+</head>
+<body>
+<header>
+<h1>晨光行動 · 隔離版面測試</h1>
+<p class="notice">這是普通網頁內的固定尺寸視框，只檢查版面重排，不模擬手機硬體、觸控或使用者代理，也不代表實機驗收。</p>
+<p class="notice">視框載入同一個獨立預覽，共用此瀏覽器的新版本機紀錄；不會連接正式班級或點名服務。請使用明示的合成測試資料。</p>
+<nav aria-label="選擇版面尺寸">
+<button type="button" data-preset="phone" aria-pressed="true">手機版面 390 × 844</button>
+<button type="button" data-preset="small" aria-pressed="false">窄版 320 × 568</button>
+<button type="button" data-preset="tablet" aria-pressed="false">平板版面 768 × 1024</button>
+<button type="button" data-preset="laptop" aria-pressed="false">筆電版面 1165 × 757</button>
+</nav>
+<p id="dimensions" role="status" aria-live="polite">目前視框：390 × 844 CSS 像素</p>
+<a href="index.html">直接開啟正常預覽</a>
+</header>
+<main><div class="frame-holder"><iframe id="game-frame" title="晨光行動隔離預覽版面" src="index.html" width="390" height="844"></iframe></div></main>
+<footer>這個測試頁不變更瀏覽器安全設定，不使用開發人員工具或遠端除錯介面。</footer>
+<script>
+(function(){'use strict';const presets={phone:[390,844],small:[320,568],tablet:[768,1024],laptop:[1165,757]},frame=document.getElementById('game-frame'),label=document.getElementById('dimensions');document.querySelectorAll('[data-preset]').forEach(function(button){button.addEventListener('click',function(){const size=presets[button.dataset.preset];if(!size)return;frame.style.width=size[0]+'px';frame.style.height=size[1]+'px';frame.width=size[0];frame.height=size[1];document.querySelectorAll('[data-preset]').forEach(function(b){b.setAttribute('aria-pressed',String(b===button));});label.textContent='目前視框：'+size[0]+' × '+size[1]+' CSS 像素';});});})();
+</script>
+</body>
+</html>

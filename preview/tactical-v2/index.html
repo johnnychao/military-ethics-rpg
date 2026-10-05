@@ -23,14 +23,52 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .learning-context{border:1px solid #dce3d4;border-radius:10px;background:#f4f5eb;margin:17px 0 13px;padding:0 14px}.learning-context summary{cursor:pointer;min-height:45px;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#648b72;list-style:none}.learning-context summary:after{content:'＋';margin-left:auto;color:#8aa081}.learning-context[open] summary:after{content:'−'}.learning-context summary .icon{height:15px;width:15px}.learning-context p{font-size:11px;line-height:1.9;margin-bottom:12px}.preview-notice a{font-weight:700;color:#557961;white-space:nowrap}
 .scene-image{object-fit:cover}.hero-illustration .scene-image{height:100%;object-position:center}.mission-card-art .scene-image{object-position:top center}.briefing-hero .scene-image{height:100%;transform:none;object-position:center 20%}.mobile-board-hint{display:none}.theme-blue,.theme-slate,.theme-indigo{filter:saturate(.82)}.theme-amber .tile-floor,.theme-copper .tile-floor,.theme-orange .tile-floor,.theme-gold .tile-floor{background:#cfcb9f}.theme-amber .tile-floor.alternate,.theme-copper .tile-floor.alternate,.theme-orange .tile-floor.alternate,.theme-gold .tile-floor.alternate{background:#c8c498}.theme-violet .tile-floor,.theme-rose .tile-floor{background:#bdc5b4}.theme-blue .tile-floor,.theme-slate .tile-floor,.theme-indigo .tile-floor{background:#b2c3b8}.tile.reachable{background:#abd0ca}.tile.targetable{background:#e5bf9b}.tile.selected{background:#d1dab1}.tile.preview-target{background:#e9d49e}
-@media(max-width:680px){.battle-shell{padding-left:8px;padding-right:8px}.board-scene{padding:5px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.board-surround{padding:2px;min-width:calc(var(--cols)*44px + 6px)}.battle-grid{min-width:calc(var(--cols)*44px)}.mobile-board-hint{display:block;font-size:8px;color:#8b9a83;margin:5px 0 0;text-align:center}.wardrobe-presets .button{font-size:9px;min-height:36px;padding:8px 10px}.hero-illustration .scene-image{width:130%;object-position:60% 30%}}
+@media(max-width:680px){.battle-shell{padding-left:8px;padding-right:8px}.board-scene{padding:5px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.board-surround{padding:2px;min-width:calc(var(--cols)*44px + 8px)}.battle-grid{min-width:calc(var(--cols)*44px + 2px)}.mobile-board-hint{display:block;font-size:8px;color:#8b9a83;margin:5px 0 0;text-align:center}.wardrobe-presets .button{font-size:9px;min-height:36px;padding:8px 10px}.hero-illustration .scene-image{width:130%;object-position:60% 30%}}
 .legend-square.hazard{background:#edc58e;border-color:#b98045}.legend-square.smoke{background:#dde7e2;border-color:#9aafa6;border-radius:50%}.tile.environment-danger{outline:2px solid #b77a46;outline-offset:-3px}.tile.environment-next{outline:1px dashed #bf955d;outline-offset:-3px}.hazard-warning{position:absolute;right:2px;bottom:2px;z-index:6;display:grid;place-items:center;pointer-events:none;width:13px;height:13px;border-radius:3px;background:#c2864b;color:#fff7dd;font-size:10px;font-weight:900;border:1px solid #9d6739}.hazard-warning.next{background:#fff3d1a6;border-style:dashed;color:#a37c45}.smoke-cloud{position:absolute;inset:12% 5% 8%;z-index:2;pointer-events:none;background:#e6eee3bb;border-radius:45%;filter:drop-shadow(0 2px 2px #718f7b22)}.smoke-cloud i{position:absolute;width:45%;height:50%;border-radius:50%;background:#edf3e8c4;top:-15%;left:8%}.smoke-cloud i:nth-child(2){width:52%;height:75%;left:38%;top:-10%}.smoke-cloud i:nth-child(3){left:30%;top:45%}.smoky .unit{filter:drop-shadow(0 3px 2px #40574722) saturate(.75)}.status-shield{left:8%;bottom:8%;background:#d6e9e8;color:#48758c;border:1px solid #7ca6ad}.hazard-notice{margin-top:13px;border-top:1px solid #e1e6d8;padding-top:9px;font-size:9px;color:#927b51}.hazard-notice summary{display:flex;gap:5px;align-items:center;cursor:pointer;min-height:30px;font-weight:700}.hazard-notice summary .icon{width:12px;height:12px}.hazard-notice ul{padding-left:15px;line-height:1.8}.hazard-notice p{font-size:9px;line-height:1.7;margin:8px 0}.board-legend{align-items:start}.legend-items{row-gap:5px}
 .hero-squad,.hero-illustration,.hero-caption{pointer-events:none}.grid-row{display:contents}.status-suppressed{position:absolute;left:8%;bottom:8%;z-index:7;background:#ecd8ce;border:1px solid #b27c66;border-radius:4px;color:#9c604c;font-size:9px;font-weight:800;padding:2px 4px}
+/* Recorded character subtitles remain available when voices are muted. */
+.voice-caption{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);width:max-content;max-width:min(460px,calc(100vw - 32px));z-index:90;pointer-events:none}.voice-caption-bubble{border:1px solid #c4d8c2;border-radius:13px;background:#fffdefee;box-shadow:0 8px 26px #365f4926;display:flex;align-items:center;gap:12px;padding:12px 18px;backdrop-filter:blur(8px);animation:toast-in .15s ease-out}.voice-caption-bubble>span{font-size:10px;color:#5e9075;font-weight:800;white-space:nowrap;border-right:1px solid #d2dfcb;padding-right:12px}.voice-caption-bubble p{font-size:12px;color:#425f51;margin:0;line-height:1.6}.tile-prop{position:absolute;inset:-22% -7% 1%;pointer-events:none;z-index:1;display:flex;align-items:end;justify-content:center}.tile-prop .decor-image{width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 2px #3559382b)}.tile-prop .sprite-fallback{width:82%;height:80%;position:relative}.prop-tree{inset:-52% -14% -2%;z-index:2}.prop-barrier{inset:-17% -4% 0}.prop-object{inset:-18% -3% 0}.object-name{position:absolute;bottom:1px;left:2%;right:2%;padding:2px;background:#f8edcfe3;color:#7e754e;font-size:7px;font-weight:700;border-radius:3px;z-index:3;white-space:nowrap;pointer-events:none}.gate-open{position:absolute;inset:9%;display:grid;place-items:center;align-content:center;color:#658d6b;border:1px dashed #80a17a;border-radius:4px;opacity:.7;pointer-events:none}.gate-open .icon{width:22px;height:22px}.gate-open span{font-size:7px}.board-effect{position:absolute;inset:-48%;z-index:12;pointer-events:none;display:grid;place-items:center;animation:battle-effect .28s ease-out both}.board-effect .effect-image{width:100%;height:100%;object-fit:contain;pointer-events:none}@keyframes battle-effect{0%{opacity:.2;transform:scale(.65)}50%{opacity:.92;transform:scale(1)}100%{opacity:.4;transform:scale(1.07)}}
+@media(max-width:680px){.voice-caption{bottom:75px;max-width:calc(100vw - 26px)}.voice-caption-bubble{padding:10px 13px;gap:9px;border-radius:11px}.voice-caption-bubble p{font-size:11px}.voice-caption-bubble>span{font-size:9px;padding-right:9px}.object-name{font-size:6px;padding:1px}.gate-open .icon{width:17px;height:17px}.gate-open span{font-size:5px}}
+@media(prefers-reduced-motion:reduce){.board-effect{display:none}.voice-caption-bubble{animation:none}}body.reduce-motion .board-effect{display:none}
+/* Keep the full move/confirm/end-turn loop in a short laptop viewport. The map
+   scales as a whole; no playable cells are clipped or covered by controls. */
+@media(min-width:961px) and (max-height:840px){
+ .battle-header{min-height:64px;padding:10px 20px}
+ .battle-shell{padding-top:12px;padding-bottom:8px;align-items:start}
+ .battle-phasebar{min-height:30px;padding-bottom:8px}
+ .board-scene{padding:10px;max-width:calc((100dvh - 370px)*var(--board-aspect) + 32px);margin-inline:auto;box-shadow:inset 0 0 0 3px #e7eddc,0 7px 18px #3f604912}
+ .board-surround{padding:4px}
+ .board-legend{padding-top:8px;font-size:8px;gap:7px}
+ .board-legend button{min-height:20px;font-size:8px}
+ .legend-items{gap:6px 10px}
+ .battle-actionbar{min-height:70px;margin-top:10px;padding:10px 13px;gap:11px}
+ .actionbar-copy h3{font-size:11px;margin-bottom:4px}
+ .actionbar-copy p{font-size:9px;line-height:1.6}
+ .actionbar-buttons .button{min-height:39px;padding:9px 13px;font-size:11px}
+ .mission-panel{padding:13px}
+ .mission-panel h2{font-size:12px;margin-bottom:9px}
+ .objective-list{gap:8px}.objective{font-size:10px;line-height:1.6}
+ .mission-panel-note{font-size:9px;margin-top:10px;padding-top:9px}
+ .hazard-notice{margin-top:9px;padding-top:5px}.hazard-notice summary{min-height:25px}
+ .action-panel{padding:12px;margin-top:12px}
+ .action-heading{margin-bottom:7px}.action-heading h2{font-size:12px}
+ .action-hint{font-size:9px;line-height:1.6;margin-bottom:8px;min-height:0}
+ .skill-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .skill-button,.skill-button.active-move{grid-column:auto;min-height:56px;flex-direction:column;justify-content:center;padding:6px 3px;gap:3px;font-size:9px}
+ .skill-button .icon{width:17px;height:17px}.skill-button small{font-size:7px}
+ .end-turn{min-height:39px;margin-top:9px;font-size:11px}
+ .battle-footer{padding-top:0;padding-bottom:9px;font-size:8px}.battle-footer button{min-height:24px}
+ .tutorial-card{margin-top:15px;padding:12px}.tutorial-card p{font-size:9px}.battle-note{font-size:8px;margin-top:10px}
+}
+.enemy-intent{position:absolute;top:1%;left:50%;transform:translateX(-50%);z-index:8;display:inline-flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;pointer-events:none;border:1px solid #c49676;border-radius:4px;background:#fff4ddec;color:#9c6048;padding:2px 4px;font-size:8px;font-weight:800;box-shadow:0 2px 5px #694c2721}.enemy-intent .icon{width:9px;height:9px}.enemy-intent.intent-move{background:#efebdfe8;color:#887955;border-color:#b9ac89}.enemy-intent.intent-wait{background:#e8eadee8;color:#84917d;border-color:#aab5a0}
+@media(max-width:680px){.enemy-intent{font-size:7px;padding:1px 3px;gap:2px;top:0}.enemy-intent .icon{width:7px;height:7px}}
+.coach-advice{display:flex;align-items:start;gap:15px;margin:3px 0 18px;padding:18px;background:#edf3e4;border:1px solid #d5e3c8;border-radius:13px}.coach-advice .eyebrow{font-size:9px;margin-bottom:8px}.coach-advice p:not(.eyebrow){font-size:13px;color:#5b735c;margin:0;line-height:1.9}.coach-symbol{display:grid;place-items:center;width:34px;height:34px;flex:none;background:#e3e6c8;color:#a38c47;border-radius:10px}.coach-symbol .icon{width:22px;height:22px}@media(max-width:680px){.coach-advice{padding:13px;gap:10px}.coach-advice p:not(.eyebrow){font-size:12px}.actionbar-buttons [data-action=coach]{font-size:9px;padding:8px 9px}.actionbar-buttons [data-action=coach] .icon{width:12px;height:12px}}
 </style>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳至遊戲內容</a>
   <div id="app" aria-busy="true"><main class="boot-screen" id="main-content"><span class="boot-symbol" aria-hidden="true">✦</span><p class="eyebrow">DAWN OPERATIONS</p><h1>小隊整備中</h1><p>正在開啟戰術地圖…</p><noscript><p>這個戰棋遊戲需要 JavaScript。請啟用後重新載入。</p></noscript></main></div>
+  <div id="voice-caption" class="voice-caption" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="toast-region" class="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
   <dialog id="game-dialog" class="game-dialog" aria-labelledby="dialog-title"></dialog>
   <script>window.RPG_ASSET_BASE='./assets/';</script>
@@ -3953,6 +3991,242 @@ return freeze({CONTENT_VERSION,contentVersion:CONTENT_VERSION,missions,getMissio
   return freeze({ VERSION, ENGINE_VERSION, FORMAT, CONTENT_VERSION: Missions.CONTENT_VERSION, MAX_COMMANDS, createState, command, reachable, preview, enemyIntents, summary, validateState, replay, getSkills, tileAt, hazardCells, hasLineOfSight, objectiveProgress, roles: ROLE, skills: SKILLS });
 });
 </script>
+  <script>/* Optional, deterministic first-battle advice. Never submits a player command. */
+(function (root, factory) {
+  'use strict';
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./tactical_engine.js'), require('./tactical_missions.js'));
+  else root.TacticalCoach = factory(root.TacticalEngine, root.TacticalMissions);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (Engine, Missions) {
+  'use strict';
+  if (!Engine || !Missions) throw new Error('TacticalEngine and TacticalMissions must load before TacticalCoach.');
+
+  const VERSION = '1.0.0';
+  const NOTICE = '建議可以略過，也不是唯一解；倫理選擇不排名，戰術勝敗都能完成反思。採用後仍需確認；盤面更新時請重新取得建議。';
+  const routeCache = new Map();
+  const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  const cellKey = p => p.x + ',' + p.y;
+  const neighbors = p => [{ x: p.x, y: p.y - 1 }, { x: p.x - 1, y: p.y }, { x: p.x + 1, y: p.y }, { x: p.x, y: p.y + 1 }];
+  const label = p => String.fromCharCode(65 + p.x) + (p.y + 1);
+  function freeze(value) {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); }
+    return value;
+  }
+  function answer(kind, title, reason, command, step) {
+    return freeze({ available: !!command, kind, title, reason, command: command || null, step: step || null, total: step ? ROUTE.length : null, notice: NOTICE });
+  }
+
+  // Both ethical decisions have this same optional, tested tactical route.
+  // These are private templates, not commands held over from an earlier revision.
+  const ROUTE = freeze([
+    { command: { type: 'move', unitId: 'scout', x: 5, y: 3 }, title: '偵察員移動到 F4', reason: '先讓若嵐沿走道前進到 F4，形成對右下巡邏訓練機的射線；接著與軍醫集中停用它，騰出救援空間。' },
+    { command: { type: 'skill', unitId: 'scout', skillId: 'shot', targetId: 'enemy-2' }, title: '偵察員瞄準巡邏訓練機', reason: '用精準射擊削弱右下的巡邏訓練機。下一步讓軍醫接上火力，減少它干擾救援的機會。' },
+    { command: { type: 'move', unitId: 'medic', x: 4, y: 4 }, title: '軍醫移動到 E5', reason: '承澤到 E5 後可看見同一台巡邏訓練機。這次先用遠程支援協助隊友，再一起撤回。' },
+    { command: { type: 'skill', unitId: 'medic', skillId: 'shot', targetId: 'enemy-2' }, title: '軍醫接力停用巡邏訓練機', reason: '繼續對同一台巡邏訓練機使用精準射擊，這一步可將它停用。不必清光所有訓練機，重點是接應民眾。' },
+    { command: { type: 'move', unitId: 'guardian', x: 2, y: 1 }, title: '護衛移動到 C2', reason: '映岑到 C2 後便與上方民眾相鄰。每人有一次移動和一次技能，移動後仍可救援。' },
+    { command: { type: 'skill', unitId: 'guardian', skillId: 'rescue', targetId: 'civilian-1' }, title: '護衛接上第一位民眾', reason: '使用救援，讓上方民眾跟隨映岑。接上還不算完成交接，下回合要帶回左側綠色撤離格。' },
+    { command: { type: 'endTurn' }, title: '看過敵機預告，進入第 2 回合', reason: '三位隊員已完成這回合的分工。確認敵機預告後結束回合，下一回合可恢復移動與技能，再分頭接應。' },
+    { command: { type: 'move', unitId: 'guardian', x: 0, y: 2 }, title: '護衛帶民眾回到 A3', reason: '映岑移動到 A3 的綠色撤離格，會自動完成第一位民眾的交接，也為其他隊員保留 A4、A5。' },
+    { command: { type: 'skill', unitId: 'scout', skillId: 'rescue', targetId: 'civilian-2' }, title: '偵察員接上第二位民眾', reason: '若嵐已在右側民眾旁，現在使用救援。本回合尚未移動，因此接上後就能往撤離區前進。' },
+    { command: { type: 'move', unitId: 'scout', x: 1, y: 3 }, title: '偵察員護送到 B4', reason: '帶著第二位民眾沿走道回到 B4，先拉開與訓練機的距離；下一回合再走進 A4 完成交接。' },
+    { command: { type: 'move', unitId: 'medic', x: 1, y: 4 }, title: '軍醫回撤到 B5', reason: '承澤跟著回到 B5，為最後一段撤離做好準備。救援完成後，存活隊員也都要回到綠色撤離格。' },
+    { command: { type: 'endTurn' }, title: '看過預告，準備最後一段撤離', reason: '護衛已交接，偵察員和軍醫也已回到左側。確認敵機預告後結束回合，下一回合各自走進撤離格。' },
+    { command: { type: 'move', unitId: 'scout', x: 0, y: 3 }, title: '偵察員帶民眾進入 A4', reason: '若嵐走進 A4，會自動交接第二位民眾。接著讓軍醫回到 A5，就能完成全隊撤離。' },
+    { command: { type: 'move', unitId: 'medic', x: 0, y: 4 }, title: '軍醫進入 A5，完成全隊撤離', reason: '承澤回到最後一格撤離區，兩位民眾與存活全隊都已交接。接著可回顧分工、代價與自己的倫理選擇。' }
+  ]);
+
+  function stable(value) {
+    if (Array.isArray(value)) return '[' + value.map(stable).join(',') + ']';
+    if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map(k => JSON.stringify(k) + ':' + stable(value[k])).join(',') + '}';
+    return JSON.stringify(value);
+  }
+  function semanticKey(state) {
+    // Retry/undo/decision-selection history is irrelevant to where the team is.
+    // All gameplay data (including HP, resources, statuses and metrics) remains.
+    const metrics = { ...state.metrics }; delete metrics.retries;
+    return stable({ format: state.format, version: state.version, engineVersion: state.engineVersion, contentVersion: state.contentVersion,
+      missionId: state.missionId, decisionId: state.decisionId, round: state.round, turnLimit: state.turnLimit,
+      phase: state.phase, status: state.status, reason: state.reason, units: state.units, civilians: state.civilians,
+      objects: state.objects, smoke: state.smoke, metrics });
+  }
+  function routeFor(decisionId) {
+    if (routeCache.has(decisionId)) return routeCache.get(decisionId);
+    const states = new Map();
+    let state = Engine.createState('u03', { decisionId });
+    for (let i = 0; i < ROUTE.length; i++) {
+      states.set(semanticKey(state), i);
+      // Simulate only our own freshly-created route, never the caller's state.
+      const result = Engine.command(state, { ...ROUTE[i].command, revision: state.revision });
+      if (!result.ok) { routeCache.set(decisionId, null); return null; }
+      state = result.state;
+    }
+    if (state.status !== 'won' || state.round !== 3 || state.metrics.rescued !== 2 || state.units.filter(u => u.team === 'player' && u.hp > 0).length !== 3) {
+      routeCache.set(decisionId, null); return null;
+    }
+    routeCache.set(decisionId, states);
+    return states;
+  }
+  function legal(state, template) {
+    if (state.commandLog.length >= Engine.MAX_COMMANDS) return null;
+    const command = { ...template, revision: state.revision };
+    return Engine.preview(state, command).ok ? command : null;
+  }
+  function hint(state, template, title, reason) {
+    const command = legal(state, template);
+    return command ? answer('adaptive', title, reason, command) : null;
+  }
+  function validEnvelope(state, mission) {
+    // Bound malformed input before asking the engine to verify its trusted replay.
+    return Number.isSafeInteger(state.revision) && state.revision >= 0 &&
+      Number.isSafeInteger(state.round) && state.round >= 1 && state.round <= 20 &&
+      Array.isArray(state.commandLog) && state.commandLog.length <= Engine.MAX_COMMANDS &&
+      Array.isArray(state.undoStack) && state.undoStack.length <= 6 &&
+      Array.isArray(state.log) && state.log.length <= 180 &&
+      Array.isArray(state.units) && state.units.length === 3 + mission.enemies.length &&
+      state.units.every(u => u && Number.isInteger(u.x) && Number.isInteger(u.y) && u.x >= 0 && u.y >= 0 && u.x < mission.map.width && u.y < mission.map.height) &&
+      Array.isArray(state.civilians) && state.civilians.length === mission.civilians.length &&
+      Array.isArray(state.objects) && state.objects.length === mission.objects.length &&
+      Array.isArray(state.smoke) && state.smoke.length <= mission.map.width * mission.map.height;
+  }
+
+  // One small reverse Dijkstra field per unit/goal set; u03 has only 48 cells.
+  // Using traversable route distance prevents advice that merely approaches a
+  // goal in a straight line while actually walking into a wall or dead end.
+  function goalDistances(state, actor, goals) {
+    const blocked = new Set(state.units.filter(u => u.id !== actor.id && u.hp > 0).map(cellKey));
+    state.civilians.filter(c => c.status === 'waiting').forEach(c => blocked.add(cellKey(c)));
+    const passable = p => Engine.tileAt(state, p.x, p.y).passable && !blocked.has(cellKey(p));
+    const distances = new Map(), queue = [];
+    goals.filter(passable).forEach(p => { const key = cellKey(p); if (!distances.has(key)) { distances.set(key, 0); queue.push({ ...p, cost: 0 }); } });
+    while (queue.length) {
+      queue.sort((a, b) => a.cost - b.cost || a.y - b.y || a.x - b.x);
+      const current = queue.shift();
+      if (current.cost !== distances.get(cellKey(current))) continue;
+      for (const previous of neighbors(current).filter(passable)) {
+        const cost = current.cost + Engine.tileAt(state, current.x, current.y).cost;
+        const key = cellKey(previous);
+        if (!distances.has(key) || cost < distances.get(key)) { distances.set(key, cost); queue.push({ ...previous, cost }); }
+      }
+    }
+    return distances;
+  }
+  function exits(state) {
+    const map = Missions.getMission(state.missionId).map, result = [];
+    for (let y = 0; y < map.height; y++) for (let x = 0; x < map.width; x++) if (Engine.tileAt(state, x, y).type === 'exit') result.push({ x, y });
+    return result;
+  }
+  function betterMove(state, actor, goals, hazards) {
+    if (actor.moved) return null;
+    const distances = goalDistances(state, actor, goals), before = distances.get(cellKey(actor));
+    if (before == null || before === 0) return null;
+    const options = Engine.reachable(state, actor.id).map(p => ({ ...p, remaining: distances.get(cellKey(p)), hazard: hazards.get(cellKey(p)) || 0 }))
+      .filter(p => p.remaining != null && p.remaining < before && p.hazard < actor.hp);
+    // A non-hazardous step is preferable even when it makes less progress.
+    options.sort((a, b) => a.hazard - b.hazard || a.remaining - b.remaining || a.cost - b.cost || a.y - b.y || a.x - b.x);
+    return options.length ? { actor, destination: options[0], before } : null;
+  }
+  function moveHint(state, move, carrying) {
+    const { actor, destination } = move;
+    const onExit = Engine.tileAt(state, destination.x, destination.y).type === 'exit';
+    return hint(state, { type: 'move', unitId: actor.id, x: destination.x, y: destination.y }, actor.title + (carrying ? '護送到 ' : '回撤到 ') + label(destination),
+      carrying ? (onExit ? actor.name + '走進這個綠色撤離格，會自動完成民眾交接。' : actor.name + '可沿目前暢通的路線靠近撤離區；民眾會跟著移動。到達後仍要看敵機預告。') : actor.name + '先靠近綠色撤離格，讓存活全隊完成撤離；不需要為了清光訓練機而停留。');
+  }
+  function adaptive(state) {
+    const players = state.units.filter(u => u.team === 'player' && u.hp > 0);
+    const waiting = state.civilians.filter(c => c.status === 'waiting');
+    const exitCells = exits(state), hazards = new Map();
+    Engine.hazardCells(state).forEach(h => h.cells.forEach(p => hazards.set(cellKey(p), (hazards.get(cellKey(p)) || 0) + h.damage)));
+    const carriers = players.filter(u => u.carrying).map(u => betterMove(state, u, exitCells, hazards)).filter(Boolean);
+    carriers.sort((a, b) => a.destination.remaining - b.destination.remaining || a.before - b.before || a.actor.id.localeCompare(b.actor.id));
+    for (const move of carriers) { const result = moveHint(state, move, true); if (result) return result; }
+
+    for (const actor of players.filter(u => !u.carrying && !u.acted)) for (const civilian of waiting) {
+      if (distance(actor, civilian) > 1) continue;
+      const result = hint(state, { type: 'skill', unitId: actor.id, skillId: 'rescue', targetId: civilian.id }, actor.title + '接上身旁民眾',
+        actor.name + '已與' + civilian.name + '相鄰。先使用救援，再把民眾帶回綠色撤離格；每人一次可護送一位。');
+      if (result) return result;
+    }
+
+    // A single deterministic enemy-intent calculation, not a search tree.
+    const intents = Engine.enemyIntents(state), incoming = new Map();
+    intents.filter(i => i.type === 'attack').forEach(i => incoming.set(i.targetId, (incoming.get(i.targetId) || 0) + i.damage));
+    const medic = players.find(u => u.role === 'medic' && !u.acted);
+    const wounded = players.filter(u => u.hp < u.maxHp && (u.hp <= u.maxHp / 2 || u.hp <= (incoming.get(u.id) || 0) + 2)).sort((a, b) => a.hp - b.hp || a.id.localeCompare(b.id));
+    if (medic) for (const target of wounded) {
+      const result = hint(state, { type: 'skill', unitId: medic.id, skillId: 'heal', targetId: target.id }, '軍醫支援低 HP 隊友',
+        target.name + '目前剩 ' + target.hp + ' HP。可先用照護支援補回演訓 HP，保留下一步救援或撤離的空間。');
+      if (result) return result;
+    }
+    const threatened = players.filter(u => (incoming.get(u.id) || 0) > 0).sort((a, b) => a.hp - (incoming.get(a.id) || 0) - (b.hp - (incoming.get(b.id) || 0)) || a.id.localeCompare(b.id));
+    function protection(urgentOnly) {
+      for (const target of threatened) {
+        if (urgentOnly && target.hp > (incoming.get(target.id) || 0) + 2) continue;
+        const guardian = players.find(u => u.role === 'guardian' && !u.acted);
+        if (guardian) for (const intent of intents.filter(i => i.type === 'attack' && i.targetId === target.id)) {
+          const result = hint(state, { type: 'skill', unitId: guardian.id, skillId: 'suppress', targetId: intent.enemyId }, '護衛壓制即將攻擊的訓練機',
+            '目前預告中有訓練機瞄準' + target.name + '。壓制可以取消這台訓練機本回合的行動；其他敵機仍需留意。');
+          if (result) return result;
+        }
+        const result = hint(state, { type: 'skill', unitId: target.id, skillId: 'guard' }, target.title + '先建立掩護',
+          target.name + '正被敵機瞄準。掩護能減少本回合的演訓傷害，之後仍要確認其他隊員的位置與撤離路線。');
+        if (result) return result;
+      }
+      return null;
+    }
+    const urgent = protection(true); if (urgent) return urgent;
+
+    const approaches = [];
+    for (const actor of players.filter(u => !u.carrying && !u.moved)) for (const civilian of waiting) {
+      const move = betterMove(state, actor, neighbors(civilian), hazards);
+      if (move) approaches.push({ ...move, civilian });
+    }
+    approaches.sort((a, b) => Number(a.actor.acted) - Number(b.actor.acted) || a.before - b.before || a.destination.hazard - b.destination.hazard || a.destination.remaining - b.destination.remaining || a.actor.id.localeCompare(b.actor.id) || a.civilian.id.localeCompare(b.civilian.id));
+    for (const move of approaches) {
+      const { actor, destination, civilian } = move;
+      const result = hint(state, { type: 'move', unitId: actor.id, x: destination.x, y: destination.y }, actor.title + '靠近民眾，到 ' + label(destination),
+        actor.name + '可沿暢通路線靠近' + civilian.name + '。' + (destination.remaining === 0 ? (actor.acted ? '這回合技能已用過，下回合恢復後可救援。' : '到達後與民眾相鄰，還能使用救援。') : '目前還接不到民眾，先縮短實際通路距離，再看敵機預告。'));
+      if (result) return result;
+    }
+    if (!waiting.length) for (const actor of players.filter(u => !u.carrying)) {
+      const move = betterMove(state, actor, exitCells, hazards);
+      if (move) { const result = moveHint(state, move, false); if (result) return result; }
+    }
+    const guarded = protection(false); if (guarded) return guarded;
+    const ending = hint(state, { type: 'endTurn' }, '確認預告，再結束回合',
+      state.round >= state.turnLimit ? '已到最後一回合，目前沒有可建議的救援或前進步驟。結束回合會判定本次戰果；也可先自行檢查其他技能與路線。' : '目前沒有可建議的救援或前進步驟。看過敵機預告後可結束回合，讓隊員恢復移動、技能與 1 能量；也可自行改用其他戰術。');
+    return ending || answer('adaptive', '先查看任務與撤離路線', '目前沒有合適的可執行建議。可先查看隊員行動、民眾位置及敵機預告，不必重來。');
+  }
+
+  /**
+   * suggest(state) -> { available, kind, title, reason, command, step, total, notice }
+   * available means a preview-validated command is present. Route steps are 1-based;
+   * step/total are null for adaptive, complete and unsupported responses.
+   * Commands always carry the current revision. The caller prepares the preview
+   * and asks the learner to confirm; it must never auto-submit this suggestion.
+   */
+  function suggest(state) {
+    try {
+      if (!state || typeof state !== 'object' || Array.isArray(state)) return answer('unsupported', '暫時無法讀取盤面', '請先開啟一場演訓，再取得戰術建議。');
+      const mission = Missions.getMission(state.missionId);
+      if (!mission) return answer('unsupported', '找不到這場任務', '請回到有效的演訓盤面，再取得建議。');
+      if (mission.id !== 'u03') return answer('unsupported', '這章可自行規劃分工', '逐步戰術建議目前提供給「撤離救護站」。其他章可先看任務目標、角色技能與敵機預告，再安排分工。');
+      if (!validEnvelope(state, mission) || !Engine.validateState(state).ok) return answer('unsupported', '盤面資料無法驗證', '為避免提供過期或無效指令，請重新載入有效的演訓進度。');
+      if (state.status === 'won' || state.status === 'lost') return answer('complete', state.status === 'won' ? '撤離演訓已完成' : '本次演訓已結束', '可以回顧剛才的分工與代價，再說明自己的倫理選擇。戰術勝敗都能完成反思，也可以自行決定是否重試。');
+      if (state.phase !== 'player' || state.status !== 'active') return answer('unsupported', '請等待隊員行動階段', '回到可行動的盤面後，再取得建議。');
+      if (state.commandLog.length >= Engine.MAX_COMMANDS) return answer('unsupported', '本次操作已達上限', '目前無法再提交演訓指令，請從章節頁重新開始。');
+      const route = routeFor(state.decisionId), index = route && route.get(semanticKey(state));
+      if (index != null) {
+        const item = ROUTE[index], command = legal(state, item.command);
+        if (command) return answer('route', item.title, item.reason, command, index + 1);
+      }
+      return adaptive(state);
+    } catch (error) {
+      // Invalid imported data must not crash the board or produce a guessed move.
+      return answer('unsupported', '暫時無法提供建議', '請確認演訓資料已載入。你仍可自行查看任務與技能，不必照著固定路線行動。');
+    }
+  }
+  return freeze({ VERSION, suggest, getOpening: suggest });
+});
+</script>
   <script>/* Tactical v2 local records. Independent of every legacy game and classroom key.
  * Device timestamps and imported records are not proof of identity or attendance.
  * A successful save means validated JSON was read back exactly from local storage.
@@ -3963,9 +4237,10 @@ return freeze({CONTENT_VERSION,contentVersion:CONTENT_VERSION,missions,getMissio
 })(typeof globalThis!=='undefined'?globalThis:this,function(DefaultEngine,Avatar,Bonus){
 'use strict';
 const KEY='ndmu-ethics-tactical-preview:v2',FORMAT='ndmu-ethics-tactical-records',VERSION=2;
+const SCHEMA_REVISION=2;
 const ENGINE_VERSION='2.0.0',CONTENT_VERSION='tactical-2026-10-06-v1';
 const MAX_BYTES=6*1024*1024,MAX_ATTEMPTS=130,LEGACY_KEY='ndmu-ethics-rpg:v1';
-const SETTINGS={reducedMotion:false,musicEnabled:false,musicVolume:.2,voiceEnabled:true,voiceVolume:.65};
+const SETTINGS={reducedMotion:false,musicEnabled:false,musicVolume:.2,voiceEnabled:true,voiceVolume:.65,coachEnabled:true};
 const ROLES=['guardian','scout','medic'];
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 const plain=o=>o!==null&&typeof o==='object'&&!Array.isArray(o)&&[Object.prototype,null].includes(Object.getPrototypeOf(o));
@@ -4011,7 +4286,7 @@ function normalizeProfile(input){
  if(input.squadArtMode!==undefined&&!plain(input.squadArtMode))fail('小隊美術選項不正確。');exact(p.squadArtMode,ROLES,'小隊美術模式');for(const v of Object.values(p.squadArtMode))if(!['illustrated','illustrated-alt','custom'].includes(v))fail('小隊美術模式不正確。');
  if(input.settings!==undefined&&!plain(input.settings))fail('設定格式不正確。');
  exact(p.settings,Object.keys(SETTINGS),'操作設定');
- for(const k of ['reducedMotion','musicEnabled','voiceEnabled'])if(typeof p.settings[k]!=='boolean')fail('開關設定須為開或關。');
+ for(const k of ['reducedMotion','musicEnabled','voiceEnabled','coachEnabled'])if(typeof p.settings[k]!=='boolean')fail('開關設定須為開或關。');
  for(const k of ['musicVolume','voiceVolume'])if(typeof p.settings[k]!=='number'||!Number.isFinite(p.settings[k])||p.settings[k]<0||p.settings[k]>1)fail('音量须在 0 至 1 之間。');
  return p;
 }
@@ -4027,29 +4302,41 @@ class TacticalStore{
   const locks=options.lockManager||(typeof window!=='undefined'&&typeof navigator!=='undefined'?navigator.locks:null);
   if(locks&&typeof locks.request==='function'){this.lockState='pending';try{Promise.resolve(locks.request(KEY+':writer',{mode:'exclusive',ifAvailable:true},lock=>{this.lockState=lock?'owned':'unavailable';if(!lock){this.warn('新版遊戲已在另一個分頁開啟，本頁只暫存記憶體。請下載備份，或關閉另一頁後重新整理。');return;}return new Promise(resolve=>{this.releaseWriteLock=resolve;});})).catch(()=>{this.lockState='unavailable';this.warn('無法確認紀錄寫入鎖，本頁只保留記憶體，請下載備份。');});}catch(_){this.lockState='unavailable';}}
   this.data=this.fresh();
-  try{const raw=this.storage?.getItem(KEY)||null;this.baseRaw=raw;if(raw){this.damagedRaw=raw;const parsed=JSON.parse(raw);this.validate(parsed);this.data=parsed;this.damagedRaw=null;this.persisted=true;}}
+  try{const raw=this.storage?.getItem(KEY)||null;this.baseRaw=raw;if(raw){this.damagedRaw=raw;const parsed=this.migrate(JSON.parse(raw));this.validate(parsed);this.data=parsed;this.damagedRaw=null;this.persisted=true;}}
   catch(error){this.warn('原有新版紀錄無法讀取，已保留原文，不會覆寫。請先下載備份。'+error.message);}
  }
- fresh(){const t=this.clock();return {format:FORMAT,version:VERSION,engineVersion:ENGINE_VERSION,contentVersion:CONTENT_VERSION,profileId:this.makeId(),createdAt:t,updatedAt:t,clockSource:'device-untrusted',profile:normalizeProfile({}),session:null,attempts:[],bonus:Bonus?Bonus.createState():null};}
+ fresh(){const t=this.clock();return {format:FORMAT,version:VERSION,schemaRevision:SCHEMA_REVISION,engineVersion:ENGINE_VERSION,contentVersion:CONTENT_VERSION,profileId:this.makeId(),createdAt:t,updatedAt:t,clockSource:'device-untrusted',profile:normalizeProfile({}),session:null,attempts:[],bonus:Bonus?Bonus.createState():null};}
+ migrate(input){
+  tree(input);const d=copy(input);if(d.format!==FORMAT||d.version!==VERSION)return d;
+  if(d.schemaRevision!==undefined&&d.schemaRevision!==1)return d;
+  const priorKeys=['format','version','engineVersion','contentVersion','profileId','createdAt','updatedAt','clockSource','profile','session','attempts','bonus'];if(own(d,'schemaRevision'))priorKeys.push('schemaRevision');exact(d,priorKeys,'早期戰棋存檔');
+  exact(d.profile,['nickname','appearance','squadAppearance','squadArtMode','settings'],'早期個人設定');exact(d.profile.settings,Object.keys(SETTINGS).filter(k=>k!=='coachEnabled'),'早期操作設定');
+  d.profile.settings.coachEnabled=true;d.schemaRevision=SCHEMA_REVISION;
+  if(d.session!==null){exact(d.session,['attemptId','startedAt','state'],'早期目前挑戰');d.session.draft={reason:'',revisionCondition:''};}
+  if(!Array.isArray(d.attempts))fail('挑戰紀錄格式不正確。');for(const a of d.attempts){exact(a,['attemptId','chapterId','startedAt','closedAt','closure','battle','learning'],'早期挑戰紀錄');a.draft=null;}
+  return d;
+ }
+ draftValid(draft){exact(draft,['reason','revisionCondition'],'反思草稿');for(const v of Object.values(draft))if(typeof v!=='string'||v.length>6000)fail('反思草稿每欄最多 6000 字。');}
  warn(message){if(this.warningMessages.has(message))return;this.warningMessages.add(message);try{this.onWarning(message);}catch(_){}}
  stateValid(s){if(!this.Engine||typeof this.Engine.validateState!=='function')fail('戰棋引擎尚未載入。');const encoded=JSON.stringify(s);if(!this.validatedStates.has(encoded)){const r=this.Engine.validateState(s);if(r!==true&&!r?.ok)fail('戰況驗證失敗：'+(r?.errors?.[0]||'版本或資料不相容'));this.validatedStates.set(encoded,true);if(this.validatedStates.size>150)this.validatedStates.delete(this.validatedStates.keys().next().value);}if(!chapter(s.missionId))fail('找不到這個章節。');}
  terminal(s){return s&&s.phase==='complete'&&['won','lost'].includes(s.status);}
  validateAttempt(a){
-  exact(a,['attemptId','chapterId','startedAt','closedAt','closure','battle','learning'],'挑戰紀錄');
+  exact(a,['attemptId','chapterId','startedAt','closedAt','closure','battle','learning','draft'],'挑戰紀錄');
   if(!id(a.attemptId)||!chapter(a.chapterId)||!iso(a.startedAt)||!iso(a.closedAt)||!['finished','retry','left'].includes(a.closure))fail('挑戰紀錄資訊不正確。');
   this.stateValid(a.battle);if(a.battle.missionId!==a.chapterId)fail('章節紀錄不一致。');
   if(a.learning!==null){exact(a.learning,['reason','revision','completedAt','clockSource'],'反思紀錄');for(const k of ['reason','revision'])if(typeof a.learning[k]!=='string'||!a.learning[k].trim()||a.learning[k].length>6000)fail('兩欄反思都須填寫，且每欄最多 6000 字。');if(!iso(a.learning.completedAt)||a.learning.clockSource!=='device-untrusted'||!this.terminal(a.battle)||a.closure!=='finished')fail('學習完成紀錄不正確。');}
+  if(a.draft!==null){this.draftValid(a.draft);if(a.learning!==null||!this.terminal(a.battle))fail('草稿不可冒充完成紀錄或套到未結束的戰況。');}
   if(a.closure==='finished'&&a.learning===null)fail('完成紀錄缺少反思。');
  }
  validate(d){
   tree(d);if(bytes(JSON.stringify(d))>MAX_BYTES)fail('紀錄超過 6 MB，請先備份。');
-  exact(d,['format','version','engineVersion','contentVersion','profileId','createdAt','updatedAt','clockSource','profile','session','attempts','bonus'],'存檔');
-  if(d.format!==FORMAT||d.version!==VERSION||d.engineVersion!==ENGINE_VERSION||d.contentVersion!==CONTENT_VERSION||d.clockSource!=='device-untrusted')fail('不是新版戰棋 v2 紀錄；舊遊戲紀錄仍可回原版開啟。');
+  exact(d,['format','version','schemaRevision','engineVersion','contentVersion','profileId','createdAt','updatedAt','clockSource','profile','session','attempts','bonus'],'存檔');
+  if(d.format!==FORMAT||d.version!==VERSION||d.schemaRevision!==SCHEMA_REVISION||d.engineVersion!==ENGINE_VERSION||d.contentVersion!==CONTENT_VERSION||d.clockSource!=='device-untrusted')fail('不是新版戰棋 v2 紀錄；舊遊戲紀錄仍可回原版開啟。');
   if(!id(d.profileId)||!iso(d.createdAt)||!iso(d.updatedAt))fail('存檔資訊不正確。');
   exact(d.profile,['nickname','appearance','squadAppearance','squadArtMode','settings'],'個人設定');exact(d.profile.squadAppearance,ROLES,'小隊造型');exact(d.profile.squadArtMode,ROLES,'小隊美術模式');exact(d.profile.settings,Object.keys(SETTINGS),'操作設定');normalizeProfile(d.profile);
   if(!Array.isArray(d.attempts)||d.attempts.length>MAX_ATTEMPTS)fail('挑戰紀錄已達 130 份，請先下載備份。');
   const ids=new Set();for(const a of d.attempts){this.validateAttempt(a);if(ids.has(a.attemptId))fail('重複的挑戰編號。');ids.add(a.attemptId);}
-  if(d.session!==null){exact(d.session,['attemptId','startedAt','state'],'目前挑戰');if(!id(d.session.attemptId)||!iso(d.session.startedAt)||ids.has(d.session.attemptId))fail('目前挑戰編號不正確。');this.stateValid(d.session.state);}
+  if(d.session!==null){exact(d.session,['attemptId','startedAt','state','draft'],'目前挑戰');this.draftValid(d.session.draft);if(!this.terminal(d.session.state)&&(d.session.draft.reason||d.session.draft.revisionCondition))fail('未結束的戰況不能預填反思草稿。');if(!id(d.session.attemptId)||!iso(d.session.startedAt)||ids.has(d.session.attemptId))fail('目前挑戰編號不正確。');this.stateValid(d.session.state);}
   if(Bonus){if(!Bonus.validateState(d.bonus))fail('支線紀錄不正確。');}else if(d.bonus!==null)fail('支線引擎尚未載入。');
   return true;
  }
@@ -4071,9 +4358,10 @@ class TacticalStore{
  }
  loadProgress(){return this.result(this.progress());}
  saveProgress(progress){try{tree(progress);if(JSON.stringify(progress)!==JSON.stringify(this.progress()))fail('完成與支線進度由可驗證的實際紀錄產生，不能直接改寫。');return this.result(this.progress());}catch(e){return {ok:false,message:e.message};}}
- loadSession(){return {...this.result(this.data.session?.state||null),attemptId:this.data.session?.attemptId||null};}
- archive(next,closure){if(!next.session)return;const s=next.session;next.attempts.push({attemptId:s.attemptId,chapterId:s.state.missionId,startedAt:s.startedAt,closedAt:this.clock(),closure,battle:s.state,learning:null});next.session=null;}
- startAttempt(state){try{this.stateValid(state);if(state.revision!==0||state.phase!=='player'||state.status!=='active'||(Array.isArray(state.commandLog)&&state.commandLog.length!==0))fail('新挑戰須從初始戰況開始；現有紀錄請使用匯入。');const next=copy(this.data);this.archive(next,'retry');next.session={attemptId:this.makeId(),startedAt:this.clock(),state:copy(state)};const result=this.commit(next);return {...result,data:copy(state),attemptId:next.session.attemptId};}catch(e){return {ok:false,message:e.message};}}
+ loadSession(){return {...this.result(this.data.session?.state||null),attemptId:this.data.session?.attemptId||null,draft:this.data.session?copy(this.data.session.draft):null};}
+ saveDraft(attemptId,draft){try{if(!this.data.session||this.data.session.attemptId!==attemptId)return {ok:false,code:'draft-stale',message:'草稿不屬於目前挑戰，未覆寫任何紀錄。'};if(!this.terminal(this.data.session.state))fail('戰术結束後才能保存反思草稿。');tree(draft);this.draftValid(draft);const next=copy(this.data);next.session.draft=copy(draft);return {...this.commit(next),data:copy(draft),attemptId};}catch(e){return {ok:false,message:e.message};}}
+ archive(next,closure){if(!next.session)return;const s=next.session;next.attempts.push({attemptId:s.attemptId,chapterId:s.state.missionId,startedAt:s.startedAt,closedAt:this.clock(),closure,battle:s.state,learning:null,draft:s.draft&&(s.draft.reason||s.draft.revisionCondition)?copy(s.draft):null});next.session=null;}
+ startAttempt(state){try{this.stateValid(state);if(state.revision!==0||state.phase!=='player'||state.status!=='active'||(Array.isArray(state.commandLog)&&state.commandLog.length!==0))fail('新挑戰須從初始戰況開始；現有紀錄請使用匯入。');const next=copy(this.data);this.archive(next,'retry');next.session={attemptId:this.makeId(),startedAt:this.clock(),state:copy(state),draft:{reason:'',revisionCondition:''}};const result=this.commit(next);return {...result,data:copy(state),attemptId:next.session.attemptId};}catch(e){return {ok:false,message:e.message};}}
  saveSession(state){
   try{this.stateValid(state);if(!this.data.session)return this.startAttempt(state);const old=this.data.session.state;
    if(old.missionId!==state.missionId)fail('新章節請建立新的挑戰紀錄。');
@@ -4094,7 +4382,7 @@ class TacticalStore{
    if(!this.data.session&&prior)return {...this.result(prior),duplicate:true};
    if(!this.data.session)fail('找不到這次挑戰，請先保存戰況。');
    const next=copy(this.data),s=next.session;if(!equal(s.state,state))fail('請先保存這次終局戰況，再填寫反思；不能混入另一份挑戰。');
-   const t=this.clock(),a={attemptId:s.attemptId,chapterId:state.missionId,startedAt:s.startedAt,closedAt:t,closure:'finished',battle:copy(state),learning:{reason:reason.trim(),revision:revision.trim(),completedAt:t,clockSource:'device-untrusted'}};
+   const t=this.clock(),a={attemptId:s.attemptId,chapterId:state.missionId,startedAt:s.startedAt,closedAt:t,closure:'finished',battle:copy(state),draft:null,learning:{reason:reason.trim(),revision:revision.trim(),completedAt:t,clockSource:'device-untrusted'}};
    next.attempts.push(a);next.session=null;return {...this.commit(next),data:copy(a)};
   }catch(e){return {ok:false,message:e.message};}
  }
@@ -4104,7 +4392,7 @@ class TacticalStore{
  exportJSON(){return JSON.stringify(this.data,null,2);}
  exportDamagedJSON(){return this.damagedRaw||this.recoveryRaw;}
  importJSON(raw,options={}){
-  try{if(!plain(options)||Object.keys(options).some(k=>k!=='replaceExisting')||(own(options,'replaceExisting')&&typeof options.replaceExisting!=='boolean'))fail('匯入選項不正確。');if(typeof raw!=='string'||bytes(raw)>MAX_BYTES)fail('匯入檔案須小於 6 MB。');const incoming=JSON.parse(raw);this.validate(incoming);
+  try{if(!plain(options)||Object.keys(options).some(k=>k!=='replaceExisting')||(own(options,'replaceExisting')&&typeof options.replaceExisting!=='boolean'))fail('匯入選項不正確。');if(typeof raw!=='string'||bytes(raw)>MAX_BYTES)fail('匯入檔案須小於 6 MB。');const incoming=this.migrate(JSON.parse(raw));this.validate(incoming);
    if((this.damagedRaw||this.data.session||this.data.attempts.length||this.baseRaw)&&!options.replaceExisting)fail('請先下載目前備份，再確認以匯入檔取代新版紀錄。');
    const next=copy(incoming);const result=this.commit(next,{replaceDamaged:true,replaceExisting:options.replaceExisting===true});return {...result,data:copy(next)};
   }catch(e){return {ok:false,message:e.message};}
@@ -4117,11 +4405,11 @@ class TacticalStore{
   }catch(_){return {ok:true,data:{exists:true,count:null,readable:false}};}
  }
 }
-Object.assign(TacticalStore,{KEY,FORMAT,VERSION,ENGINE_VERSION,CONTENT_VERSION,MAX_BYTES,MAX_ATTEMPTS,SETTINGS:Object.freeze(SETTINGS)});
+Object.assign(TacticalStore,{KEY,FORMAT,VERSION,SCHEMA_REVISION,ENGINE_VERSION,CONTENT_VERSION,MAX_BYTES,MAX_ATTEMPTS,SETTINGS:Object.freeze(SETTINGS)});
 return TacticalStore;
 });
 </script>
-  <script>/* Original approved artwork and individually reviewed recorded voices. */
+  <script>/* Original approved artwork and machine-verified synthetic character voices. */
 (function(root){'use strict';root.TacticalAssets=Object.freeze({
   "version": 1,
   "sprites": {
@@ -4170,30 +4458,213 @@ return TacticalStore;
   },
   "voices": {
     "guardian": {
-      "select": "./assets/tactical/voice/guardian-select.mp3",
-      "attack": "./assets/tactical/voice/guardian-attack.mp3",
-      "skill": "./assets/tactical/voice/guardian-skill.mp3",
-      "rescue": "./assets/tactical/voice/guardian-rescue.mp3"
+      "select": {
+        "src": "./assets/tactical/voice/guardian-select.mp3",
+        "text": "我來掩護。",
+        "durationSeconds": 1.16
+      },
+      "attack": {
+        "src": "./assets/tactical/voice/guardian-attack.mp3",
+        "text": "準備掩護。",
+        "durationSeconds": 1.08
+      },
+      "skill": {
+        "src": "./assets/tactical/voice/guardian-skill.mp3",
+        "text": "我會守住這裡。",
+        "durationSeconds": 1.4
+      },
+      "rescue": {
+        "src": "./assets/tactical/voice/guardian-rescue.mp3",
+        "text": "跟我走，一起撤離。",
+        "durationSeconds": 1.96
+      }
     },
     "scout": {
-      "select": "./assets/tactical/voice/scout-select.mp3",
-      "attack": "./assets/tactical/voice/scout-attack.mp3",
-      "skill": "./assets/tactical/voice/scout-skill.mp3",
-      "rescue": "./assets/tactical/voice/scout-rescue.mp3"
+      "select": {
+        "src": "./assets/tactical/voice/scout-select.mp3",
+        "text": "看清路線再前進。",
+        "durationSeconds": 1.56
+      },
+      "attack": {
+        "src": "./assets/tactical/voice/scout-attack.mp3",
+        "text": "確認目標，準備行動。",
+        "durationSeconds": 1.92
+      },
+      "skill": {
+        "src": "./assets/tactical/voice/scout-skill.mp3",
+        "text": "我先確認周圍。",
+        "durationSeconds": 1.5442
+      },
+      "rescue": {
+        "src": "./assets/tactical/voice/scout-rescue.mp3",
+        "text": "這邊走，我帶路。",
+        "durationSeconds": 1.44
+      }
     },
     "medic": {
-      "select": "./assets/tactical/voice/medic-select.mp3",
-      "attack": "./assets/tactical/voice/medic-attack.mp3",
-      "skill": "./assets/tactical/voice/medic-skill.mp3",
-      "rescue": "./assets/tactical/voice/medic-rescue.mp3"
+      "select": {
+        "src": "./assets/tactical/voice/medic-select.mp3",
+        "text": "先確認傷勢。",
+        "durationSeconds": 1.3042
+      },
+      "attack": {
+        "src": "./assets/tactical/voice/medic-attack.mp3",
+        "text": "保持距離，準備掩護。",
+        "durationSeconds": 2.0244
+      },
+      "skill": {
+        "src": "./assets/tactical/voice/medic-skill.mp3",
+        "text": "我來支援你。",
+        "durationSeconds": 1.3035
+      },
+      "rescue": {
+        "src": "./assets/tactical/voice/medic-rescue.mp3",
+        "text": "別著急，我陪你撤離。",
+        "durationSeconds": 2.1011
+      }
+    },
+    "guardian-alt": {
+      "select": {
+        "src": "./assets/tactical/voice/guardian-alt-select.mp3",
+        "text": "我來掩護。",
+        "durationSeconds": 1.1819
+      },
+      "attack": {
+        "src": "./assets/tactical/voice/guardian-alt-attack.mp3",
+        "text": "準備掩護。",
+        "durationSeconds": 1.16
+      },
+      "skill": {
+        "src": "./assets/tactical/voice/guardian-alt-skill.mp3",
+        "text": "我會守住這裡。",
+        "durationSeconds": 1.3225
+      },
+      "rescue": {
+        "src": "./assets/tactical/voice/guardian-alt-rescue.mp3",
+        "text": "跟我走，一起撤離。",
+        "durationSeconds": 1.88
+      }
+    },
+    "scout-alt": {
+      "select": {
+        "src": "./assets/tactical/voice/scout-alt-select.mp3",
+        "text": "看清路線再前進。",
+        "durationSeconds": 1.5993
+      },
+      "attack": {
+        "src": "./assets/tactical/voice/scout-alt-attack.mp3",
+        "text": "確認目標，準備行動。",
+        "durationSeconds": 2.0574
+      },
+      "skill": {
+        "src": "./assets/tactical/voice/scout-alt-skill.mp3",
+        "text": "我先確認周圍。",
+        "durationSeconds": 1.5418
+      },
+      "rescue": {
+        "src": "./assets/tactical/voice/scout-alt-rescue.mp3",
+        "text": "這邊走，我帶路。",
+        "durationSeconds": 1.6249
+      }
+    },
+    "medic-alt": {
+      "select": {
+        "src": "./assets/tactical/voice/medic-alt-select.mp3",
+        "text": "先確認傷勢。",
+        "durationSeconds": 1.5441
+      },
+      "attack": {
+        "src": "./assets/tactical/voice/medic-alt-attack.mp3",
+        "text": "保持距離，準備掩護。",
+        "durationSeconds": 2.12
+      },
+      "skill": {
+        "src": "./assets/tactical/voice/medic-alt-skill.mp3",
+        "text": "我來支援你。",
+        "durationSeconds": 1.2
+      },
+      "rescue": {
+        "src": "./assets/tactical/voice/medic-alt-rescue.mp3",
+        "text": "別著急，我陪你撤離。",
+        "durationSeconds": 2.04
+      }
     }
   },
   "backgrounds": {
     "u01": "./assets/tactical/mission-01.webp",
+    "u02": "./assets/tactical/mission-02.webp",
     "u03": "./assets/tactical/mission-03.webp",
-    "u07": "./assets/tactical/mission-07.webp"
+    "u04": "./assets/tactical/mission-04.webp",
+    "u05": "./assets/tactical/mission-05.webp",
+    "u06": "./assets/tactical/mission-06.webp",
+    "u07": "./assets/tactical/mission-07.webp",
+    "u08": "./assets/tactical/mission-08.webp",
+    "u09": "./assets/tactical/mission-09.webp",
+    "u10": "./assets/tactical/mission-10.webp",
+    "u11": "./assets/tactical/mission-11.webp",
+    "u12": "./assets/tactical/mission-12.webp",
+    "u13": "./assets/tactical/mission-13.webp"
   },
-  "variants": {}
+  "variants": {
+    "guardian": {
+      "alternate": {
+        "sprites": {
+          "idle": "./assets/tactical/guardian-alt-idle.png",
+          "move": "./assets/tactical/guardian-alt-move.png",
+          "attack": "./assets/tactical/guardian-alt-attack.png",
+          "hit": "./assets/tactical/guardian-alt-hit.png",
+          "heal": "./assets/tactical/guardian-alt-heal.png",
+          "rescue": "./assets/tactical/guardian-alt-rescue.png"
+        },
+        "portrait": "./assets/tactical/portrait-guardian-alt.png",
+        "voiceKey": "guardian-alt"
+      }
+    },
+    "scout": {
+      "alternate": {
+        "sprites": {
+          "idle": "./assets/tactical/scout-alt-idle.png",
+          "move": "./assets/tactical/scout-alt-move.png",
+          "attack": "./assets/tactical/scout-alt-attack.png",
+          "hit": "./assets/tactical/scout-alt-hit.png",
+          "heal": "./assets/tactical/scout-alt-heal.png",
+          "rescue": "./assets/tactical/scout-alt-rescue.png"
+        },
+        "portrait": "./assets/tactical/portrait-scout-alt.png",
+        "voiceKey": "scout-alt"
+      }
+    },
+    "medic": {
+      "alternate": {
+        "sprites": {
+          "idle": "./assets/tactical/medic-alt-idle.png",
+          "move": "./assets/tactical/medic-alt-move.png",
+          "attack": "./assets/tactical/medic-alt-attack.png",
+          "hit": "./assets/tactical/medic-alt-hit.png",
+          "heal": "./assets/tactical/medic-alt-heal.png",
+          "rescue": "./assets/tactical/medic-alt-rescue.png"
+        },
+        "portrait": "./assets/tactical/portrait-medic-alt.png",
+        "voiceKey": "medic-alt"
+      }
+    }
+  },
+  "props": {
+    "crate": "./assets/tactical/prop-crate.png",
+    "barrier": "./assets/tactical/prop-barrier.png",
+    "tree": "./assets/tactical/prop-tree.png",
+    "supply": "./assets/tactical/prop-supply.png",
+    "beacon": "./assets/tactical/prop-beacon.png",
+    "stretcher": "./assets/tactical/prop-stretcher.png"
+  },
+  "effects": {
+    "strike": "./assets/tactical/fx-strike.png",
+    "scan": "./assets/tactical/fx-scan.png",
+    "heal": "./assets/tactical/fx-heal.png",
+    "hit": "./assets/tactical/fx-hit.png"
+  },
+  "keyArt": "./assets/tactical/key-art.webp",
+  "voiceDisclosure": "AI合成角色旁白，未模仿真人。"
 });})(typeof globalThis!=='undefined'?globalThis:this);
 </script>
   <script>/* Original, accessible board and character artwork for the tactical preview. */
@@ -4217,7 +4688,8 @@ function droneSVG(){return '<svg class="avatar-art drone-art" viewBox="0 0 104 1
 function civilianSVG(){return avatarSVG('civilian',{skin:'peach',hair:'bob',hairColor:'silver',topColor:'cream',bottomColor:'brown',gear:'none'});}
 function sprite(role,appearance,assets={},pose='idle',portrait=false,customized=false){const path=portrait?assets.portraits?.[role]:assets.sprites?.[role]?.[pose]||assets.sprites?.[role]?.idle;const fallback=role==='training-drone'?droneSVG():role==='civilian'?civilianSVG():avatarSVG(role,appearance,portrait);if(path&&!customized)return '<span class="sprite-art-wrap"><img class="sprite-image" src="'+esc(path)+'" alt="" draggable="false" loading="eager"><span class="sprite-fallback" hidden>'+fallback+'</span></span>';return fallback;}
 function campusSVG(){return '<svg class="campus-art" viewBox="0 0 1000 490" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#cfe7e5"/><stop offset="1" stop-color="#f9edce"/></linearGradient></defs><path fill="url(#sky)" d="M0 0h1000v490H0z"/><circle cx="750" cy="93" r="60" fill="#fff2cd"/><path d="M0 270Q80 156 184 248T392 227 646 210 1000 241V490H0" fill="#a5c8b8"/><path d="M0 328Q169 212 330 291T618 268 1000 278V490H0" fill="#769e8d"/><path d="M0 378q245-66 494-1t506-19v132H0Z" fill="#bfd0a4"/><path d="m265 490 305-206 142 6L535 490" fill="#e9dcc0"/><g stroke="#5f7d7c" stroke-width="3"><path d="M488 161h228v183H488Z" fill="#f2e9d3"/><path d="m468 163 137-73 132 73Z" fill="#627e89"/><path d="m482 157 123-61 117 61" stroke="#86a0a5" stroke-width="5"/><path d="M559 203h88v141h-88" fill="#d3cbb4"/><path d="M581 258q0-29 24-29t24 29v86h-48Z" fill="#658e90"/><path d="M584 267h41m-21-33v105"/><path d="M481 338h245v16H481" fill="#d1c4a5"/><path d="M723 236h159v109H723V236Z" fill="#f1e5c9"/><path d="m708 237 18-27h138l30 27Z" fill="#718b91"/><path d="M398 233h80v111h-80Z" fill="#eadcbe"/><path d="m385 235 12-29h75l17 29Z" fill="#718b91"/></g><g fill="#76a1aa"><path d="M510 210h25v34h-25zm0 60h25v34h-25zm169-60h24v34h-24zm0 60h24v34h-24zm74-5h27v39h-27zm53 0h27v39h-27zm-389 0h28v39h-28Z"/></g><path d="M604 115v51m-17-26h34" stroke="#e7d7ac" stroke-width="8"/><g fill="#507b6c"><path d="m94 365 45-151 46 151Zm753 10 39-140 45 140Z"/><path d="M134 359h10v68h-10zm747 8h10v43h-10" fill="#7e7d5a"/></g><g fill="#7b9d78"><circle cx="242" cy="313" r="52"/><circle cx="211" cy="317" r="32"/><circle cx="287" cy="328" r="35"/><circle cx="931" cy="350" r="51"/></g><path d="M249 350v79m680-38v53" stroke="#8e8564" stroke-width="13"/><g fill="#efe1ba"><path d="M0 421h149v14H0zm70 31h130v11H70zm676-50h82v10h-82z"/></g><g fill="#e7c589"><circle cx="345" cy="416" r="4"/><circle cx="336" cy="422" r="3"/><circle cx="792" cy="445" r="4"/><circle cx="815" cy="450" r="3"/></g></svg>';}
-function tileDecor(char,x,y){if(char==='#')return '<span class="obstacle wall"><i></i><i></i><i></i><b></b></span>';if(char==='C')return '<span class="obstacle crate"><i></i><i></i></span>';if(char==='D')return '<span class="obstacle gate">'+icon('door')+'</span>';if(char==='E')return '<span class="exit-tile">'+icon('door')+'<span>撤離</span></span>';if(char==='!')return '<span class="hazard-tile"><i></i><i></i><i></i></span>';if(char==='~')return '<span class="rough-tile"><i></i><i></i><i></i></span>';if((x*13+y*7)%11===0)return '<span class="grass-tuft">⌁</span>';return '';}
+function decoration(path,fallback,className=''){return path?'<span class="tile-prop '+className+'"><img class="sprite-image decor-image" src="'+esc(path)+'" alt="" draggable="false"><span class="sprite-fallback" hidden>'+fallback+'</span></span>':fallback;}
+function tileDecor(char,x,y,assets={},gateOpen=false){const props=assets.props||{};if(char==='#'&&(props.tree||props.barrier))return decoration((x+y)%4===0?props.tree||props.barrier:props.barrier||props.tree,'<span class="obstacle wall"><i></i><i></i><i></i><b></b></span>',(x+y)%4===0?'prop-tree':'prop-barrier');if(char==='C'&&props.crate)return decoration(props.crate,'<span class="obstacle crate"><i></i><i></i></span>','prop-crate');if(char==='D'&&gateOpen)return '<span class="gate-open">'+icon('door')+'<span>已開閘</span></span>';if(char==='#')return '<span class="obstacle wall"><i></i><i></i><i></i><b></b></span>';if(char==='C')return '<span class="obstacle crate"><i></i><i></i></span>';if(char==='D')return '<span class="obstacle gate">'+icon('door')+'</span>';if(char==='E')return '<span class="exit-tile">'+icon('door')+'<span>撤離</span></span>';if(char==='!')return '<span class="hazard-tile"><i></i><i></i><i></i></span>';if(char==='~')return '<span class="rough-tile"><i></i><i></i><i></i></span>';if((x*13+y*7)%11===0)return '<span class="grass-tuft">⌁</span>';return '';}
 function board(state,mission,options={}){
  const hazards=new Map((options.hazards||[]).flatMap(h=>h.cells.map(p=>[p.x+','+p.y,h]))),nextHazards=new Map((options.nextHazards||[]).flatMap(h=>h.cells.map(p=>[p.x+','+p.y,h]))),smoke=new Set((state.smoke||[]).map(p=>p.x+','+p.y));
  const map=mission.map,units=state.units||[],civil=state.civilians||[],objects=state.objects||[],reachable=new Set((options.reachable||[]).map(c=>c.x+','+c.y)),targets=new Set((options.targets||[]).map(c=>c.x+','+c.y)),danger=new Set((options.intents||[]).flatMap(i=>i.cells||[]).map(c=>c.x+','+c.y)),path=new Set((options.preview?.path||[]).map(c=>c.x+','+c.y));
@@ -4225,11 +4697,12 @@ function board(state,mission,options={}){
  let content='';for(let y=0;y<map.height;y++){content+='<div role="row" class="grid-row" aria-rowindex="'+(y+1)+'">';for(let x=0;x<map.width;x++){
   const k=x+','+y,char=map.rows[y]?.[x]||'.',unit=units.find(u=>u.x===x&&u.y===y&&u.hp>0),person=civil.find(c=>c.x===x&&c.y===y&&c.status==='waiting'),obj=objects.find(o=>o.x===x&&o.y===y&&!o.complete),selected=unit?.id===options.selectedId,hovered=options.preview?.target?.x===x&&options.preview?.target?.y===y;
   let c='tile tile-'+(char==='#'?'wall':char==='C'?'cover':char==='E'?'exit':char==='!'?'hazard':char==='~'?'rough':'floor');if((x+y)%2)c+=' alternate';if(reachable.has(k))c+=' reachable';if(targets.has(k))c+=' targetable';if(danger.has(k)&&options.showIntents)c+=' danger';if(selected)c+=' selected';if(hovered)c+=' preview-target';if(path.has(k))c+=' path-cell';if(hazards.has(k))c+=' environment-danger';else if(nextHazards.has(k))c+=' environment-next';if(smoke.has(k))c+=' smoky';
-  let inner=tileDecor(char,x,y),label=String.fromCharCode(65+x)+(y+1)+'，'+({'#':'牆壁','C':'掩體','E':'撤離點','!':'警戒區','~':'緩行地面','D':'門'}[char]||'空地');
+  const gateOpen=(mission.gates||[]).every(id=>objects.some(o=>o.id===id&&o.complete));let inner=tileDecor(char,x,y,options.assets||{},gateOpen),label=String.fromCharCode(65+x)+(y+1)+'，'+({'#':'牆壁','C':'掩體','E':'撤離點','!':'警戒區','~':'緩行地面','D':'門'}[char]||'空地');
   if(hazards.has(k)){label+='，本回合結束環境警戒：'+hazards.get(k).name+'，'+hazards.get(k).damage+' 點傷害';inner+='<span class="hazard-warning" aria-hidden="true">!</span>';}else if(nextHazards.has(k)){label+='，下回合環境警戒預告：'+nextHazards.get(k).name;inner+='<span class="hazard-warning next" aria-hidden="true">⌁</span>';}if(smoke.has(k)){label+='，煙幕中，本回合阻擋遠程視線';inner+='<span class="smoke-cloud" aria-hidden="true"><i></i><i></i><i></i></span>';}
-  if(unit){const role=unit.team==='enemy'?'training-drone':unit.role,labelRole=roles[unit.role]?.label||'訓練機';label+='，'+unit.name+' '+labelRole+'，生命 '+unit.hp+'/'+unit.maxHp+(unit.statuses?.guarding?'，掩護中，本回合減傷':'')+(unit.statuses?.suppressed?'，已壓制，本回合不行動':'');const act=options.animation?.unitId===unit.id?options.animation.pose:'idle';inner+='<span class="unit unit-'+esc(unit.team)+' role-'+esc(role)+(unit.acted&&unit.moved?' exhausted':'')+'" data-unit="'+esc(unit.id)+'"><span class="unit-base"></span>'+sprite(role,options.appearances?.[unit.role],options.assets,act,false,options.customized?.[unit.role])+'<span class="unit-health" aria-hidden="true"><span style="width:'+Math.max(0,Math.min(100,unit.hp/unit.maxHp*100))+'%"></span></span><span class="unit-token">'+(unit.team==='enemy'?icon('target'):icon(roles[unit.role]?.icon||'shield'))+'</span>'+(unit.carrying?'<span class="carrying-badge">'+icon('rescue')+'</span>':'')+(unit.statuses?.guarding?'<span class="status-shield">'+icon('shield')+'</span>':'')+(unit.statuses?.suppressed?'<span class="status-suppressed">停</span>':'')+'</span>';}
+  if(unit){const role=unit.team==='enemy'?'training-drone':unit.role,labelRole=roles[unit.role]?.label||'訓練機';label+='，'+unit.name+' '+labelRole+'，生命 '+unit.hp+'/'+unit.maxHp+(unit.statuses?.guarding?'，掩護中，本回合減傷':'')+(unit.statuses?.suppressed?'，已壓制，本回合不行動':'');const intent=unit.team==='enemy'&&options.showIntents?(options.intents||[]).find(i=>i.enemyId===unit.id):null,targetName=intent?.targetId?units.find(u=>u.id===intent.targetId)?.name||'目標':'',intentText=intent?(intent.type==='attack'?targetName+' −'+intent.damage:intent.type==='move'?'→ '+String.fromCharCode(65+intent.to.x)+(intent.to.y+1):unit.statuses?.suppressed?'受壓制':'待機'):'';if(intent)label+='，敵方階段預告：'+(intent.type==='attack'?'攻擊'+targetName+'，預計 '+intent.damage+' 點傷害':intent.type==='move'?'移動到 '+String.fromCharCode(65+intent.to.x)+(intent.to.y+1):'待機');const act=options.animation?.unitId===unit.id?options.animation.pose:'idle';inner+='<span class="unit unit-'+esc(unit.team)+' role-'+esc(role)+(unit.acted&&unit.moved?' exhausted':'')+'" data-unit="'+esc(unit.id)+'"><span class="unit-base"></span>'+sprite(role,options.appearances?.[unit.role],options.assets,act,false,options.customized?.[unit.role])+'<span class="unit-health" aria-hidden="true"><span style="width:'+Math.max(0,Math.min(100,unit.hp/unit.maxHp*100))+'%"></span></span><span class="unit-token">'+(unit.team==='enemy'?icon('target'):icon(roles[unit.role]?.icon||'shield'))+'</span>'+(unit.carrying?'<span class="carrying-badge">'+icon('rescue')+'</span>':'')+(unit.statuses?.guarding?'<span class="status-shield">'+icon('shield')+'</span>':'')+(unit.statuses?.suppressed?'<span class="status-suppressed">停</span>':'')+(intent?'<span class="enemy-intent intent-'+esc(intent.type)+'" aria-hidden="true">'+(intent.type==='attack'?icon('target'):'')+esc(intentText)+'</span>':'')+'</span>';}
   else if(person){label+='，待援 '+person.name;inner+='<span class="unit unit-civilian">'+sprite('civilian',{},options.assets)+'<span class="civilian-label">待援</span></span>';}
-  else if(obj){label+='，'+obj.name+' '+obj.progress+'/'+obj.required;inner+='<span class="map-object">'+icon(obj.kind==='signal'?'flag':'book')+'<span>'+esc(obj.name)+'</span></span>';}
+  else if(obj){label+='，'+obj.name+' '+obj.progress+'/'+obj.required;const objectProp=options.assets?.props?.[obj.kind==='supply'?'supply':'beacon'];inner+=objectProp?decoration(objectProp,'<span class="map-object">'+icon('book')+'</span>','prop-object')+'<span class="object-name">'+esc(obj.name)+'</span>':'<span class="map-object">'+icon(obj.kind==='signal'?'flag':'book')+'<span>'+esc(obj.name)+'</span></span>';}
+  const effectTarget=options.animation?.targetId?units.find(u=>u.id===options.animation.targetId):units.find(u=>u.id===options.animation?.unitId),effectPath=options.assets?.effects?.[options.animation?.effect];if(effectPath&&effectTarget?.x===x&&effectTarget?.y===y)inner+='<span class="board-effect" aria-hidden="true"><img class="sprite-image effect-image" src="'+esc(effectPath)+'" alt="" draggable="false"><span hidden></span></span>';
   inner+='<span class="cell-coord">'+String.fromCharCode(65+x)+(y+1)+'</span>';content+='<button type="button" role="gridcell" class="'+c+'" data-cell="'+k+'" tabindex="'+(focusKey===k?'0':'-1')+'" aria-label="'+esc(label+(reachable.has(k)?'，可移動':'')+(targets.has(k)?'，技能目標':'')+(danger.has(k)&&options.showIntents?'，敵方預計威脅':''))+'"'+(selected?' aria-selected="true"':'')+'>'+inner+'</button>';
  }content+='</div>';}
  return '<div class="board-surround" style="--cols:'+map.width+';--rows:'+map.height+'"><span class="board-corner north-west"></span><span class="board-corner north-east"></span><div class="battle-grid" role="grid" aria-label="戰術地圖。方向鍵移動焦點，Enter 選擇；選好目標後確認行動。" aria-rowcount="'+map.height+'" aria-colcount="'+map.width+'" style="--cols:'+map.width+';--rows:'+map.height+'">'+content+'</div><span class="board-corner south-west"></span><span class="board-corner south-east"></span></div>';
@@ -4248,13 +4721,13 @@ function button(text,action,style='outline',extra=''){return '<button type="butt
 function bootError(error){const app=root.document.getElementById('app');app.setAttribute('aria-busy','false');app.innerHTML='<main class="boot-screen" id="main-content"><span class="boot-symbol">✦</span><p class="eyebrow">DAWN OPERATIONS</p><h1>地圖還沒載入完成</h1><p>可能是連線或版本尚未同步。原有紀錄不會被刪除。</p><button type="button" class="button primary" id="retry-load">重新載入</button><p class="form-help" id="load-error-detail"></p></main>';root.document.getElementById('load-error-detail').textContent=error?.message||'載入資料失敗';root.document.getElementById('retry-load').addEventListener('click',()=>root.location.reload());}
 class Voice{
  constructor(app){this.app=app;this.audio=null;this.lastSelect=0;this.serial=0;this.ducked=false;}
- play(role,kind){const settings=this.app.profile.settings,entry=A().voices?.[this.app.voiceKey(role)]?.[kind];if(!settings.voiceEnabled||!entry)return;if(kind==='select'&&Date.now()-this.lastSelect<1000)return;if(kind==='select')this.lastSelect=Date.now();this.stop();const serial=++this.serial,url=typeof entry==='string'?entry:entry.src;if(!url)return;try{this.audio=new root.Audio(url);this.audio.volume=settings.voiceVolume;this.ducked=true;this.app.music?.setVolume(settings.musicVolume*.35);const finish=()=>{if(serial===this.serial)this.stop();};this.audio.addEventListener('ended',finish,{once:true});this.audio.addEventListener('error',finish,{once:true});this.audio.play()?.catch(finish);}catch(_){this.stop();}}
+ play(role,kind){const settings=this.app.profile.settings,entry=A().voices?.[this.app.voiceKey(role)]?.[kind];if(!entry)return;if(kind==='select'&&Date.now()-this.lastSelect<1000)return;if(kind==='select')this.lastSelect=Date.now();this.stop();if(typeof entry==='object'&&entry.text)this.app.showVoiceCaption(role,entry.text,entry.durationSeconds);if(!settings.voiceEnabled)return;const serial=++this.serial,url=typeof entry==='string'?entry:entry.src;if(!url)return;try{this.audio=new root.Audio(url);this.audio.volume=settings.voiceVolume;this.ducked=true;this.app.music?.setVolume(settings.musicVolume*.35);const finish=()=>{if(serial===this.serial)this.stop();};this.audio.addEventListener('ended',finish,{once:true});this.audio.addEventListener('error',finish,{once:true});this.audio.play()?.catch(finish);}catch(_){this.stop();}}
  stop(){this.serial++;if(this.audio){this.audio.pause();this.audio=null;}if(this.ducked){this.ducked=false;this.app.music?.setVolume(this.app.profile.settings.musicVolume);}}
 }
 class App{
  constructor(){
   if(!R()||!E()||!M()||!root.TacticalStore)throw new Error('戰術模組載入不完整，請重新整理。');
-  this.root=root.document.getElementById('app');this.dialog=root.document.getElementById('game-dialog');this.toastRegion=root.document.getElementById('toast-region');this.view='home';this.state=null;this.selectedId='guardian';this.mode='move';this.pending=null;this.showIntents=true;this.busy=false;this.warning='';this.animation=null;this.eventText='';this.tutorialStep=0;this.focusCell='0,0';this.reflection={reason:'',revisionCondition:''};this.reflectionAttemptId=null;this.finished=null;this.modalReturn=null;this.animationSerial=0;this.uiCache=null;
+  this.root=root.document.getElementById('app');this.dialog=root.document.getElementById('game-dialog');this.toastRegion=root.document.getElementById('toast-region');this.captionRegion=root.document.getElementById('voice-caption');this.view='home';this.state=null;this.selectedId='guardian';this.mode='move';this.pending=null;this.showIntents=true;this.busy=false;this.warning='';this.animation=null;this.eventText='';this.tutorialStep=0;this.focusCell='0,0';this.reflection={reason:'',revisionCondition:''};this.reflectionAttemptId=null;this.pendingDraft=null;this.draftTimer=null;this.draftStatus='';this.finished=null;this.modalReturn=null;this.animationSerial=0;this.uiCache=null;this.preloadedPosePaths=new Set();this.preloadImages=new Map();this.failedPosePaths=new Set();
   let storage;try{storage=root.localStorage;}catch(_){}
   this.store=new root.TacticalStore({storage,onWarning:message=>{this.warning=message;if(this.ready)this.renderWarning();}});
   this.profile=this.store.loadProfile().data;this.progress=this.store.loadProgress().data;this.savedSession=this.store.loadSession().data;this.profile.squadArtMode||={guardian:'illustrated',scout:'illustrated',medic:'illustrated'};
@@ -4262,25 +4735,38 @@ class App{
   this.music?.setEnabled(this.profile.settings.musicEnabled);this.music?.setVolume(this.profile.settings.musicVolume);this.music?.setScene('briefing');this.applyPreferences();
   this.root.addEventListener('click',event=>this.click(event));this.dialog.addEventListener('click',event=>this.click(event));this.dialog.addEventListener('change',event=>this.change(event));this.dialog.addEventListener('input',event=>this.input(event));this.root.addEventListener('input',event=>this.input(event));this.dialog.addEventListener('submit',event=>this.submit(event));this.root.addEventListener('submit',event=>this.submit(event));this.root.addEventListener('keydown',event=>this.keydown(event));
   this.dialog.addEventListener('close',()=>{this.music?.setScene(this.dialog.open?'dialogue':this.view==='battle'?'exploration':'briefing');if(!this.dialog.open){const candidate=this.modalReturn?.isConnected?this.modalReturn:this.modalReturn?.dataset?.action?root.document.querySelector?.('[data-action="'+this.modalReturn.dataset.action+'"]'):this.root.querySelector('[data-action="menu"]');candidate?.focus?.();}});
-  root.document.addEventListener('visibilitychange',()=>{if(root.document.hidden){this.interruptAnimation();this.music?.pause();this.voice.stop();}else{this.music?.resume();if(this.ready)this.render();}});
-  root.addEventListener('pagehide',()=>{this.interruptAnimation();this.music?.pause();this.voice.stop();});root.addEventListener('pageshow',()=>{this.interruptAnimation();if(!root.document.hidden)this.music?.resume();});
+  root.document.addEventListener('visibilitychange',()=>{if(root.document.hidden){this.flushDraft();this.interruptAnimation();this.music?.pause();this.voice.stop();this.clearVoiceCaption();}else{this.music?.resume();if(this.ready)this.render();}});
+  root.addEventListener('pagehide',()=>{this.flushDraft();this.interruptAnimation();this.music?.pause();this.voice.stop();this.clearVoiceCaption();});root.addEventListener('pageshow',()=>{this.interruptAnimation();if(!root.document.hidden)this.music?.resume();});
   root.document.addEventListener('error',event=>{if(event.target?.tagName==='IMG'&&event.target.classList.contains('sprite-image')){event.target.hidden=true;const fallback=event.target.nextElementSibling;if(fallback)fallback.hidden=false;}},true);
   this.ready=true;this.render();this.root.setAttribute('aria-busy','false');
  }
  applyPreferences(){root.document.body.classList.toggle('reduce-motion',this.profile.settings.reducedMotion);}
  get reducedMotion(){return this.profile.settings.reducedMotion||root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;}
+ get coachPreference(){return this.profile.settings.coachEnabled!==false&&!this.coachDisabledSession;}
+ get coachAvailable(){return this.coachPreference&&!!root.TacticalCoach&&this.state?.missionId==='u03'&&this.state.status==='active';}
  get mission(){return M().getMission(this.state?.missionId||'u03');}
  get selected(){return this.state?.units.find(u=>u.id===this.selectedId);}
  get custom(){return Object.fromEntries(roleOrder.map(r=>[r,this.profile.squadArtMode?.[r]==='custom']));}
  get avatars(){return this.profile.squadAppearance;}
  visual(role,portrait=false,pose='idle'){return R().sprite(role,this.avatars?.[role],this.effectiveAssets(),pose,portrait,this.custom[role]);}
  voiceKey(role){return this.profile.squadArtMode?.[role]==='illustrated-alt'?(A().variants?.[role]?.alternate?.voiceKey||role+'-alt'):role;}
- effectiveAssets(modes=this.profile.squadArtMode){const a=A(),sprites={...a.sprites},portraits={...a.portraits};for(const role of roleOrder){const alt=a.variants?.[role]?.alternate;if(modes?.[role]==='illustrated-alt'&&alt){sprites[role]=alt.sprites;portraits[role]=alt.portrait;}}return {...a,sprites,portraits};}
+ effectiveAssets(modes=this.profile.squadArtMode){const a=A(),sprites={...a.sprites},portraits={...a.portraits};for(const role of roleOrder){const alt=a.variants?.[role]?.alternate;if(modes?.[role]==='illustrated-alt'&&alt){sprites[role]=alt.sprites;portraits[role]=alt.portrait;}}for(const role of roleOrder){if(!sprites[role])continue;sprites[role]={...sprites[role]};for(const [pose,path]of Object.entries(sprites[role]))if(pose!=='idle'&&this.failedPosePaths?.has(path))sprites[role][pose]=sprites[role].idle;}return {...a,sprites,portraits};}
+ preloadPoses(){
+  if(typeof root.Image!=='function')return 0;let queued=0;const assets=this.effectiveAssets();
+  for(const role of roleOrder){if(this.custom[role])continue;for(const pose of ['move','attack','hit','heal','rescue']){
+   const path=assets.sprites?.[role]?.[pose];if(typeof path!=='string'||!path||this.preloadedPosePaths.has(path)||this.preloadImages.size>=64)continue;
+   while(this.preloadedPosePaths.size>=64)this.preloadedPosePaths.delete(this.preloadedPosePaths.values().next().value);this.preloadedPosePaths.add(path);
+   const failed=()=>{this.preloadImages.delete(path);while(this.failedPosePaths.size>=64)this.failedPosePaths.delete(this.failedPosePaths.values().next().value);this.failedPosePaths.add(path);};
+   try{const img=new root.Image();img.decoding='async';img.fetchPriority='low';img.onload=()=>this.preloadImages.delete(path);img.onerror=failed;this.preloadImages.set(path,img);img.src=path;queued++;}catch(_){failed();}
+  }}return queued;
+ }
  sceneArt(id){const url=A().backgrounds?.[id]||A().backgrounds?.u01||A().backgrounds?.u03;return url?'<img class="campus-art scene-image" src="'+escape(url)+'" alt="" loading="lazy" draggable="false">':R().campusSVG();}
  activateSound(){if(!root.document.hidden)this.music?.unlock();}
  updateMusicLabel(){root.document.querySelectorAll('[data-action="music"]').forEach(b=>{b.setAttribute('aria-label',this.profile?.settings.musicEnabled?'關閉背景音樂':'開啟背景音樂');b.setAttribute('aria-pressed',String(!!this.profile?.settings.musicEnabled));});}
+ showVoiceCaption(role,text,durationSeconds=3){if(!this.captionRegion)return;root.clearTimeout(this.captionTimer);const name=E().roles[role]?.name||'晨光小隊';this.captionRegion.innerHTML='<div class="voice-caption-bubble"><span>'+escape(name)+'</span><p>'+escape(text)+'</p></div>';const duration=Math.min(6500,Math.max(2600,Number(durationSeconds||3)*1000+650));this.captionTimer=root.setTimeout(()=>this.clearVoiceCaption(),duration);}
+ clearVoiceCaption(){root.clearTimeout(this.captionTimer);if(this.captionRegion)this.captionRegion.innerHTML='';}
  toast(message){root.clearTimeout(this.toastTimer);this.toastRegion.innerHTML='<div class="toast-message">'+escape(message)+'</div>';this.toastTimer=root.setTimeout(()=>{this.toastRegion.innerHTML='';},4300);}
- persist(result){if(!result?.ok){this.warning=result?.message||'目前操作尚未保存。';this.renderWarning();return false;}if(result.persisted===false){this.warning=result.message||'操作暫留本頁記憶體，請下載備份。';this.renderWarning();}return true;}
+ persist(result){if(!result?.ok){this.warning=result?.message||'目前操作尚未保存。';this.renderWarning();return false;}if(result.persisted===false){this.warning=result.message||'操作暫留本頁記憶體，請下載備份。';this.renderWarning();}else if(result.persisted===true&&this.warning){this.warning='';this.renderWarning();}return true;}
  saveProfile(){const profile=clone(this.profile);const r=this.store.saveProfile(profile);if(r.ok&&r.data)this.profile=r.data;this.persist(r);this.applyPreferences();return r;}
  saveSession(){if(!this.state)return;const r=this.store.saveSession(this.state);this.persist(r);this.savedSession=this.state;return r;}
  renderWarning(){let warning=root.document.getElementById('save-warning');if(!warning&&this.warning){warning=root.document.createElement('div');warning.id='save-warning';this.root.prepend(warning);}if(warning)warning.innerHTML=this.warning?'<div class="store-warning" role="alert"><p>'+escape(this.warning)+'</p><button type="button" data-action="export">下載備份</button></div>':'';}
@@ -4293,66 +4779,74 @@ class App{
  uiData(){if(this.uiCache?.state===this.state&&this.uiCache.selectedId===this.selectedId&&this.uiCache.mode===this.mode)return this.uiCache;const selected=this.selected,skills=selected?E().getSkills(this.state,selected.id):[],skill=skills.find(s=>s.id===this.mode),reachable=this.mode==='move'&&selected?E().reachable(this.state,selected.id):[],targets=[];if(skill?.available&&skill.target==='self'){targets.push({x:selected.x,y:selected.y});}else if(skill?.available){for(let y=0;y<this.mission.map.height;y++)for(let x=0;x<this.mission.map.width;x++){const p=E().preview(this.state,{type:'skill',unitId:selected.id,skillId:skill.id,x,y,revision:this.state.revision});if(p.ok)targets.push({x,y});}}const intents=E().enemyIntents(this.state),summary=E().summary(this.state);return this.uiCache={state:this.state,selectedId:this.selectedId,mode:this.mode,skills,skill,reachable,targets,intents,summary};}
  unitCard(unit){const r=R().roles[unit.role],selected=unit.id===this.selectedId;return '<button type="button" class="unit-card '+(selected?'selected ':'')+(unit.hp<=0?'downed':'')+'" data-action="select-unit" data-unit="'+unit.id+'" aria-pressed="'+selected+'" aria-label="選擇'+escape(unit.name)+'，生命'+unit.hp+'，'+(unit.moved?'已移動':'可移動')+'，'+(unit.acted?'已行動':'可用技能')+'" '+(this.busy||unit.hp<=0?'disabled':'')+'><span class="unit-card-top"><span class="small-portrait">'+this.visual(unit.role,true)+'</span><span><h3>'+escape(unit.name)+'</h3><span class="role-label">'+ico(r.icon)+' '+escape(unit.title)+'</span></span></span>'+(selected?'<span class="selected-label">已選取</span>':'')+'<span class="energy-badge">'+ico('spark')+' '+unit.energy+'/'+unit.maxEnergy+'</span><span class="unit-hp-row">'+ico('heart')+'<span class="hp-track"><span style="width:'+unit.hp/unit.maxHp*100+'%"></span></span><small>'+unit.hp+'/'+unit.maxHp+'</small></span><span class="unit-turn-state"><span class="'+(unit.moved?'spent':'')+'"><i></i>'+(unit.moved?'已移動':'可移動')+'</span><span class="'+(unit.acted?'spent':'')+'"><i></i>'+(unit.acted?'已行動':'可行動')+'</span></span></button>';}
  objectiveList(summary){return '<ul class="objective-list">'+summary.objectives.map((o,i)=>'<li class="objective '+(o.complete?'complete':'')+'"><span class="objective-marker">'+(o.complete?ico('check'):i+1)+'</span><span>'+escape(o.label)+(typeof o.current==='number'?'<br><span class="objective-count">'+o.current+' / '+o.required+'</span>':'')+'</span></li>').join('')+'</ul>';}
- battle(){const m=this.mission,u=this.selected,d=this.uiData(),summary=d.summary,player=this.state.units.filter(u=>u.team==='player'),objectiveText=summary.objectives.map(o=>escape(o.label)+(typeof o.current==='number'?' <strong>'+o.current+'/'+o.required+'</strong>':'')).join(' · ');const hints=['點一下隊員。每人每回合能移動一次、使用技能一次。','選藍綠色地格，再確認移動。移動和技能先後皆可。','點「救援」再選相鄰民眾；護送到撤離格就能交接。','三人都安排好後，結束回合。紅色虛線先告訴你敵方威脅。','任務完成後，存活隊員都回撤離格。你不需要停用所有訓練機。'];return '<main class="battle-shell" id="main-content"><aside class="battle-sidebar left"><div class="panel-label">晨光小隊 <span>3 UNITS</span></div><div class="unit-cards">'+player.map(u=>this.unitCard(u)).join('')+'</div><section class="tutorial-card"><h3>'+ico('spark')+' 行動小提示 '+Math.min(5,this.tutorialStep+1)+'/5</h3><p>'+hints[Math.min(4,this.tutorialStep)]+'</p><div class="tutorial-steps">'+hints.map((_,i)=>'<span class="'+(i<=this.tutorialStep?'done':'')+'"></span>').join('')+'</div></section><p class="battle-note">藍綠圈是夥伴，橘紅圈是訓練機。所有傷害與支援都是抽象演訓。</p></aside><section class="board-panel" aria-label="戰場"><div class="battle-phasebar"><span class="phase-label '+(this.busy?'enemy':'')+'">'+ico(this.busy?'target':'flag')+' '+(this.busy?'演算行動中':'我方行動')+'</span><span class="turn-label">回合 <strong>'+this.state.round+'</strong> / '+this.state.turnLimit+'</span></div><div class="battle-mobile-objectives">'+ico('flag')+'<span>'+objectiveText+'</span><button type="button" data-action="objectives" aria-label="完整任務說明">'+ico('info')+'</button></div><div class="board-scene theme-'+escape(m.theme)+'">'+R().board(this.visualState||this.state,m,{selectedId:this.selectedId,reachable:d.reachable,targets:d.targets,intents:d.intents,showIntents:this.showIntents,preview:this.pending?.preview,assets:this.effectiveAssets(),appearances:this.avatars,customized:this.custom,animation:this.animation,focusCell:this.focusCell,hazards:E().hazardCells(this.visualState||this.state),nextHazards:E().hazardCells(this.visualState||this.state,(this.visualState||this.state).round+1)})+(this.busy&&this.phaseBanner?'<div class="phase-overlay"><div class="phase-banner"><p class="eyebrow">TRAINING OPPONENTS</p><strong>敵方行動</strong><p>'+escape(this.eventText||'訓練機依預告移動與攻擊')+'</p></div></div>':this.eventText?'<div class="event-float '+(this.animation?.pose==='hit'?'damage':this.animation?.pose==='heal'?'heal':'')+'">'+escape(this.eventText)+'</div>':'')+'</div><div class="board-legend"><div class="legend-items"><span><i class="legend-square"></i>可移動</span><span><i class="legend-square red"></i>敵方威脅</span><span><i class="legend-square gold"></i>技能目標</span><span><i class="legend-square hazard"></i>環境警戒</span><span><i class="legend-square smoke"></i>煙幕</span></div><button type="button" data-action="intents" aria-pressed="'+this.showIntents+'">'+ico('eye')+' '+(this.showIntents?'隱藏':'顯示')+'預告</button></div>'+(m.map.width>8?'<p class="mobile-board-hint">地圖可左右滑動，點選地格後再確認行動。</p>':'')+this.actionbar(d)+'</section><aside class="battle-sidebar right"><section class="mission-panel"><p class="eyebrow">MISSION OBJECTIVES</p><h2>'+escape(m.title)+'</h2>'+this.objectiveList(summary)+'<p class="mission-panel-note">'+escape(m.strategy||'優先完成任務，最後讓存活隊員都回到撤離點。')+'</p>'+this.hazardNotice()+'</section><section class="action-panel"><div class="action-heading"><h2>'+ico(u?R().roles[u.role].icon:'shield')+' '+escape(u?.name||'選擇隊員')+'</h2><span class="tag gold">能量 '+(u?.energy||0)+'</span></div><p class="action-hint">'+escape(d.skill?.description||(u?.moved?'本回合已移動，仍可使用技能。':'選擇行動，再點選地圖上的目標。'))+'</p><div class="skill-grid"><button type="button" class="skill-button active-move" data-action="mode" data-mode="move" aria-pressed="'+(this.mode==='move')+'" '+(this.busy||u?.moved||!u||u.hp<=0?'disabled':'')+'>'+ico('move')+'<span>移動</span><small>'+(u?.moved?'已移動':(u?.moveRange||0)+' 格')+'</small></button>'+d.skills.map(skill=>'<button type="button" class="skill-button" data-action="mode" data-mode="'+skill.id+'" aria-pressed="'+(this.mode===skill.id)+'" title="'+escape(skill.reason||skill.description)+'" '+(this.busy||!skill.available?'disabled':'')+'>'+ico(skillIcon(skill.id))+'<span>'+escape(skill.label)+'</span><small>'+(skill.target==='self'?'自身':skill.range+' 格')+'</small>'+(skill.energyCost?'<span class="skill-cost">✦ '+skill.energyCost+'</span>':'')+'</button>').join('')+'</div>'+button('結束回合 '+ico('arrow'),'end-turn','end-turn',this.busy?'disabled':'')+'</section></aside></main><footer class="battle-footer"><span>新版獨立本機預覽 · 不代表完成點名；勝敗都能寫下反思。</span><button type="button" data-action="log">'+ico('book')+' 行動紀錄</button><button type="button" data-action="undo" '+(this.busy||!this.state.undoStack?.length?'disabled':'')+'>'+ico('undo')+' 撤回一步</button></footer>';}
- actionbar(d){if(this.pending){const p=this.pending.preview,c=this.pending.command,u=this.selected,title=c.type==='move'?'移動到 '+coord(c):d.skill?.label||'確認行動',detail=p.message||d.skill?.description||'',effect=p.damage>0?'預計造成 '+p.damage+' 點傷害':p.healing>0?'預計恢復 '+p.healing+' 點 HP':p.energyCost?'消耗 '+p.energyCost+' 能量':'';return '<section class="battle-actionbar" aria-label="行動預覽"><span class="actionbar-icon">'+ico(c.type==='move'?'move':skillIcon(c.skillId))+'</span><div class="actionbar-copy"><h3>'+escape(u.name)+' · '+escape(title)+'</h3><p>'+escape(detail)+'</p>'+(effect?'<p class="preview-effects">'+escape(effect)+'</p>':'')+'</div><div class="actionbar-buttons">'+button('取消','cancel-action','outline')+button(ico('check')+' 確認','confirm-action','primary',this.busy?'disabled':'')+'</div></section>';}
- const u=this.selected;let title=this.busy?'請稍候，正在播放行動':d.skill?'選擇「'+d.skill.label+'」的目標':u?.moved?'已移動，接著安排技能':'選擇一格，準備移動';let detail=this.busy?'完成後會接回你的回合。':d.skill?.target==='self'?'點選自己，或再次點此技能預覽。':d.skill?'金色地格是目前可以施放的範圍。':u?.moved?'每位隊員仍能獨立使用一次技能。':'藍綠色地格可達；先預覽，再確認，不怕點錯。';if(this.state.civilians.some(c=>c.status==='waiting'&&u&&Math.abs(c.x-u.x)+Math.abs(c.y-u.y)===1)&&!u?.acted&&!u?.carrying){title='有人就在身旁，需要你接應';detail='選「救援」，再點待援民眾。回撤離格即可完成交接。';}return '<section class="battle-actionbar" aria-live="polite"><span class="actionbar-icon">'+ico(d.skill?skillIcon(d.skill.id):'move')+'</span><div class="actionbar-copy"><h3>'+escape(title)+'</h3><p>'+escape(detail)+'</p></div>'+(!this.busy?'<div class="actionbar-buttons">'+button(ico('info'),'help','subtle','aria-label="操作說明"')+'</div>':'')+'</section>';}
- result(){const s=E().summary(this.state),m=this.mission,d=s.decision,metrics=s.metrics;return '<main class="result-shell" id="main-content"><header class="result-heading"><div class="result-emblem">'+ico(s.won?'flag':'leaf')+'</div><p class="eyebrow">AFTER ACTION REVIEW</p><h1>'+(s.won?'小隊平安歸來。':'這次經驗，值得留下。')+'</h1><p>'+escape(s.reason||(s.won?'任務目標完成。現在，回看你選擇的理由。':'演訓暫告一段落。勝敗都能寫下反思、完成學習紀錄。'))+'</p><span class="tag">CH. '+String(m.number).padStart(2,'0')+' · '+escape(m.title)+'</span></header><section class="result-stats" aria-label="戰術紀錄"><div class="result-stat"><strong>'+s.round+'</strong><span>使用回合</span></div><div class="result-stat"><strong>'+metrics.rescued+'</strong><span>完成護送</span></div><div class="result-stat"><strong>'+s.surviving+' / 3</strong><span>仍可行動隊員</span></div><div class="result-stat"><strong>'+metrics.healing+'</strong><span>演訓支援量</span></div></section><div class="section-heading"><h2>'+ico('eye')+' 從不同角度回看</h2><button type="button" class="text-button" data-action="notes">教材線索 '+ico('book')+'</button></div><section class="perspective-grid"><article class="perspective-card"><h3>'+ico('shield')+' 責任與界線</h3><p>'+escape(m.concepts?.[0]?.text||m.learningObjective)+'</p></article><article class="perspective-card"><h3>'+ico('heart')+' 人與需求</h3><p>'+escape(s.unresolvedCivilians?'仍有 '+s.unresolvedCivilians+' 位民眾未完成交接。需要誰接手？哪些限制應誠實說明？':'救援任務已交接。除了抵達，對方是否知道後續能向誰求助？')+'</p></article><article class="perspective-card"><h3>'+ico('clock')+' 資源與代價</h3><p>'+escape(d?.tradeoff||'時間、人力與安全需要一起考量。你讓哪一項優先，代價由誰承擔？')+'</p></article></section><form class="reflection-card" id="reflection-form"><div class="reflection-heading">'+ico('book')+'<div><h2>讓選擇有理由，也有修正的空間。</h2><p>你選擇了「'+escape(d?.label||'')+'」。兩欄都填寫，就能留下本機學習紀錄。</p></div></div><div class="reflection-fields"><div><label for="reflection-reason">01 · 我為什麼這樣安排？請連結教材依據</label><textarea id="reflection-reason" name="reason" maxlength="6000" required placeholder="我優先考量的是…因為…" '+(this.finished?'readonly':'')+'>'+escape(this.reflection.reason)+'</textarea><p class="form-help">請連結一項教材概念，再說明任務責任、個別需求或能力界線。</p></div><div><label for="reflection-revision">02 · 什麼新資訊會讓我改變？</label><textarea id="reflection-revision" name="revisionCondition" maxlength="6000" required placeholder="如果得知…我會把原本的安排改成…" '+(this.finished?'readonly':'')+'>'+escape(this.reflection.revisionCondition)+'</textarea><p class="form-help">寫下可觀察的條件，以及你會如何調整。</p></div></div><div id="reflection-error"></div>'+(this.finished?'<div class="saved-record"><strong>'+ico(this.finished.persisted?'check':'info')+' '+(this.finished.persisted?'學習紀錄已儲存在此瀏覽器':'反思暫留本頁，請下載備份')+'</strong><p>這是新版個人本機紀錄，不等於正式成績或完成點名。</p></div>':'<div class="dialog-actions"><small>勝敗不影響完成學習。文字不傳送到外部，也不以單一分數衡量倫理立場。</small><button type="submit" class="button primary">'+ico('check')+' 完成學習紀錄</button></div>')+'</form><div class="result-bottom-actions">'+button(ico('undo')+' 再試一次','retry','outline')+button('返回章節 '+ico('arrow'),'chapters','primary')+button(ico('download')+' 下載備份','export','subtle')+'</div></main>';}
+ battle(){const m=this.mission,display=this.visualState||this.state,u=display.units.find(u=>u.id===this.selectedId),d=this.uiData(),summary=this.busy&&this.presentationSummary?this.presentationSummary:d.summary,player=display.units.filter(u=>u.team==='player'),objectiveText=summary.objectives.map(o=>escape(o.label)+(typeof o.current==='number'?' <strong>'+o.current+'/'+o.required+'</strong>':'')).join(' · ');const hints=['點一下隊員。每人每回合能移動一次、使用技能一次。','選藍綠色地格，再確認移動。移動和技能先後皆可。','點「救援」再選相鄰民眾；護送到撤離格就能交接。','三人都安排好後，結束回合。紅色虛線先告訴你敵方威脅。','任務完成後，存活隊員都回撤離格。你不需要停用所有訓練機。'];return '<main class="battle-shell" id="main-content"><aside class="battle-sidebar left"><div class="panel-label">晨光小隊 <span>3 UNITS</span></div><div class="unit-cards">'+player.map(u=>this.unitCard(u)).join('')+'</div><section class="tutorial-card"><h3>'+ico('spark')+' 行動小提示 '+Math.min(5,this.tutorialStep+1)+'/5</h3><p>'+hints[Math.min(4,this.tutorialStep)]+'</p><div class="tutorial-steps">'+hints.map((_,i)=>'<span class="'+(i<=this.tutorialStep?'done':'')+'"></span>').join('')+'</div></section><p class="battle-note">藍綠圈是夥伴，橘紅圈是訓練機。所有傷害與支援都是抽象演訓。</p></aside><section class="board-panel" aria-label="戰場" style="--board-aspect:'+(m.map.width/m.map.height)+'"><div class="battle-phasebar"><span class="phase-label '+(this.busy?'enemy':'')+'">'+ico(this.busy?'target':'flag')+' '+(this.busy?(this.enemyPhase?'敵方行動':'行動回放'):'我方行動')+'</span><span class="turn-label">回合 <strong>'+display.round+'</strong> / '+display.turnLimit+'</span></div><div class="battle-mobile-objectives">'+ico('flag')+'<span>'+objectiveText+'</span><button type="button" data-action="objectives" aria-label="完整任務說明">'+ico('info')+'</button></div><div class="board-scene theme-'+escape(m.theme)+'">'+R().board(this.visualState||this.state,m,{selectedId:this.selectedId,reachable:this.busy?[]:d.reachable,targets:this.busy?[]:d.targets,intents:this.busy?[]:d.intents,showIntents:!this.busy&&this.showIntents,preview:this.pending?.preview,assets:this.effectiveAssets(),appearances:this.avatars,customized:this.custom,animation:this.animation,focusCell:this.focusCell,hazards:E().hazardCells(this.visualState||this.state),nextHazards:E().hazardCells(this.visualState||this.state,(this.visualState||this.state).round+1)})+(this.busy&&this.phaseBanner?'<div class="phase-overlay"><div class="phase-banner"><p class="eyebrow">TRAINING OPPONENTS</p><strong>敵方行動</strong><p>'+escape(this.eventText||'訓練機依預告移動與攻擊')+'</p></div></div>':this.eventText?'<div class="event-float '+(this.animation?.pose==='hit'?'damage':this.animation?.pose==='heal'?'heal':'')+'">'+escape(this.eventText)+'</div>':'')+'</div><div class="board-legend"><div class="legend-items"><span><i class="legend-square"></i>可移動</span><span><i class="legend-square red"></i>敵方威脅</span><span><i class="legend-square gold"></i>技能目標</span><span><i class="legend-square hazard"></i>環境警戒</span><span><i class="legend-square smoke"></i>煙幕</span></div><button type="button" data-action="intents" aria-pressed="'+this.showIntents+'">'+ico('eye')+' '+(this.showIntents?'隱藏':'顯示')+'預告</button></div>'+(m.map.width>8?'<p class="mobile-board-hint">地圖可左右滑動，點選地格後再確認行動。</p>':'')+this.actionbar(d)+'</section><aside class="battle-sidebar right"><section class="mission-panel"><p class="eyebrow">MISSION OBJECTIVES</p><h2>'+escape(m.title)+'</h2>'+this.objectiveList(summary)+'<p class="mission-panel-note">'+escape(m.strategy||'優先完成任務，最後讓存活隊員都回到撤離點。')+'</p>'+this.hazardNotice()+'</section><section class="action-panel"><div class="action-heading"><h2>'+ico(u?R().roles[u.role].icon:'shield')+' '+escape(u?.name||'選擇隊員')+'</h2><span class="tag gold">能量 '+(u?.energy||0)+'</span></div><p class="action-hint">'+escape(this.busy?'正在回放已確認的行動，完成後即可繼續。':d.skill?.description||this.unitActionHint(u))+'</p><div class="skill-grid"><button type="button" class="skill-button active-move" data-action="mode" data-mode="move" aria-pressed="'+(this.mode==='move')+'" '+(this.busy||u?.moved||!u||u.hp<=0?'disabled':'')+'>'+ico('move')+'<span>移動</span><small>'+(u?.moved?'已移動':(u?.moveRange||0)+' 格')+'</small></button>'+d.skills.map(skill=>'<button type="button" class="skill-button" data-action="mode" data-mode="'+skill.id+'" aria-pressed="'+(this.mode===skill.id)+'" title="'+escape(skill.reason||skill.description)+'" '+(this.busy||!skill.available?'disabled':'')+'>'+ico(skillIcon(skill.id))+'<span>'+escape(skill.label)+'</span><small>'+(skill.target==='self'?'自身':skill.range+' 格')+'</small>'+(skill.energyCost?'<span class="skill-cost">✦ '+skill.energyCost+'</span>':'')+'</button>').join('')+'</div>'+button('結束回合 '+ico('arrow'),'end-turn','end-turn',this.busy?'disabled':'')+'</section></aside></main><footer class="battle-footer"><span>新版獨立本機預覽 · 不代表完成點名；勝敗都能寫下反思。</span><button type="button" data-action="log">'+ico('book')+' 行動紀錄</button><button type="button" data-action="undo" '+(this.busy||!this.state.undoStack?.length?'disabled':'')+'>'+ico('undo')+' 撤回一步</button></footer>';}
+ actionbar(d){if(this.busy)return '<section class="battle-actionbar" aria-live="polite"><span class="actionbar-icon">'+ico('clock')+'</span><div class="actionbar-copy"><h3>正在回放已確認的行動</h3><p>演訓結果已保留，回放完成後就能繼續安排。</p></div></section>';if(this.pending){const p=this.pending.preview,c=this.pending.command,u=this.selected,title=c.type==='move'?'移動到 '+coord(c):c.type==='endTurn'?'結束回合':c.type==='wait'?'待命':d.skill?.label||'確認行動',detail=p.message||d.skill?.description||'',effect=p.damage>0?'預計造成 '+p.damage+' 點傷害':p.healing>0?'預計恢復 '+p.healing+' 點 HP':p.energyCost?'消耗 '+p.energyCost+' 能量':'';return '<section class="battle-actionbar" aria-label="行動預覽"><span class="actionbar-icon">'+ico(c.type==='move'?'move':skillIcon(c.skillId))+'</span><div class="actionbar-copy"><h3>'+escape(u.name)+' · '+escape(title)+'</h3><p>'+escape(detail)+'</p>'+(effect?'<p class="preview-effects">'+escape(effect)+'</p>':'')+'</div><div class="actionbar-buttons">'+button('取消','cancel-action','outline')+button(ico('check')+' 確認','confirm-action','primary',this.busy?'disabled':'')+'</div></section>';}
+ const u=this.selected;let title=this.busy?'請稍候，正在播放行動':d.skill?'選擇「'+d.skill.label+'」的目標':u?.moved?'已移動，接著安排技能':'選擇一格，準備移動';let detail=this.busy?'完成後會接回你的回合。':d.skill?.target==='self'?'點選自己，或再次點此技能預覽。':d.skill?'金色地格是目前可以施放的範圍。':u?.moved?'每位隊員仍能獨立使用一次技能。':'藍綠色地格可達；先預覽，再確認，不怕點錯。';if(u?.moved&&u?.acted){title='本回合行動已完成';detail='選其他隊員，或結束回合交給訓練機行動。';}else if(u?.acted&&!d.skill){title='技能已完成，還能移動';detail='點藍綠色地格，安排這回合最後的位置。';}if(d.skill&&d.targets.length===0){title='目前沒有可用的'+(d.skill.target==='ally'?'支援對象':'技能目標');detail=this.emptyTargetHint(d.skill);}if(!d.skill&&this.state.civilians.some(c=>c.status==='waiting'&&u&&Math.abs(c.x-u.x)+Math.abs(c.y-u.y)===1)&&!u?.acted&&!u?.carrying){title='有人就在身旁，需要你接應';detail='選「救援」，再點待援民眾。回撤離格即可完成交接。';}return '<section class="battle-actionbar" aria-live="polite"><span class="actionbar-icon">'+ico(d.skill?skillIcon(d.skill.id):'move')+'</span><div class="actionbar-copy"><h3>'+escape(title)+'</h3><p>'+escape(detail)+'</p></div>'+(!this.busy?'<div class="actionbar-buttons">'+(this.coachAvailable?button(ico('spark')+' 推薦下一步','coach','outline'):button(ico('info'),'help','subtle','aria-label="操作說明"'))+'</div>':'')+'</section>';}
+ unitActionHint(unit){if(!unit||unit.hp<=0)return '請選擇仍可行動的隊員。';if(unit.moved&&unit.acted)return '本回合行動已完成，選其他隊員或結束回合。';if(unit.acted)return '技能已使用，本回合還能移動一次。';if(unit.moved)return '本回合已移動，還能使用一次技能。';return '選擇行動，再點選地圖上的目標。';}
+ emptyTargetHint(skill){return {enemy:'先移動靠近訓練機，留意射程、掩體與煙幕，再使用技能。',ally:'範圍內沒有需要回復的隊員；可以先移動、掩護或換位支援。',civilian:'救援需要和待援民眾相鄰。先靠近，再把對方帶回撤離格。',object:'先接近尚未完成的節點，也留意前置節點與任務條件。',tile:'目前沒有可施放的地格；先調整位置，再選擇技能。',self:'這位隊員目前無法使用技能。'}[skill.target]||'先調整位置，或安排其他隊員。';}
+ result(){const s=E().summary(this.state),m=this.mission,d=s.decision,metrics=s.metrics;return '<main class="result-shell" id="main-content"><header class="result-heading"><div class="result-emblem">'+ico(s.won?'flag':'leaf')+'</div><p class="eyebrow">AFTER ACTION REVIEW</p><h1>'+(s.won?(s.surviving===3?'小隊平安歸來。':'目標達成，仍需接應夥伴。'):'這次經驗，值得留下。')+'</h1><p>'+escape(s.reason||(s.won?'任務目標完成。現在，回看你選擇的理由。':'演訓暫告一段落。勝敗都能寫下反思、完成學習紀錄。'))+'</p><span class="tag">CH. '+String(m.number).padStart(2,'0')+' · '+escape(m.title)+'</span></header><section class="result-stats" aria-label="戰術紀錄"><div class="result-stat"><strong>'+s.round+'</strong><span>使用回合</span></div><div class="result-stat"><strong>'+metrics.rescued+'</strong><span>完成護送</span></div><div class="result-stat"><strong>'+s.surviving+' / 3</strong><span>仍可行動隊員</span></div><div class="result-stat"><strong>'+metrics.healing+'</strong><span>演訓支援量</span></div></section><div class="section-heading"><h2>'+ico('eye')+' 從不同角度回看</h2><button type="button" class="text-button" data-action="notes">教材線索 '+ico('book')+'</button></div><section class="perspective-grid"><article class="perspective-card"><h3>'+ico('shield')+' 責任與界線</h3><p>'+escape(m.concepts?.[0]?.text||m.learningObjective)+'</p></article><article class="perspective-card"><h3>'+ico('heart')+' 人與需求</h3><p>'+escape(s.unresolvedCivilians?'仍有 '+s.unresolvedCivilians+' 位民眾未完成交接。需要誰接手？哪些限制應誠實說明？':'救援任務已交接。除了抵達，對方是否知道後續能向誰求助？')+'</p></article><article class="perspective-card"><h3>'+ico('clock')+' 資源與代價</h3><p>'+escape(d?.tradeoff||'時間、人力與安全需要一起考量。你讓哪一項優先，代價由誰承擔？')+'</p></article></section><form class="reflection-card" id="reflection-form"><div class="reflection-heading">'+ico('book')+'<div><h2>讓選擇有理由，也有修正的空間。</h2><p>你選擇了「'+escape(d?.label||'')+'」。兩欄都填寫，就能留下本機學習紀錄。</p></div></div><div class="reflection-fields"><div><label for="reflection-reason">01 · 我為什麼這樣安排？請連結教材依據</label><textarea id="reflection-reason" name="reason" maxlength="6000" required placeholder="我優先考量的是…因為…" '+(this.finished?'readonly':'')+'>'+escape(this.reflection.reason)+'</textarea><p class="form-help">請連結一項教材概念，再說明任務責任、個別需求或能力界線。</p></div><div><label for="reflection-revision">02 · 什麼新資訊會讓我改變？</label><textarea id="reflection-revision" name="revisionCondition" maxlength="6000" required placeholder="如果得知…我會把原本的安排改成…" '+(this.finished?'readonly':'')+'>'+escape(this.reflection.revisionCondition)+'</textarea><p class="form-help">寫下可觀察的條件，以及你會如何調整。</p></div></div><p id="reflection-draft-status" class="form-help draft-status" role="status" aria-live="polite">'+escape(this.finished?'':this.draftStatus||'輸入後會自動保存這一場的草稿。')+'</p><div id="reflection-error"></div>'+(this.finished?'<div class="saved-record"><strong>'+ico(this.finished.persisted?'check':'info')+' '+(this.finished.persisted?'學習紀錄已儲存在此瀏覽器':'反思暫留本頁，請下載備份')+'</strong><p>這是新版個人本機紀錄，不等於正式成績或完成點名。</p></div>':'<div class="dialog-actions"><small>勝敗不影響完成學習。文字不傳送到外部，也不以單一分數衡量倫理立場。</small><button type="submit" class="button primary">'+ico('check')+' 完成學習紀錄</button></div>')+'</form><div class="result-bottom-actions">'+button(ico('undo')+' 再試一次','retry','outline')+button('返回章節 '+ico('arrow'),'chapters','primary')+button(ico('download')+' 下載備份','export','subtle')+'</div></main>';}
  openDialog(title,body,kicker='TACTICAL ACADEMY'){if(!this.dialog.open)this.modalReturn=root.document.activeElement;this.dialog.innerHTML='<header class="dialog-top"><div><p class="eyebrow">'+escape(kicker)+'</p><h2 id="dialog-title">'+escape(title)+'</h2></div><button type="button" class="icon-button" data-action="close-dialog" aria-label="關閉">'+ico('close')+'</button></header><div class="dialog-body">'+body+'</div>';if(!this.dialog.open)this.dialog.showModal();this.music?.setScene('dialogue');}
  closeDialog(){if(this.dialog.open)this.dialog.close();}
- briefing(id,decisionId){const m=M().getMission(id);if(!m){this.toast('找不到這個章節，請重新選擇。');return;}this.briefingId=id;this.briefingDecision=decisionId||m.decisions[0]?.id;const selected=m.decisions.find(d=>d.id===this.briefingDecision);this.openDialog(m.title,'<div class="briefing-hero">'+this.sceneArt(m.id)+'<span class="briefing-hero-label">CH. '+String(m.number).padStart(2,'0')+' · '+escape(m.topic)+'</span></div><p>'+escape(m.briefing)+'</p><div class="briefing-grid"><section><h3>任務目標</h3><ul>'+m.objectives.map(o=>'<li>'+escape(o.label)+'</li>').join('')+'</ul></section><aside class="briefing-aside"><h3>'+ico('spark')+' 行動提示</h3><p>'+escape(m.strategy)+'</p></aside></div><h3 class="decision-heading">出發前，你想先採取哪個思路？</h3><div class="decision-grid">'+m.decisions.map(d=>'<button type="button" class="decision-card" data-action="decision" data-decision="'+d.id+'" aria-pressed="'+(d.id===this.briefingDecision)+'"><h4>'+escape(d.label)+'</h4><p>'+escape(d.text)+'</p><small>'+escape(d.tactical)+'</small><small>取捨：'+escape(d.tradeoff)+'</small>'+(d.id===this.briefingDecision?'<span class="decision-check">'+ico('check')+'</span>':'')+'</button>').join('')+'</div>'+this.learningContext(m)+'<p class="form-help">兩條路都可以討論。選擇會影響戰術條件，不代表道德高低。</p>'+(this.savedSession?.status==='active'?'<p class="form-help">開始新行動會保留上次挑戰摘要，並以新章節取代目前可繼續的戰況。</p>':'')+'<div class="dialog-actions">'+button('先看看章節','chapters','outline')+button('小隊出發 '+ico('arrow'),'start','primary')+'</div>','MISSION BRIEFING');}
- start(id=this.briefingId,decisionId=this.briefingDecision){this.interruptAnimation();this.animationSerial++;try{const state=E().createState(id||'u03',{decisionId});const saved=this.store.startAttempt(state);if(!saved.ok){this.toast(saved.message);return;}this.state=state;this.savedSession=state;this.reflectionAttemptId=saved.attemptId||null;this.persist(saved);this.selectedId='guardian';this.mode='move';this.pending=null;this.uiCache=null;this.reflection={reason:'',revisionCondition:''};this.finished=null;this.tutorialStep=0;this.focusCell=state.units[0].x+','+state.units[0].y;this.view='battle';this.closeDialog();this.music?.setChapter(state.missionId);this.music?.setScene('exploration');this.render();this.voice.play('guardian','select');root.scrollTo?.({top:0});}catch(e){this.toast('任務未能開始：'+e.message);}}
- continue(){const loaded=this.store.loadSession(),state=loaded.data||this.savedSession;const attemptId=loaded.attemptId||null;if(!attemptId||attemptId!==this.reflectionAttemptId){this.reflection={reason:'',revisionCondition:''};this.finished=null;}this.reflectionAttemptId=attemptId;if(!state){this.toast('目前沒有可繼續的戰況。');return;}const valid=E().validateState(state);if(!valid.ok){this.toast('這份战況需要重新載入，原紀錄仍保留。');return;}this.state=state;this.selectedId=state.units.find(u=>u.team==='player'&&u.hp>0)?.id||'guardian';this.focusCell=this.selected?this.selected.x+','+this.selected.y:'0,0';this.mode='move';this.pending=null;this.uiCache=null;this.view=state.status==='active'?'battle':'result';this.finished=null;this.closeDialog();this.music?.setChapter(state.missionId);this.music?.setScene(this.view==='battle'?'exploration':'outcome');this.render();root.scrollTo?.({top:0});}
+ briefing(id,decisionId){const m=M().getMission(id);if(!m){this.toast('找不到這個章節，請重新選擇。');return;}this.preloadPoses();this.briefingId=id;this.briefingDecision=decisionId||m.decisions[0]?.id;const selected=m.decisions.find(d=>d.id===this.briefingDecision);this.openDialog(m.title,'<div class="briefing-hero">'+this.sceneArt(m.id)+'<span class="briefing-hero-label">CH. '+String(m.number).padStart(2,'0')+' · '+escape(m.topic)+'</span></div><p>'+escape(m.briefing)+'</p><div class="briefing-grid"><section><h3>任務目標</h3><ul>'+m.objectives.map(o=>'<li>'+escape(o.label)+'</li>').join('')+'</ul></section><aside class="briefing-aside"><h3>'+ico('spark')+' 行動提示</h3><p>'+escape(m.strategy)+'</p></aside></div><h3 class="decision-heading">出發前，你想先採取哪個思路？</h3><div class="decision-grid">'+m.decisions.map(d=>'<button type="button" class="decision-card" data-action="decision" data-decision="'+d.id+'" aria-pressed="'+(d.id===this.briefingDecision)+'"><h4>'+escape(d.label)+'</h4><p>'+escape(d.text)+'</p><small>'+escape(d.tactical)+'</small><small>取捨：'+escape(d.tradeoff)+'</small>'+(d.id===this.briefingDecision?'<span class="decision-check">'+ico('check')+'</span>':'')+'</button>').join('')+'</div>'+this.learningContext(m)+'<p class="form-help">兩條路都可以討論。選擇會影響戰術條件，不代表道德高低。</p>'+(this.savedSession?.status==='active'?'<p class="form-help">開始新行動會保留上次挑戰摘要，並以新章節取代目前可繼續的戰況。</p>':'')+'<div class="dialog-actions">'+button('先看看章節','chapters','outline')+button('小隊出發 '+ico('arrow'),'start','primary')+'</div>','MISSION BRIEFING');}
+ start(id=this.briefingId,decisionId=this.briefingDecision){this.flushDraft();this.interruptAnimation();this.animationSerial++;try{const state=E().createState(id||'u03',{decisionId});const saved=this.store.startAttempt(state);if(!saved.ok){this.toast(saved.message);return;}this.state=state;this.savedSession=state;this.reflectionAttemptId=saved.attemptId||null;this.draftStatus='';this.persist(saved);this.selectedId='guardian';this.mode='move';this.pending=null;this.uiCache=null;this.reflection={reason:'',revisionCondition:''};this.finished=null;this.tutorialStep=0;this.focusCell=state.units[0].x+','+state.units[0].y;this.view='battle';this.closeDialog();this.music?.setChapter(state.missionId);this.music?.setScene('exploration');this.render();this.voice.play('guardian','select');root.scrollTo?.({top:0});}catch(e){this.toast('任務未能開始：'+e.message);}}
+ continue(){this.flushDraft();const loaded=this.store.loadSession(),state=loaded.data||this.savedSession;const attemptId=loaded.attemptId||null;if(!attemptId||attemptId!==this.reflectionAttemptId){this.reflection=loaded.draft?clone(loaded.draft):{reason:'',revisionCondition:''};this.finished=null;this.draftStatus=loaded.draft&&(loaded.draft.reason||loaded.draft.revisionCondition)?(loaded.persisted?'已恢復此挑戰的反思草稿。':'已恢復本頁暫存草稿，請下載備份。'):'';}this.reflectionAttemptId=attemptId;if(!state){this.toast('目前沒有可繼續的戰況。');return;}const valid=E().validateState(state);if(!valid.ok){this.toast('這份戰況需要重新載入，原紀錄仍保留。');return;}this.state=state;this.selectedId=state.units.find(u=>u.team==='player'&&u.hp>0)?.id||'guardian';this.focusCell=this.selected?this.selected.x+','+this.selected.y:'0,0';this.mode='move';this.pending=null;this.uiCache=null;this.view=state.status==='active'?'battle':'result';this.preloadPoses();this.finished=null;this.closeDialog();this.music?.setChapter(state.missionId);this.music?.setScene(this.view==='battle'?'exploration':'outcome');this.render();root.scrollTo?.({top:0});}
  selectUnit(id){if(this.busy)return;const unit=this.state.units.find(u=>u.id===id);if(!unit||unit.team!=='player'||unit.hp<=0)return;const changed=this.selectedId!==id;this.selectedId=id;this.mode='move';this.pending=null;this.tutorialStep=Math.max(1,this.tutorialStep);this.render();if(changed)this.voice.play(unit.role,'select');}
  setMode(mode){if(this.busy)return;if(mode!=='move'){const skill=E().getSkills(this.state,this.selectedId).find(s=>s.id===mode);if(!skill?.available){this.toast(skill?.reason||'目前無法使用這個技能。');return;}this.mode=mode;this.pending=null;if(skill.target==='self'){this.prepare({type:'skill',unitId:this.selectedId,skillId:mode,targetId:this.selectedId,x:this.selected.x,y:this.selected.y});return;}}else{this.mode=mode;this.pending=null;}this.render();}
  tileClick(x,y){if(this.busy||!this.state||this.state.status!=='active')return;this.focusCell=x+','+y;const unit=this.state.units.find(u=>u.x===x&&u.y===y&&u.hp>0);if(this.mode==='move'){if(unit?.team==='player'){this.selectUnit(unit.id);return;}if(unit?.team==='enemy'){this.inspectEnemy(unit);return;}this.prepare({type:'move',unitId:this.selectedId,x,y});}else this.prepare({type:'skill',unitId:this.selectedId,skillId:this.mode,x,y});}
- prepare(command){command.revision=this.state.revision;const preview=E().preview(this.state,command);if(!preview.ok){this.toast(preview.message||preview.reason||'這個目標目前無法執行。');return;}if(!preview.target&&command.x!=null)preview.target={x:command.x,y:command.y};this.pending={command,preview};this.render();}
+ prepare(command){command={...command,revision:command.revision??this.state.revision};const preview=E().preview(this.state,command);if(!preview.ok){this.toast(preview.message||preview.reason||'這個目標目前無法執行。');return;}if(!preview.target&&command.x!=null)preview.target={x:command.x,y:command.y};this.pending={command,preview};this.render();}
  async execute(command){if(this.busy)return;const before=this.state,result=E().command(before,{...command,revision:command.revision??before.revision});if(!result.ok){this.pending=null;this.toast(result.message||'行動未完成，請重新選擇。');this.render();return;}const serial=++this.animationSerial;this.busy=true;this.pending=null;this.enemyPhase=command.type==='endTurn';if(command.type==='move')this.tutorialStep=Math.max(2,this.tutorialStep);else if(command.type==='skill')this.tutorialStep=Math.max(3,this.tutorialStep);else if(command.type==='endTurn')this.tutorialStep=4;
   const role=this.selected?.role;if(command.type==='skill')this.voice.play(role,['strike','shot','suppress'].includes(command.skillId)?'attack':command.skillId==='rescue'?'rescue':'skill');
-  this.visualState=clone(before);this.state=result.state;this.uiCache=null;this.saveSession();
+  this.visualState=clone(before);this.presentationSummary=E().summary(before);this.state=result.state;this.uiCache=null;this.saveSession();
   if(!this.reducedMotion){
    const events=result.events.filter(e=>['move','attack','damage','heal','rescue','evacuate','guard','interact','hazard'].includes(e.type));
    if(this.enemyPhase){this.phaseBanner=true;this.eventText='訓練機依預告採取行動';this.render();await wait(500);this.phaseBanner=false;}
    for(const event of events){
     if(serial!==this.animationSerial)return;
-    this.animation={unitId:event.type==='damage'?event.targetId:event.unitId,pose:event.type==='move'?'move':event.type==='attack'?'attack':event.type==='damage'?'hit':event.type==='heal'?'heal':event.type==='rescue'?'rescue':'idle'};
+    this.animation={unitId:event.type==='damage'?event.targetId:event.unitId,pose:event.type==='move'?'move':event.type==='attack'?'attack':event.type==='damage'?'hit':event.type==='heal'?'heal':event.type==='rescue'?'rescue':'idle',targetId:event.targetId,effect:event.type==='attack'?(this.visualState.units.find(u=>u.id===event.unitId)?.role==='guardian'?'strike':'scan'):event.type==='damage'?'hit':event.type==='heal'?'heal':null};
     this.eventText=event.message||({move:'移動中',attack:'進行制止',damage:'受到 '+event.amount+' 點傷害',heal:'恢復 '+event.amount+' 點 HP',rescue:'已接上民眾',evacuate:'護送交接完成',guard:'掩護準備完成',interact:'任務進度更新'}[event.type]||'行動中');
     const moving=this.visualState.units.find(u=>u.id===event.unitId),target=this.visualState.units.find(u=>u.id===event.targetId);
     if(event.type==='move'&&moving&&event.path?.length){for(const step of event.path.slice(1)){moving.x=step.x;moving.y=step.y;this.render();await wait(105);}}
     else{if(event.type==='damage'&&target&&typeof event.hpAfter==='number')target.hp=event.hpAfter;if(event.type==='heal'&&target&&typeof event.hpAfter==='number')target.hp=event.hpAfter;if(event.type==='rescue'){const person=this.visualState.civilians.find(c=>c.id===event.targetId);if(person)person.status='carried';if(moving)moving.carrying=event.targetId;}if(event.type==='evacuate'){if(moving)moving.carrying=null;}this.render();await wait(this.enemyPhase?260:220);}
    }
   }
-  if(serial!==this.animationSerial)return;this.state=result.state;this.visualState=null;this.busy=false;this.enemyPhase=false;this.phaseBanner=false;this.animation=null;this.eventText='';this.uiCache=null;this.mode='move';if(this.selected?.hp<=0)this.selectedId=this.state.units.find(u=>u.team==='player'&&u.hp>0)?.id||this.selectedId;if(this.state.status!=='active'){this.view='result';this.music?.setScene('outcome');this.voice.stop();root.scrollTo?.({top:0});}this.render();if(command.type==='endTurn'&&this.state.status==='active')this.toast('第 '+this.state.round+' 回合，輪到晨光小隊。');else if(result.events.some(e=>e.type==='evacuate'))this.toast('民眾已安全交接。完成任務後，記得讓全隊返回撤離格。');
+  if(serial!==this.animationSerial)return;this.state=result.state;this.visualState=null;this.presentationSummary=null;this.busy=false;this.enemyPhase=false;this.phaseBanner=false;this.animation=null;this.eventText='';this.uiCache=null;this.mode='move';if(this.selected?.hp<=0)this.selectedId=this.state.units.find(u=>u.team==='player'&&u.hp>0)?.id||this.selectedId;if(this.state.status!=='active'){this.view='result';this.music?.setScene('outcome');this.voice.stop();root.scrollTo?.({top:0});}this.render();if(command.type==='endTurn'&&this.state.status==='active')this.toast('第 '+this.state.round+' 回合，輪到晨光小隊。');else if(result.events.some(e=>e.type==='evacuate'))this.toast('民眾已安全交接。完成任務後，記得讓全隊返回撤離格。');
  }
- interruptAnimation(){if(!this.busy)return;this.animationSerial++;this.busy=false;this.enemyPhase=false;this.phaseBanner=false;this.visualState=null;this.animation=null;this.eventText='';this.pending=null;this.uiCache=null;this.mode='move';if(this.selected?.hp<=0)this.selectedId=this.state?.units.find(u=>u.team==='player'&&u.hp>0)?.id||this.selectedId;if(this.state?.status!=='active'){this.view='result';this.music?.setScene('outcome');}if(this.ready)this.render();}
+ interruptAnimation(){if(!this.busy)return;this.animationSerial++;this.busy=false;this.enemyPhase=false;this.phaseBanner=false;this.visualState=null;this.presentationSummary=null;this.animation=null;this.eventText='';this.pending=null;this.uiCache=null;this.mode='move';if(this.selected?.hp<=0)this.selectedId=this.state?.units.find(u=>u.team==='player'&&u.hp>0)?.id||this.selectedId;if(this.state?.status!=='active'){this.view='result';this.music?.setScene('outcome');}if(this.ready)this.render();}
  endTurn(){if(this.busy)return;const unused=this.state.units.filter(u=>u.team==='player'&&u.hp>0&&(!u.moved||!u.acted));if(unused.length){this.openDialog('要結束這個回合嗎？','<p>'+unused.map(u=>escape(u.name)+'（'+[!u.moved?'還能移動':'',!u.acted?'還能使用技能':''].filter(Boolean).join('、')+'）').join('<br>')+'</p><p class="form-help">保留行動也可以。確認後，訓練機會依預告行動；本回合將不能撤回。</p><div class="dialog-actions">'+button('繼續安排','close-dialog','outline')+button('確認結束回合','confirm-end-turn','gold')+'</div>','END YOUR TURN');}else this.execute({type:'endTurn',revision:this.state.revision});}
- inspectEnemy(unit){const intent=E().enemyIntents(this.state).find(i=>i.enemyId===unit.id),target=this.state.units.find(u=>u.id===intent?.targetId);this.openDialog(unit.name,'<p>生命 '+unit.hp+' / '+unit.maxHp+' · 護甲 '+unit.armor+' · 移動 '+unit.moveRange+' 格</p><div class="briefing-aside"><h3>下回合預告</h3><p>'+escape(intent?.type==='attack'?'預計攻擊 '+(target?.name||'目標')+'，造成約 '+intent.damage+' 點演訓傷害。':intent?.type==='move'?'預計移動到 '+coord(intent.to)+'。':'目前待機。')+'</p></div><p class="form-help">預告會隨小隊移動、掩護、煙幕而改變。選擇對手後不會自動攻擊。</p><div class="dialog-actions">'+button('回到戰場','close-dialog','primary')+'</div>','OPPONENT INTENT');}
- help(){const steps=[['選隊員','點隊員卡或地圖上的夥伴。每人每回合有一次移動、一次技能，先後順序自由。'],['移動與預覽','點藍綠地格，查看路徑，再按「確認」。本回合的行動可按「撤回一步」。'],['技能與救援','選技能，再點金色範圍內的目標。救援需相鄰，一人護送一位；走回綠色撤離格即交接。'],['看清對手再交棒','紅色虛線標出敵方威脅。完成安排後按「結束回合」，觀看對手行動。'],['回撤並留下反思','完成所有目標，讓存活隊員都站在撤離格。即使失敗，仍能填兩欄反思完成本機學習。']];this.openDialog('五步就能開始','<div class="help-steps">'+steps.map((s,i)=>'<div class="help-step"><span class="step-no">'+(i+1)+'</span><div><h3>'+s[0]+'</h3><p>'+s[1]+'</p></div></div>').join('')+'</div><p class="form-help" style="margin-top:20px">鍵盤：地圖使用方向鍵移動焦點，Enter 選擇地格；Esc 取消預覽。數字 1 / 2 / 3 切换隊員。所有行動都可點擊完成。</p><div class="dialog-actions">'+button('知道了，開始行動','close-dialog','primary')+'</div>','QUICK FIELD GUIDE');}
+ inspectEnemy(unit){const intent=E().enemyIntents(this.state).find(i=>i.enemyId===unit.id),target=this.state.units.find(u=>u.id===intent?.targetId);this.openDialog(unit.name,'<p>生命 '+unit.hp+' / '+unit.maxHp+' · 護甲 '+unit.armor+' · 移動 '+unit.moveRange+' 格</p><div class="briefing-aside"><h3>敵方階段預告</h3><p>'+escape(intent?.type==='attack'?'預計攻擊 '+(target?.name||'目標')+'，造成約 '+intent.damage+' 點演訓傷害。':intent?.type==='move'?'預計移動到 '+coord(intent.to)+'。':'目前待機。')+'</p></div><p class="form-help">預告會隨小隊移動、掩護、煙幕而改變。選擇對手後不會自動攻擊。</p><div class="dialog-actions">'+button('回到戰場','close-dialog','primary')+'</div>','OPPONENT INTENT');}
+ help(){const steps=[['選隊員','點隊員卡或地圖上的夥伴。每人每回合有一次移動、一次技能，先後順序自由。'],['移動與預覽','點藍綠地格，查看路徑，再按「確認」。本回合的行動可按「撤回一步」。'],['技能與救援','選技能，再點金色範圍內的目標。救援需相鄰，一人護送一位；走回綠色撤離格即交接。'],['看清對手再交棒','紅色虛線標出敵方威脅。完成安排後按「結束回合」，觀看對手行動。'],['回撤並留下反思','完成所有目標，讓存活隊員都站在撤離格。即使失敗，仍能填兩欄反思完成本機學習。']];this.openDialog('五步就能開始','<div class="help-steps">'+steps.map((s,i)=>'<div class="help-step"><span class="step-no">'+(i+1)+'</span><div><h3>'+s[0]+'</h3><p>'+s[1]+'</p></div></div>').join('')+'</div><p class="form-help" style="margin-top:20px">鍵盤：地圖使用方向鍵移動焦點，Enter 選擇地格；Esc 取消預覽。數字 1 / 2 / 3 切換隊員。所有行動都可點擊完成。</p><div class="dialog-actions">'+button('知道了，開始行動','close-dialog','primary')+'</div>','QUICK FIELD GUIDE');}
+ coach(){if(!this.coachAvailable||this.busy)return;const suggestion=root.TacticalCoach.suggest(this.state);this.coachSuggestion={...suggestion,revision:this.state.revision,attemptId:this.store.loadSession().attemptId};const legal=suggestion.available&&suggestion.command&&E().preview(this.state,suggestion.command).ok;this.openDialog(suggestion.title||'下一步，可以這樣想','<div class="coach-advice"><span class="coach-symbol">'+ico('spark')+'</span><div>'+(suggestion.kind==='route'?'<p class="eyebrow">首戰提示 '+suggestion.step+' / '+suggestion.total+'</p>':'<p class="eyebrow">依目前戰況推薦</p>')+'<p>'+escape(suggestion.reason||'先觀察救援與撤離目標，再安排小隊位置。')+'</p></div></div><p class="form-help">'+escape(suggestion.notice||'這是可略過的戰術方法，不是唯一解。倫理立場不排名，勝敗都能寫反思。')+'</p><div class="dialog-actions">'+button('關閉新手推薦','coach-disable','subtle')+button('我再看看','close-dialog','outline')+(legal?button('預覽建議 '+ico('arrow'),'coach-preview','primary'):'')+'</div>','OPTIONAL NEXT STEP');}
+ previewCoach(){const recommendation=this.coachSuggestion;if(!recommendation||this.busy)return;if(recommendation.revision!==this.state?.revision||recommendation.attemptId!==this.store.loadSession().attemptId){this.coach();return;}const command=recommendation.command;if(!command||!E().preview(this.state,command).ok){this.coach();return;}if(command.unitId)this.selectedId=command.unitId;this.mode=command.type==='skill'?command.skillId:'move';this.closeDialog();this.prepare(command);}
+ setCoachPreference(enabled){if(Object.hasOwn(this.profile.settings,'coachEnabled')){this.profile.settings.coachEnabled=!!enabled;this.saveProfile();}else this.coachDisabledSession=!enabled;this.coachSuggestion=null;}
  objectives(){this.openDialog(this.mission.title,'<p>'+escape(this.mission.briefing)+'</p>'+this.objectiveList(E().summary(this.state))+this.hazardNotice()+'<p class="form-help" style="margin-top:15px">'+escape(this.mission.strategy)+'</p><div class="dialog-actions">'+button('繼續行動','close-dialog','primary')+'</div>','MISSION OBJECTIVES');}
  hazardNotice(){const hazards=this.mission.hazards||[];return hazards.length?'<details class="hazard-notice"><summary>'+ico('bolt')+' 環境警戒時間表</summary><ul>'+hazards.map(h=>'<li>'+escape(h.name)+'：第 '+h.rounds.join('、')+' 回合結束時，警戒格造成 '+h.damage+' 點演訓傷害。</li>').join('')+'</ul><p>本回合警戒格標橘色「!」，下回合預告標空心框。煙幕只阻擋遠程視線，不會免除環境傷害。</p></details>':'';}
  learningContext(m){return '<details class="learning-context"><summary>'+ico('book')+' 這次討論什麼</summary><p>'+escape(m.ethicalContext)+'</p><p class="form-help">'+escape(m.learningObjective)+'</p></details>';}
  notes(){const m=this.mission;this.openDialog('教材線索 · '+m.topic,'<p>'+escape(m.ethicalContext)+'</p><div class="help-steps">'+(m.concepts||[]).map((c,i)=>'<article class="help-step"><span class="step-no">'+(i+1)+'</span><div><h3>'+escape(c.term)+'</h3><p>'+escape(c.text)+'</p></div></article>').join('')+'</div><h3 class="decision-heading">教材對照位置</h3><ul class="journal-list">'+(m.sourceRefs||[]).map(ref=>'<li><strong>'+escape(ref.label)+'</strong><small>教材檔案頁次：'+escape(ref.pages.join('、'))+'</small><span>'+escape(ref.file)+'</span></li>').join('')+'</ul><p class="form-help">演訓情境為原創，教材線索為摘要，並非案例原文。頁碼指教材檔案頁次；此預覽不附未公開教材。</p><div class="dialog-actions">'+button('回到目前畫面','close-dialog','primary')+'</div>','LEARNING CLUES');}
- menu(){const legacy=this.store.legacySummary().data;this.openDialog('學院選單','<div class="menu-grid">'+[['chapters','flag','章節地圖','13 章皆可自由選擇'],['wardrobe','user','小隊造型','外觀不影響戰力'],['bonus','bag','支線與收藏','獨立的益智練習'],['notes','book','教材線索','概念、情境與頁碼'],['settings','volume','聲音與顯示','配樂、旁白與動態'],['export','download','下载新版備份','保存此瀏覽器紀錄'],['import','upload','匯入新版備份','驗證後再確認取代'],['journal','book','學習紀錄','查看本機反思'],['help','info','操作說明','點擊或鍵盤皆可']].map(([a,i,t,n])=>'<button type="button" class="menu-tile" data-action="'+a+'">'+ico(i)+'<span>'+t+'<small>'+n+'</small></span></button>').join('')+'</div><p class="form-help" style="margin-top:18px">新版紀錄只留在本機；不會提交正式點名。'+(legacy?.exists?'偵測到舊版紀錄，已原樣保留。':'')+'</p>'+(this.state?'<div class="dialog-actions">'+button('重試這一章','retry','outline')+button('回到學院','home','primary')+'</div>':''));}
- settings(){const s=this.profile.settings,hasVoices=Object.keys(A().voices||{}).some(role=>Object.keys(A().voices[role]||{}).length);this.openDialog('聲音與顯示','<div class="settings-row"><div><p>章節原創配樂</p><small>13 章各有樂曲，離開分頁會暫停。</small></div>'+button(s.musicEnabled?'已開啟':'已關閉','settings-music',s.musicEnabled?'primary':'outline')+'</div><div class="settings-row"><label for="music-volume"><p>配樂音量</p><small>'+Math.round(s.musicVolume*100)+'%</small></label><input type="range" id="music-volume" name="musicVolume" min="0" max="1" step=".05" value="'+s.musicVolume+'"></div><div class="settings-row"><div><p>小隊中文旁白</p><small>'+(hasVoices?'只在選取、確認行動時播放。':'旁白素材尚未載入，遊戲照常進行。')+'</small></div>'+button(s.voiceEnabled?'已開啟':'已關閉','settings-voice',s.voiceEnabled?'primary':'outline')+'</div><div class="settings-row"><label for="voice-volume"><p>旁白音量</p><small>'+Math.round(s.voiceVolume*100)+'%</small></label><input type="range" id="voice-volume" name="voiceVolume" min="0" max="1" step=".05" value="'+s.voiceVolume+'"></div><div class="settings-row"><div><p>減少動態效果</p><small>立即呈現回合結果，保留完整行動紀錄。</small></div>'+button(s.reducedMotion?'已開啟':'已關閉','settings-motion',s.reducedMotion?'primary':'outline')+'</div><div class="dialog-actions">'+button('完成','close-dialog','primary')+'</div>','AUDIO & ACCESSIBILITY');}
- wardrobe(role=this.wardrobeRole||'guardian',fresh=true){if(fresh){this.wardrobeDraft=clone(this.profile.squadAppearance);this.wardrobeModes=clone(this.profile.squadArtMode||{guardian:'illustrated',scout:'illustrated',medic:'illustrated'});}this.wardrobeRole=role;const labels={build:'身形',skin:'膚色',hair:'髮型',hairColor:'髮色',top:'上衣',topColor:'上衣顏色',bottom:'下裝',bottomColor:'下裝顏色',accessory:'配件',gear:'隨身物品'},custom=this.wardrobeModes[role]==='custom';this.openDialog('每位夥伴，都能有自己的樣子。','<div class="wardrobe-tabs">'+roleOrder.map(r=>'<button type="button" data-action="wardrobe-tab" data-role="'+r+'" aria-pressed="'+(role===r)+'">'+escape(E().roles[r].name)+' · '+escape(E().roles[r].title)+'</button>').join('')+'</div><div class="wardrobe-layout"><div><div class="wardrobe-preview" id="wardrobe-preview">'+(custom?R().avatarSVG(role,this.wardrobeDraft[role]):R().sprite(role,{},this.effectiveAssets(this.wardrobeModes),'idle'))+'<p>'+(custom?'自由造型':this.wardrobeModes[role]==='illustrated-alt'?'精緻替代套裝':'精緻原型立繪')+' · 外觀不影響戰力</p></div><div class="wardrobe-presets">'+button('精緻原型','wardrobe-original',this.wardrobeModes[role]==='illustrated'?'primary':'outline')+(A().variants?.[role]?.alternate?button('替代套裝','wardrobe-alt',this.wardrobeModes[role]==='illustrated-alt'?'primary':'outline'):'')+button('自由搭配','wardrobe-custom',custom?'primary':'outline')+'</div></div><div><div class="wardrobe-controls">'+Object.entries(root.RPGAvatar.catalog).map(([k,choices])=>'<label for="appearance-'+k+'">'+labels[k]+'<select id="appearance-'+k+'" data-appearance="'+k+'">'+choices.map(c=>'<option value="'+c.id+'" '+(this.wardrobeDraft[role][k]===c.id?'selected':'')+'>'+escape(c.name)+'</option>').join('')+'</select></label>').join('')+'</div><div class="wardrobe-presets">'+root.RPGAvatar.presets.map(p=>'<button type="button" data-action="wardrobe-preset" data-preset="'+p.id+'">'+escape(p.name)+'</button>').join('')+'</div></div></div><p class="form-help" style="margin-top:16px">長髮、馬尾、捲髮、不同膚色與衣裝可自由混搭，沒有職能或性別限制。精緻原型和自由造型隨時能切回。自由造型沿用固定角色原聲；替代套裝只播放該套裝專屬旁白。</p><div class="dialog-actions">'+button('取消','close-dialog','outline')+button('保存小隊造型','wardrobe-save','primary')+'</div>','SQUAD WARDROBE');}
- refreshWardrobePreview(){const role=this.wardrobeRole;root.document.getElementById('wardrobe-preview').innerHTML=R().avatarSVG(role,this.wardrobeDraft[role])+'<p>自由造型 · 外觀不影響戰力</p>';}
- export(){try{this.download(this.store.exportJSON(),'晨光行動-新版備份-'+new Date().toISOString().slice(0,10)+'.json');this.toast('備份下載已準備好。請將檔案保留在安全位置。');}catch(e){this.toast('備份無法產生：'+e.message);}}
+ menu(){const legacy=this.store.legacySummary().data;this.openDialog('學院選單','<div class="menu-grid">'+[['chapters','flag','章節地圖','13 章皆可自由選擇'],['wardrobe','user','小隊造型','外觀不影響戰力'],['bonus','bag','支線與收藏','獨立的益智練習'],['notes','book','教材線索','概念、情境與頁碼'],['settings','volume','遊戲設定','聲音、動態與新手推薦'],['export','download','下載新版備份','保存此瀏覽器紀錄'],['import','upload','匯入新版備份','驗證後再確認取代'],['journal','book','學習紀錄','查看本機反思'],['help','info','操作說明','點擊或鍵盤皆可']].map(([a,i,t,n])=>'<button type="button" class="menu-tile" data-action="'+a+'">'+ico(i)+'<span>'+t+'<small>'+n+'</small></span></button>').join('')+'</div><p class="form-help" style="margin-top:18px">新版紀錄只留在本機；不會提交正式點名。'+(legacy?.exists?'偵測到舊版紀錄，已原樣保留。':'')+'</p>'+(this.state?'<div class="dialog-actions">'+button('重試這一章','retry','outline')+button('回到學院','home','primary')+'</div>':''));}
+ settings(){const s=this.profile.settings,hasVoices=Object.keys(A().voices||{}).some(role=>Object.keys(A().voices[role]||{}).length);this.openDialog('聲音、顯示與提示','<div class="settings-row"><div><p>章節原創配樂</p><small>13 章各有樂曲，離開分頁會暫停。</small></div>'+button(s.musicEnabled?'已開啟':'已關閉','settings-music',s.musicEnabled?'primary':'outline')+'</div><div class="settings-row"><label for="music-volume"><p>配樂音量</p><small>'+Math.round(s.musicVolume*100)+'%</small></label><input type="range" id="music-volume" name="musicVolume" min="0" max="1" step=".05" value="'+s.musicVolume+'"></div><div class="settings-row"><div><p>AI 合成角色旁白</p><small>'+(hasVoices?'選取與確認行動時播放；關閉聲音仍顯示短字幕。':'旁白素材尚未載入，遊戲照常進行。')+'</small></div>'+button(s.voiceEnabled?'已開啟':'已關閉','settings-voice',s.voiceEnabled?'primary':'outline')+'</div><div class="settings-row"><label for="voice-volume"><p>旁白音量</p><small>'+Math.round(s.voiceVolume*100)+'%</small></label><input type="range" id="voice-volume" name="voiceVolume" min="0" max="1" step=".05" value="'+s.voiceVolume+'"></div><div class="settings-row"><div><p>減少動態效果</p><small>立即呈現回合結果，保留完整行動紀錄。</small></div>'+button(s.reducedMotion?'已開啟':'已關閉','settings-motion',s.reducedMotion?'primary':'outline')+'</div><div class="settings-row"><div><p>首戰新手推薦</p><small>僅提供戰術建議，不會代替你確認。可隨時關閉。</small></div>'+button(this.coachPreference?'已開啟':'已關閉','settings-coach',this.coachPreference?'primary':'outline')+'</div><div class="dialog-actions">'+button('完成','close-dialog','primary')+'</div>','AUDIO & ACCESSIBILITY');}
+ wardrobe(role=this.wardrobeRole||'guardian',fresh=true){if(fresh){this.wardrobeDraft=clone(this.profile.squadAppearance);this.wardrobeModes=clone(this.profile.squadArtMode||{guardian:'illustrated',scout:'illustrated',medic:'illustrated'});}this.wardrobeRole=role;const labels={build:'身形',skin:'膚色',hair:'髮型',hairColor:'髮色',top:'上衣',topColor:'上衣顏色',bottom:'下裝',bottomColor:'下裝顏色',accessory:'配件',gear:'隨身物品'},custom=this.wardrobeModes[role]==='custom';this.openDialog('每位夥伴，都能有自己的樣子。','<div class="wardrobe-tabs">'+roleOrder.map(r=>'<button type="button" data-action="wardrobe-tab" data-role="'+r+'" aria-pressed="'+(role===r)+'">'+escape(E().roles[r].name)+' · '+escape(E().roles[r].title)+'</button>').join('')+'</div><div class="wardrobe-layout"><div><div class="wardrobe-preview" id="wardrobe-preview">'+(custom?R().avatarSVG(role,this.wardrobeDraft[role]):R().sprite(role,{},this.effectiveAssets(this.wardrobeModes),'idle'))+'<p>'+(custom?'自由造型':this.wardrobeModes[role]==='illustrated-alt'?'精緻替代套裝':'精緻原型立繪')+' · 外觀不影響戰力</p></div><div class="wardrobe-presets">'+button('精緻原型','wardrobe-original',this.wardrobeModes[role]==='illustrated'?'primary':'outline','data-artmode="illustrated" aria-pressed="'+(this.wardrobeModes[role]==='illustrated')+'"')+(A().variants?.[role]?.alternate?button('替代套裝','wardrobe-alt',this.wardrobeModes[role]==='illustrated-alt'?'primary':'outline','data-artmode="illustrated-alt" aria-pressed="'+(this.wardrobeModes[role]==='illustrated-alt')+'"'):'')+button('自由搭配','wardrobe-custom',custom?'primary':'outline','data-artmode="custom" aria-pressed="'+custom+'"')+'</div></div><div><div class="wardrobe-controls">'+Object.entries(root.RPGAvatar.catalog).map(([k,choices])=>'<label for="appearance-'+k+'">'+labels[k]+'<select id="appearance-'+k+'" data-appearance="'+k+'">'+choices.map(c=>'<option value="'+c.id+'" '+(this.wardrobeDraft[role][k]===c.id?'selected':'')+'>'+escape(c.name)+'</option>').join('')+'</select></label>').join('')+'</div><div class="wardrobe-presets">'+root.RPGAvatar.presets.map(p=>'<button type="button" data-action="wardrobe-preset" data-preset="'+p.id+'">'+escape(p.name)+'</button>').join('')+'</div></div></div><p class="form-help" style="margin-top:16px">長髮、馬尾、捲髮、不同膚色與衣裝可自由混搭，沒有職能或性別限制。精緻原型和自由造型隨時能切回。自由造型沿用固定角色原聲；替代套裝只播放該套裝專屬旁白。</p><div class="dialog-actions">'+button('取消','close-dialog','outline')+button('保存小隊造型','wardrobe-save','primary')+'</div>','SQUAD WARDROBE');}
+ refreshWardrobePreview(){const role=this.wardrobeRole;root.document.getElementById('wardrobe-preview').innerHTML=R().avatarSVG(role,this.wardrobeDraft[role])+'<p>自由造型 · 外觀不影響戰力</p>';this.dialog.querySelectorAll('[data-artmode]').forEach(b=>{const selected=b.dataset.artmode===this.wardrobeModes[role];b.className='button '+(selected?'primary':'outline');b.setAttribute('aria-pressed',String(selected));});}
+ export(){this.flushDraft();try{this.download(this.store.exportJSON(),'晨光行動-新版備份-'+new Date().toISOString().slice(0,10)+'.json');this.toast('備份下載已準備好。請將檔案保留在安全位置。');}catch(e){this.toast('備份無法產生：'+e.message);}}
  download(text,name){const blob=new root.Blob([text],{type:'application/json;charset=utf-8'}),url=root.URL.createObjectURL(blob),a=root.document.createElement('a');a.href=url;a.download=name;root.document.body.append(a);a.click();a.remove();root.setTimeout(()=>root.URL.revokeObjectURL(url),2000);}
  importDialog(){this.openDialog('匯入新版紀錄','<p>選擇之前下載的新版 JSON 備份。系統會驗證版本與戰況重演，原有舊版紀錄不會變動。</p><label class="form-label" for="import-file">選擇備份檔</label><input id="import-file" type="file" accept="application/json,.json"><p class="form-help">匯入前，建議先下載目前紀錄。選檔後還會再次確認取代。</p><div class="dialog-actions">'+button('下載目前備份','export','outline')+button('取消','close-dialog','outline')+'</div>','RESTORE LOCAL RECORDS');}
  async readImport(file){if(!file)return;if(file.size>root.TacticalStore.MAX_BYTES){this.toast('檔案超過新版備份大小上限，請確認檔案。');return;}try{const text=await file.text();JSON.parse(text);this.pendingImport=text;this.openDialog('要用這份備份取代新版紀錄嗎？','<p>「'+escape(file.name)+'」會取代此瀏覽器的新版個人設定、戰況、學習反思與支線紀錄。</p><p>舊版紀錄保持原樣。如果還沒有備份目前資料，請先下載。</p><div class="dialog-actions">'+button('下載目前備份','export','outline')+button('取消','close-dialog','outline')+button('驗證並取代新版紀錄','confirm-import','danger')+'</div>','CONFIRM REPLACEMENT');}catch(_){this.toast('這不是可讀的 JSON 備份，原紀錄沒有變更。');}}
- confirmImport(){if(!this.pendingImport)return;const result=this.store.importJSON(this.pendingImport,{replaceExisting:true});if(!result.ok){this.toast(result.message);return;}this.pendingImport=null;this.focusCell='0,0';this.reflection={reason:'',revisionCondition:''};this.reflectionAttemptId=null;this.finished=null;this.pending=null;this.uiCache=null;this.persist(result);this.profile=this.store.loadProfile().data;this.progress=this.store.loadProgress().data;this.savedSession=this.store.loadSession().data;this.state=null;this.view='home';this.closeDialog();this.applyPreferences();this.render();this.toast(result.persisted?'新版備份已驗證並匯入。':'備份已載入本頁，但尚未保存，請下載備份。');}
- journal(){const attempts=this.store.loadAttempts().data.filter(a=>a.learning);this.openDialog('你的學習紀錄',attempts.length?'<p>以下只包含這個瀏覽器的新版反思，不代表正式點名。</p><ul class="journal-list">'+attempts.slice().reverse().map(a=>'<li><strong>'+escape(M().getMission(a.chapterId)?.title||a.chapterId)+'</strong><small>'+escape(a.closedAt.slice(0,16).replace('T',' '))+' · 裝置時間 · '+(a.battle.status==='won'?'任務達成':'演訓結束')+'</small><p>理由：'+escape(a.learning.reason)+'</p><p>調整條件：'+escape(a.learning.revision)+'</p></li>').join('')+'</ul>':'<p>還沒有新版學習紀錄。完成一场演訓，再填寫兩欄反思，就會出現在這裡。</p>','LOCAL LEARNING JOURNAL');}
+ confirmImport(){if(!this.pendingImport)return;this.flushDraft();const result=this.store.importJSON(this.pendingImport,{replaceExisting:true});if(!result.ok){this.toast(result.message);return;}this.pendingImport=null;this.focusCell='0,0';this.reflection={reason:'',revisionCondition:''};this.reflectionAttemptId=null;this.pendingDraft=null;root.clearTimeout(this.draftTimer);this.draftTimer=null;this.draftStatus='';this.finished=null;this.pending=null;this.uiCache=null;this.persist(result);this.profile=this.store.loadProfile().data;this.progress=this.store.loadProgress().data;this.savedSession=this.store.loadSession().data;this.state=null;this.view='home';this.voice.stop();this.clearVoiceCaption();this.music?.setEnabled(this.profile.settings.musicEnabled);this.music?.setVolume(this.profile.settings.musicVolume);this.music?.setScene('briefing');this.closeDialog();this.applyPreferences();this.render();this.toast(result.persisted?'新版備份已驗證並匯入。':'備份已載入本頁，但尚未保存，請下載備份。');}
+ journal(){const attempts=this.store.loadAttempts().data.filter(a=>a.learning);this.openDialog('你的學習紀錄',attempts.length?'<p>以下只包含這個瀏覽器的新版反思，不代表正式點名。</p><ul class="journal-list">'+attempts.slice().reverse().map(a=>'<li><strong>'+escape(M().getMission(a.chapterId)?.title||a.chapterId)+'</strong><small>'+escape(a.closedAt.slice(0,16).replace('T',' '))+' · 裝置時間 · '+(a.battle.status==='won'?'任務達成':'演訓結束')+'</small><p>理由：'+escape(a.learning.reason)+'</p><p>調整條件：'+escape(a.learning.revision)+'</p></li>').join('')+'</ul>':'<p>還沒有新版學習紀錄。完成一場演訓，再填寫兩欄反思，就會出現在這裡。</p>','LOCAL LEARNING JOURNAL');}
  log(){this.openDialog('這一場的行動紀錄','<ul class="journal-list">'+(this.state?.log.length?this.state.log.slice().reverse().map(e=>'<li>'+escape(typeof e==='string'?e:e.message||e.type)+'<small>回合 '+escape(e.round||'')+'</small></li>').join(''):'<li>還沒有行動。選擇一位隊員，踏出第一步。</li>')+'</ul>','ACTION LOG');}
- finishReflection(){if(this.finished)return;const form=root.document.getElementById('reflection-form'),reason=form.elements.reason.value.trim(),revisionCondition=form.elements.revisionCondition.value.trim();this.reflection={reason,revisionCondition};if(!reason||!revisionCondition){root.document.getElementById('reflection-error').innerHTML='<p class="inline-error" role="alert">兩欄都需要填寫。請寫下理由，以及會讓你調整的新資訊。</p>';(!reason?form.elements.reason:form.elements.revisionCondition).focus();return;}const saved=this.saveSession();if(!saved?.ok){root.document.getElementById('reflection-error').innerHTML='<p class="inline-error" role="alert">'+escape(saved?.message||'終局尚未保存，請先下載備份。')+'</p>';return;}const result=this.store.finishAttempt(this.state,this.reflection);if(!result.ok){root.document.getElementById('reflection-error').innerHTML='<p class="inline-error" role="alert">'+escape(result.message)+'</p>';return;}this.finished=result;this.persist(result);this.savedSession=null;this.progress=this.store.loadProgress().data;this.render();this.toast(result.persisted?'兩欄反思已核對並儲存在此瀏覽器。':'反思暫留本頁記憶體，請下載備份。');}
- bonus(chapterId=this.state?.missionId||'u03'){if(!root.RPGBonus||!root.RPGBonusContent){this.toast('支線資料尚未載入，主線仍可繼續。');return;}this.bonusChapter=chapterId;const chapter=root.RPGBonusContent.getChapter(chapterId),state=this.store.loadBonus().data,summary=root.RPGBonus.getSummary(state,chapterId);this.openDialog('課後小徑 · '+chapter.title,'<label class="form-label" for="bonus-chapter">選擇支線章節</label><select id="bonus-chapter">'+M().missions.map(m=>'<option value="'+m.id+'" '+(m.id===chapterId?'selected':'')+'>第 '+m.number+' 章 · '+escape(m.chapterTitle)+'</option>').join('')+'</select><p class="form-help" style="margin:12px 0 17px">可略過的獨立練習與彩蛋，不影響戰棋、反思或出席。</p><div class="puzzle-list">'+chapter.markers.map(marker=>'<button type="button" class="puzzle-row" data-action="bonus-marker" data-marker="'+marker.id+'">'+ico(marker.kind==='easterEgg'?'spark':'book')+'<span><h3>'+escape(marker.name)+'</h3><p>'+escape(marker.description)+'</p></span><span class="tag gold">'+(marker.kind==='easterEgg'?'收藏':'益智')+'</span></button>').join('')+'</div><div class="tip-card"><h3>'+ico('bag')+' 探索成果</h3><p>這裡只记录探索與解謎。提示、重試都不扣除主線完成。</p></div>','OPTIONAL SIDE STORIES');}
+ setDraftStatus(message){this.draftStatus=message;const node=root.document.getElementById('reflection-draft-status');if(node)node.textContent=message;}
+ scheduleDraft(){if(this.finished||this.view!=='result'||!this.reflectionAttemptId)return;root.clearTimeout(this.draftTimer);const pending={attemptId:this.reflectionAttemptId,draft:{reason:this.reflection.reason,revisionCondition:this.reflection.revisionCondition}};this.pendingDraft=pending;this.setDraftStatus('正在保存這一場的草稿…');this.draftTimer=root.setTimeout(()=>this.flushDraft(pending),400);}
+ flushDraft(expected=null){if(expected&&expected!==this.pendingDraft)return {ok:true,skipped:true};root.clearTimeout(this.draftTimer);this.draftTimer=null;const pending=this.pendingDraft;this.pendingDraft=null;if(!pending||typeof this.store.saveDraft!=='function')return {ok:true,skipped:true};const current=this.store.loadSession();if(!pending.attemptId||pending.attemptId!==this.reflectionAttemptId||current.attemptId!==pending.attemptId)return {ok:true,skipped:true};const result=this.store.saveDraft(pending.attemptId,pending.draft);if(result.code==='draft-stale')return result;this.persist(result);this.setDraftStatus(result.ok?(result.persisted?'草稿已儲存在此瀏覽器，尚未完成學習紀錄。':'草稿暫留本頁記憶體，請下載備份。'):(result.message||'草稿尚未保存，請保留目前文字。'));return result;}
+ finishReflection(){if(this.finished)return;const form=root.document.getElementById('reflection-form'),reason=form.elements.reason.value.trim(),revisionCondition=form.elements.revisionCondition.value.trim();this.reflection={reason,revisionCondition};if(!reason||!revisionCondition){root.document.getElementById('reflection-error').innerHTML='<p class="inline-error" role="alert">兩欄都需要填寫。請寫下理由，以及會讓你調整的新資訊。</p>';(!reason?form.elements.reason:form.elements.revisionCondition).focus();return;}this.pendingDraft={attemptId:this.reflectionAttemptId,draft:{...this.reflection}};this.flushDraft();const saved=this.saveSession();if(!saved?.ok){root.document.getElementById('reflection-error').innerHTML='<p class="inline-error" role="alert">'+escape(saved?.message||'終局尚未保存，請先下載備份。')+'</p>';return;}const result=this.store.finishAttempt(this.state,this.reflection);if(!result.ok){root.document.getElementById('reflection-error').innerHTML='<p class="inline-error" role="alert">'+escape(result.message)+'</p>';return;}this.finished=result;this.pendingDraft=null;root.clearTimeout(this.draftTimer);this.draftTimer=null;this.draftStatus='';this.persist(result);this.savedSession=null;this.progress=this.store.loadProgress().data;this.render();this.toast(result.persisted?'兩欄反思已核對並儲存在此瀏覽器。':'反思暫留本頁記憶體，請下載備份。');}
+ bonus(chapterId=this.state?.missionId||'u03'){if(!root.RPGBonus||!root.RPGBonusContent){this.toast('支線資料尚未載入，主線仍可繼續。');return;}this.bonusChapter=chapterId;const chapter=root.RPGBonusContent.getChapter(chapterId),state=this.store.loadBonus().data,summary=root.RPGBonus.getSummary(state,chapterId);this.openDialog('課後小徑 · '+chapter.title,'<label class="form-label" for="bonus-chapter">選擇支線章節</label><select id="bonus-chapter">'+M().missions.map(m=>'<option value="'+m.id+'" '+(m.id===chapterId?'selected':'')+'>第 '+m.number+' 章 · '+escape(m.chapterTitle)+'</option>').join('')+'</select><p class="form-help" style="margin:12px 0 17px">可略過的獨立練習與彩蛋，不影響戰棋、反思或出席。</p><div class="puzzle-list">'+chapter.markers.map(marker=>'<button type="button" class="puzzle-row" data-action="bonus-marker" data-marker="'+marker.id+'">'+ico(marker.kind==='easterEgg'?'spark':'book')+'<span><h3>'+escape(marker.name)+'</h3><p>'+escape(marker.description)+'</p></span><span class="tag gold">'+(marker.kind==='easterEgg'?'收藏':'益智')+'</span></button>').join('')+'</div><div class="tip-card"><h3>'+ico('bag')+' 探索成果</h3><p>這裡只記錄探索與解謎。提示、重試都不扣除主線完成。</p></div>','OPTIONAL SIDE STORIES');}
  bonusMarker(id){const chapter=root.RPGBonusContent.getChapter(this.bonusChapter),marker=chapter.markers.find(m=>m.id===id);if(!marker)return;const state=this.store.loadBonus().data,result=root.RPGBonus.interact(state,this.bonusChapter,id,{id:this.bonusEventId('interact'),token:state.revision});if(!result.ok){this.toast(result.feedback?.text||'支線尚未完成。');return;}this.persist(this.store.saveBonus(result.state));if(marker.puzzleId){this.puzzleStory=marker.story;this.puzzle(marker.puzzleId);return;}this.openDialog(marker.name,'<p>'+escape(marker.story)+'</p><div class="puzzle-feedback">'+escape(marker.reward.label)+'</div><div class="dialog-actions">'+button('回到課後小徑','bonus','primary')+'</div>','A LITTLE DISCOVERY');}
  bonusEventId(type){return 'tactical-'+type+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);}
  puzzle(id,feedback='',draft=null){const chapter=root.RPGBonusContent.getChapter(this.bonusChapter),p=chapter.puzzles.find(p=>p.id===id);if(!p)return;this.puzzleId=id;let controls='';if(p.kind==='evidence-sort')controls=p.cards.map(c=>'<label class="puzzle-select-row" for="puzzle-'+c.id+'"><span>'+escape(c.label)+'</span><select id="puzzle-'+c.id+'" name="'+c.id+'" required><option value="">請選擇</option>'+p.categories.map(cat=>'<option value="'+cat.id+'" '+(draft?.[c.id]===cat.id?'selected':'')+'>'+escape(cat.label)+'</option>').join('')+'</select></label>').join('');else if(p.kind==='dependency-order')controls=p.cards.map((c,i)=>'<label class="puzzle-select-row" for="puzzle-order-'+i+'"><span>第 '+(i+1)+' 步</span><select id="puzzle-order-'+i+'" name="step-'+i+'" required><option value="">請選擇</option>'+p.cards.map(c=>'<option value="'+c.id+'" '+(draft?.[i]===c.id?'selected':'')+'>'+escape(c.label)+'</option>').join('')+'</select></label>').join('');else controls='<div class="briefing-aside"><h3>準備格上限：'+p.budget.preparation+'</h3><p>必要需求：'+p.requirements.map(r=>escape(r.label)).join('、')+'</p></div>'+p.choices.map(c=>'<label class="puzzle-choice"><input type="checkbox" name="choice" value="'+c.id+'" '+(draft?.includes(c.id)?'checked':'')+'><span>'+escape(c.label)+' · '+c.cost.preparation+' 格<br><small>'+c.covers.map(id=>escape(p.requirements.find(r=>r.id===id)?.label||id)).join('、')+'</small></span></label>').join('');this.openDialog(p.title,(this.puzzleStory?'<p>'+escape(this.puzzleStory)+'</p>':'')+'<p>'+escape(p.prompt)+'</p><p class="form-help">'+escape(p.instructions)+'</p><form id="puzzle-form"><div class="puzzle-choices">'+controls+'</div>'+(feedback?'<div class="puzzle-feedback" role="status">'+feedback+'</div>':'')+'<div class="dialog-actions">'+button('需要一點提示','puzzle-hint','outline')+'<button type="submit" class="button primary">核對安排 '+ico('check')+'</button></div></form><div class="dialog-actions">'+button('回到課後小徑','bonus','subtle')+'</div>','A DIFFERENT WAY TO THINK');}
  puzzleDraft(){const form=root.document.getElementById('puzzle-form'),p=root.RPGBonusContent.getChapter(this.bonusChapter).puzzles.find(p=>p.id===this.puzzleId);if(!form)return null;if(p.kind==='evidence-sort')return Object.fromEntries(p.cards.map(c=>[c.id,form.elements[c.id].value]));if(p.kind==='dependency-order')return p.cards.map((_,i)=>form.elements['step-'+i].value);return Array.from(form.querySelectorAll('input:checked')).map(i=>i.value);}
  puzzleAnswer(hint=false){const draft=this.puzzleDraft(),state=this.store.loadBonus().data,meta={id:this.bonusEventId(hint?'hint':'answer'),token:state.revision};const result=hint?root.RPGBonus.hint(state,this.bonusChapter,this.puzzleId,meta):root.RPGBonus.answer(state,this.bonusChapter,this.puzzleId,draft,meta);if(result.state)this.persist(this.store.saveBonus(result.state));const f=result.feedback||{},feedback='<strong>'+escape(f.title||'核對結果')+'</strong><p>'+escape(f.text||'')+'</p>'+(f.details?.length?'<ul>'+f.details.map(d=>'<li>'+escape(d)+'</li>').join('')+'</ul>':'');this.puzzle(this.puzzleId,feedback,draft);}
- navigate(view){if(this.busy){this.toast('這個行動完成後就能切換畫面。');return;}this.view=view;this.pending=null;this.closeDialog();this.music?.setScene('briefing');this.render();root.scrollTo?.({top:0});}
- click(event){const cell=event.target.closest?.('[data-cell]');if(cell&&this.root.contains(cell)){const [x,y]=cell.dataset.cell.split(',').map(Number);this.activateSound();this.tileClick(x,y);return;}const b=event.target.closest?.('[data-action]');if(!b||b.disabled)return;this.activateSound();const action=b.dataset.action;if(this.busy&&!['music','help','close-dialog','intents'].includes(action)){this.toast('正在完成已確認的行動，稍候就能繼續。');return;}try{switch(action){case'home':this.navigate('home');break;case'chapters':this.navigate('chapters');break;case'briefing':this.briefing(b.dataset.mission);break;case'continue':this.continue();break;case'decision':this.briefing(this.briefingId,b.dataset.decision);break;case'start':this.start();break;case'select-unit':this.selectUnit(b.dataset.unit);break;case'mode':this.setMode(b.dataset.mode);break;case'cancel-action':this.pending=null;this.render();break;case'confirm-action':if(this.pending)this.execute(this.pending.command);break;case'end-turn':this.endTurn();break;case'confirm-end-turn':this.closeDialog();this.execute({type:'endTurn',revision:this.state.revision});break;case'undo':this.execute({type:'undo',revision:this.state.revision});break;case'intents':this.showIntents=!this.showIntents;this.render();break;case'help':this.help();break;case'objectives':this.objectives();break;case'notes':this.notes();break;case'log':this.log();break;case'menu':this.menu();break;case'close-dialog':this.closeDialog();break;case'music':this.profile.settings.musicEnabled=!this.profile.settings.musicEnabled;this.music?.setEnabled(this.profile.settings.musicEnabled);this.saveProfile();this.render();this.activateSound();break;case'settings':this.settings();break;case'settings-music':this.profile.settings.musicEnabled=!this.profile.settings.musicEnabled;this.music?.setEnabled(this.profile.settings.musicEnabled);this.saveProfile();this.settings();this.render();this.activateSound();break;case'settings-voice':this.profile.settings.voiceEnabled=!this.profile.settings.voiceEnabled;if(!this.profile.settings.voiceEnabled)this.voice.stop();this.saveProfile();this.settings();break;case'settings-motion':this.profile.settings.reducedMotion=!this.profile.settings.reducedMotion;this.saveProfile();this.settings();break;case'wardrobe':this.wardrobe();break;case'wardrobe-tab':this.wardrobe(b.dataset.role,false);break;case'wardrobe-preset':this.wardrobeDraft[this.wardrobeRole]=clone(root.RPGAvatar.presets.find(p=>p.id===b.dataset.preset).value);this.wardrobeModes[this.wardrobeRole]='custom';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-original':this.wardrobeModes[this.wardrobeRole]='illustrated';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-alt':this.wardrobeModes[this.wardrobeRole]='illustrated-alt';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-custom':this.wardrobeModes[this.wardrobeRole]='custom';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-save':this.profile.squadAppearance=clone(this.wardrobeDraft);this.profile.squadArtMode=clone(this.wardrobeModes);const saved=this.saveProfile();if(saved.ok){this.closeDialog();this.render();this.toast(saved.persisted?'小隊造型已儲存。':'造型暫留本頁，請下載備份。');}else this.toast(saved.message);break;case'retry':if(!this.state)break;this.briefing(this.state.missionId,this.state.decisionId);break;case'export':this.export();break;case'import':this.importDialog();break;case'confirm-import':this.confirmImport();break;case'journal':this.journal();break;case'bonus':this.bonus(this.bonusChapter||this.state?.missionId||'u03');break;case'bonus-marker':this.bonusMarker(b.dataset.marker);break;case'puzzle-hint':this.puzzleAnswer(true);break;}}catch(error){this.toast('這一步沒有完成：'+error.message);}}
+ navigate(view){if(this.busy){this.toast('這個行動完成後就能切換畫面。');return;}this.flushDraft();this.view=view;this.pending=null;this.closeDialog();this.music?.setScene('briefing');this.render();root.scrollTo?.({top:0});}
+ click(event){const cell=event.target.closest?.('[data-cell]');if(cell&&this.root.contains(cell)){const [x,y]=cell.dataset.cell.split(',').map(Number);this.activateSound();this.tileClick(x,y);return;}const b=event.target.closest?.('[data-action]');if(!b||b.disabled)return;this.activateSound();const action=b.dataset.action;if(this.busy&&!['music','help','close-dialog','intents'].includes(action)){this.toast('正在完成已確認的行動，稍候就能繼續。');return;}try{switch(action){case'home':this.navigate('home');break;case'chapters':this.navigate('chapters');break;case'briefing':this.briefing(b.dataset.mission);break;case'continue':this.continue();break;case'decision':this.briefing(this.briefingId,b.dataset.decision);break;case'start':this.start();break;case'select-unit':this.selectUnit(b.dataset.unit);break;case'mode':this.setMode(b.dataset.mode);break;case'cancel-action':this.pending=null;this.render();break;case'confirm-action':if(this.pending){if(this.pending.command.type==='endTurn'){this.pending=null;this.endTurn();}else this.execute(this.pending.command);}break;case'end-turn':this.endTurn();break;case'confirm-end-turn':this.closeDialog();this.execute({type:'endTurn',revision:this.state.revision});break;case'undo':this.execute({type:'undo',revision:this.state.revision});break;case'intents':this.showIntents=!this.showIntents;this.render();break;case'help':this.help();break;case'coach':this.coach();break;case'coach-preview':this.previewCoach();break;case'coach-disable':this.setCoachPreference(false);this.closeDialog();this.render();this.toast('新手推薦已關閉，可從遊戲設定重新開啟。');break;case'settings-coach':this.setCoachPreference(!this.coachPreference);this.settings();this.render();break;case'objectives':this.objectives();break;case'notes':this.notes();break;case'log':this.log();break;case'menu':this.menu();break;case'close-dialog':this.closeDialog();break;case'music':this.profile.settings.musicEnabled=!this.profile.settings.musicEnabled;this.music?.setEnabled(this.profile.settings.musicEnabled);this.saveProfile();this.render();this.activateSound();break;case'settings':this.settings();break;case'settings-music':this.profile.settings.musicEnabled=!this.profile.settings.musicEnabled;this.music?.setEnabled(this.profile.settings.musicEnabled);this.saveProfile();this.settings();this.render();this.activateSound();break;case'settings-voice':this.profile.settings.voiceEnabled=!this.profile.settings.voiceEnabled;if(!this.profile.settings.voiceEnabled)this.voice.stop();this.saveProfile();this.settings();break;case'settings-motion':this.profile.settings.reducedMotion=!this.profile.settings.reducedMotion;this.saveProfile();this.settings();break;case'wardrobe':this.wardrobe();break;case'wardrobe-tab':this.wardrobe(b.dataset.role,false);break;case'wardrobe-preset':this.wardrobeDraft[this.wardrobeRole]=clone(root.RPGAvatar.presets.find(p=>p.id===b.dataset.preset).value);this.wardrobeModes[this.wardrobeRole]='custom';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-original':this.wardrobeModes[this.wardrobeRole]='illustrated';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-alt':this.wardrobeModes[this.wardrobeRole]='illustrated-alt';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-custom':this.wardrobeModes[this.wardrobeRole]='custom';this.wardrobe(this.wardrobeRole,false);break;case'wardrobe-save':this.profile.squadAppearance=clone(this.wardrobeDraft);this.profile.squadArtMode=clone(this.wardrobeModes);const saved=this.saveProfile();if(saved.ok){this.closeDialog();this.render();this.preloadPoses();this.toast(saved.persisted?'小隊造型已儲存。':'造型暫留本頁，請下載備份。');}else this.toast(saved.message);break;case'retry':if(!this.state)break;this.briefing(this.state.missionId,this.state.decisionId);break;case'export':this.export();break;case'import':this.importDialog();break;case'confirm-import':this.confirmImport();break;case'journal':this.journal();break;case'bonus':this.bonus(this.bonusChapter||this.state?.missionId||'u03');break;case'bonus-marker':this.bonusMarker(b.dataset.marker);break;case'puzzle-hint':this.puzzleAnswer(true);break;}}catch(error){this.toast('這一步沒有完成：'+error.message);}}
  change(event){const t=event.target;if(t.dataset.appearance){this.wardrobeDraft[this.wardrobeRole][t.dataset.appearance]=t.value;this.wardrobeModes[this.wardrobeRole]='custom';this.refreshWardrobePreview();}else if(t.id==='import-file')this.readImport(t.files[0]);else if(t.id==='bonus-chapter'){this.puzzleStory='';this.bonus(t.value);}else if(['musicVolume','voiceVolume'].includes(t.name)){this.profile.settings[t.name]=Number(t.value);if(t.name==='musicVolume')this.music?.setVolume(Number(t.value)*(this.voice.ducked?.35:1));this.saveProfile();}}
- input(event){const t=event.target;if(t.closest('#reflection-form')&&['reason','revisionCondition'].includes(t.name))this.reflection[t.name]=t.value;if(t.name==='musicVolume'){this.profile.settings.musicVolume=Number(t.value);this.music?.setVolume(Number(t.value)*(this.voice.ducked?.35:1));const label=this.dialog.querySelector('label[for="music-volume"] small');if(label)label.textContent=Math.round(Number(t.value)*100)+'%';}if(t.name==='voiceVolume'){const label=this.dialog.querySelector('label[for="voice-volume"] small');if(label)label.textContent=Math.round(Number(t.value)*100)+'%';}}
+ input(event){const t=event.target;if(t.closest('#reflection-form')&&['reason','revisionCondition'].includes(t.name)){this.reflection[t.name]=t.value;this.scheduleDraft();}if(t.name==='musicVolume'){this.profile.settings.musicVolume=Number(t.value);this.music?.setVolume(Number(t.value)*(this.voice.ducked?.35:1));const label=this.dialog.querySelector('label[for="music-volume"] small');if(label)label.textContent=Math.round(Number(t.value)*100)+'%';}if(t.name==='voiceVolume'){const label=this.dialog.querySelector('label[for="voice-volume"] small');if(label)label.textContent=Math.round(Number(t.value)*100)+'%';}}
  submit(event){event.preventDefault();if(event.target.id==='reflection-form')this.finishReflection();else if(event.target.id==='puzzle-form')this.puzzleAnswer();}
  keydown(event){if(this.view!=='battle'||this.busy||event.altKey||event.ctrlKey||event.metaKey||['INPUT','TEXTAREA','SELECT'].includes(event.target.tagName))return;if(event.key==='Escape'){this.pending=null;this.render();return;}if(['1','2','3'].includes(event.key)){event.preventDefault();this.selectUnit(roleOrder[Number(event.key)-1]);return;}const cell=event.target.closest?.('[data-cell]');if(!cell||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let [x,y]=cell.dataset.cell.split(',').map(Number);if(event.key==='ArrowUp')y--;if(event.key==='ArrowDown')y++;if(event.key==='ArrowLeft')x--;if(event.key==='ArrowRight')x++;if(event.key==='Home')x=0;if(event.key==='End')x=this.mission.map.width-1;x=Math.max(0,Math.min(x,this.mission.map.width-1));y=Math.max(0,Math.min(y,this.mission.map.height-1));this.focusCell=x+','+y;cell.tabIndex=-1;const next=this.root.querySelector('[data-cell="'+this.focusCell+'"]');next.tabIndex=0;next.focus();}
 }

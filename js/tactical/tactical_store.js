@@ -8,9 +8,10 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(DefaultEngine,Avatar,Bonus){
 'use strict';
 const KEY='ndmu-ethics-tactical-preview:v2',FORMAT='ndmu-ethics-tactical-records',VERSION=2;
+const SCHEMA_REVISION=2;
 const ENGINE_VERSION='2.0.0',CONTENT_VERSION='tactical-2026-10-06-v1';
 const MAX_BYTES=6*1024*1024,MAX_ATTEMPTS=130,LEGACY_KEY='ndmu-ethics-rpg:v1';
-const SETTINGS={reducedMotion:false,musicEnabled:false,musicVolume:.2,voiceEnabled:true,voiceVolume:.65};
+const SETTINGS={reducedMotion:false,musicEnabled:false,musicVolume:.2,voiceEnabled:true,voiceVolume:.65,coachEnabled:true};
 const ROLES=['guardian','scout','medic'];
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 const plain=o=>o!==null&&typeof o==='object'&&!Array.isArray(o)&&[Object.prototype,null].includes(Object.getPrototypeOf(o));
@@ -56,7 +57,7 @@ function normalizeProfile(input){
  if(input.squadArtMode!==undefined&&!plain(input.squadArtMode))fail('小隊美術選項不正確。');exact(p.squadArtMode,ROLES,'小隊美術模式');for(const v of Object.values(p.squadArtMode))if(!['illustrated','illustrated-alt','custom'].includes(v))fail('小隊美術模式不正確。');
  if(input.settings!==undefined&&!plain(input.settings))fail('設定格式不正確。');
  exact(p.settings,Object.keys(SETTINGS),'操作設定');
- for(const k of ['reducedMotion','musicEnabled','voiceEnabled'])if(typeof p.settings[k]!=='boolean')fail('開關設定須為開或關。');
+ for(const k of ['reducedMotion','musicEnabled','voiceEnabled','coachEnabled'])if(typeof p.settings[k]!=='boolean')fail('開關設定須為開或關。');
  for(const k of ['musicVolume','voiceVolume'])if(typeof p.settings[k]!=='number'||!Number.isFinite(p.settings[k])||p.settings[k]<0||p.settings[k]>1)fail('音量须在 0 至 1 之間。');
  return p;
 }
@@ -72,29 +73,41 @@ class TacticalStore{
   const locks=options.lockManager||(typeof window!=='undefined'&&typeof navigator!=='undefined'?navigator.locks:null);
   if(locks&&typeof locks.request==='function'){this.lockState='pending';try{Promise.resolve(locks.request(KEY+':writer',{mode:'exclusive',ifAvailable:true},lock=>{this.lockState=lock?'owned':'unavailable';if(!lock){this.warn('新版遊戲已在另一個分頁開啟，本頁只暫存記憶體。請下載備份，或關閉另一頁後重新整理。');return;}return new Promise(resolve=>{this.releaseWriteLock=resolve;});})).catch(()=>{this.lockState='unavailable';this.warn('無法確認紀錄寫入鎖，本頁只保留記憶體，請下載備份。');});}catch(_){this.lockState='unavailable';}}
   this.data=this.fresh();
-  try{const raw=this.storage?.getItem(KEY)||null;this.baseRaw=raw;if(raw){this.damagedRaw=raw;const parsed=JSON.parse(raw);this.validate(parsed);this.data=parsed;this.damagedRaw=null;this.persisted=true;}}
+  try{const raw=this.storage?.getItem(KEY)||null;this.baseRaw=raw;if(raw){this.damagedRaw=raw;const parsed=this.migrate(JSON.parse(raw));this.validate(parsed);this.data=parsed;this.damagedRaw=null;this.persisted=true;}}
   catch(error){this.warn('原有新版紀錄無法讀取，已保留原文，不會覆寫。請先下載備份。'+error.message);}
  }
- fresh(){const t=this.clock();return {format:FORMAT,version:VERSION,engineVersion:ENGINE_VERSION,contentVersion:CONTENT_VERSION,profileId:this.makeId(),createdAt:t,updatedAt:t,clockSource:'device-untrusted',profile:normalizeProfile({}),session:null,attempts:[],bonus:Bonus?Bonus.createState():null};}
+ fresh(){const t=this.clock();return {format:FORMAT,version:VERSION,schemaRevision:SCHEMA_REVISION,engineVersion:ENGINE_VERSION,contentVersion:CONTENT_VERSION,profileId:this.makeId(),createdAt:t,updatedAt:t,clockSource:'device-untrusted',profile:normalizeProfile({}),session:null,attempts:[],bonus:Bonus?Bonus.createState():null};}
+ migrate(input){
+  tree(input);const d=copy(input);if(d.format!==FORMAT||d.version!==VERSION)return d;
+  if(d.schemaRevision!==undefined&&d.schemaRevision!==1)return d;
+  const priorKeys=['format','version','engineVersion','contentVersion','profileId','createdAt','updatedAt','clockSource','profile','session','attempts','bonus'];if(own(d,'schemaRevision'))priorKeys.push('schemaRevision');exact(d,priorKeys,'早期戰棋存檔');
+  exact(d.profile,['nickname','appearance','squadAppearance','squadArtMode','settings'],'早期個人設定');exact(d.profile.settings,Object.keys(SETTINGS).filter(k=>k!=='coachEnabled'),'早期操作設定');
+  d.profile.settings.coachEnabled=true;d.schemaRevision=SCHEMA_REVISION;
+  if(d.session!==null){exact(d.session,['attemptId','startedAt','state'],'早期目前挑戰');d.session.draft={reason:'',revisionCondition:''};}
+  if(!Array.isArray(d.attempts))fail('挑戰紀錄格式不正確。');for(const a of d.attempts){exact(a,['attemptId','chapterId','startedAt','closedAt','closure','battle','learning'],'早期挑戰紀錄');a.draft=null;}
+  return d;
+ }
+ draftValid(draft){exact(draft,['reason','revisionCondition'],'反思草稿');for(const v of Object.values(draft))if(typeof v!=='string'||v.length>6000)fail('反思草稿每欄最多 6000 字。');}
  warn(message){if(this.warningMessages.has(message))return;this.warningMessages.add(message);try{this.onWarning(message);}catch(_){}}
  stateValid(s){if(!this.Engine||typeof this.Engine.validateState!=='function')fail('戰棋引擎尚未載入。');const encoded=JSON.stringify(s);if(!this.validatedStates.has(encoded)){const r=this.Engine.validateState(s);if(r!==true&&!r?.ok)fail('戰況驗證失敗：'+(r?.errors?.[0]||'版本或資料不相容'));this.validatedStates.set(encoded,true);if(this.validatedStates.size>150)this.validatedStates.delete(this.validatedStates.keys().next().value);}if(!chapter(s.missionId))fail('找不到這個章節。');}
  terminal(s){return s&&s.phase==='complete'&&['won','lost'].includes(s.status);}
  validateAttempt(a){
-  exact(a,['attemptId','chapterId','startedAt','closedAt','closure','battle','learning'],'挑戰紀錄');
+  exact(a,['attemptId','chapterId','startedAt','closedAt','closure','battle','learning','draft'],'挑戰紀錄');
   if(!id(a.attemptId)||!chapter(a.chapterId)||!iso(a.startedAt)||!iso(a.closedAt)||!['finished','retry','left'].includes(a.closure))fail('挑戰紀錄資訊不正確。');
   this.stateValid(a.battle);if(a.battle.missionId!==a.chapterId)fail('章節紀錄不一致。');
   if(a.learning!==null){exact(a.learning,['reason','revision','completedAt','clockSource'],'反思紀錄');for(const k of ['reason','revision'])if(typeof a.learning[k]!=='string'||!a.learning[k].trim()||a.learning[k].length>6000)fail('兩欄反思都須填寫，且每欄最多 6000 字。');if(!iso(a.learning.completedAt)||a.learning.clockSource!=='device-untrusted'||!this.terminal(a.battle)||a.closure!=='finished')fail('學習完成紀錄不正確。');}
+  if(a.draft!==null){this.draftValid(a.draft);if(a.learning!==null||!this.terminal(a.battle))fail('草稿不可冒充完成紀錄或套到未結束的戰況。');}
   if(a.closure==='finished'&&a.learning===null)fail('完成紀錄缺少反思。');
  }
  validate(d){
   tree(d);if(bytes(JSON.stringify(d))>MAX_BYTES)fail('紀錄超過 6 MB，請先備份。');
-  exact(d,['format','version','engineVersion','contentVersion','profileId','createdAt','updatedAt','clockSource','profile','session','attempts','bonus'],'存檔');
-  if(d.format!==FORMAT||d.version!==VERSION||d.engineVersion!==ENGINE_VERSION||d.contentVersion!==CONTENT_VERSION||d.clockSource!=='device-untrusted')fail('不是新版戰棋 v2 紀錄；舊遊戲紀錄仍可回原版開啟。');
+  exact(d,['format','version','schemaRevision','engineVersion','contentVersion','profileId','createdAt','updatedAt','clockSource','profile','session','attempts','bonus'],'存檔');
+  if(d.format!==FORMAT||d.version!==VERSION||d.schemaRevision!==SCHEMA_REVISION||d.engineVersion!==ENGINE_VERSION||d.contentVersion!==CONTENT_VERSION||d.clockSource!=='device-untrusted')fail('不是新版戰棋 v2 紀錄；舊遊戲紀錄仍可回原版開啟。');
   if(!id(d.profileId)||!iso(d.createdAt)||!iso(d.updatedAt))fail('存檔資訊不正確。');
   exact(d.profile,['nickname','appearance','squadAppearance','squadArtMode','settings'],'個人設定');exact(d.profile.squadAppearance,ROLES,'小隊造型');exact(d.profile.squadArtMode,ROLES,'小隊美術模式');exact(d.profile.settings,Object.keys(SETTINGS),'操作設定');normalizeProfile(d.profile);
   if(!Array.isArray(d.attempts)||d.attempts.length>MAX_ATTEMPTS)fail('挑戰紀錄已達 130 份，請先下載備份。');
   const ids=new Set();for(const a of d.attempts){this.validateAttempt(a);if(ids.has(a.attemptId))fail('重複的挑戰編號。');ids.add(a.attemptId);}
-  if(d.session!==null){exact(d.session,['attemptId','startedAt','state'],'目前挑戰');if(!id(d.session.attemptId)||!iso(d.session.startedAt)||ids.has(d.session.attemptId))fail('目前挑戰編號不正確。');this.stateValid(d.session.state);}
+  if(d.session!==null){exact(d.session,['attemptId','startedAt','state','draft'],'目前挑戰');this.draftValid(d.session.draft);if(!this.terminal(d.session.state)&&(d.session.draft.reason||d.session.draft.revisionCondition))fail('未結束的戰況不能預填反思草稿。');if(!id(d.session.attemptId)||!iso(d.session.startedAt)||ids.has(d.session.attemptId))fail('目前挑戰編號不正確。');this.stateValid(d.session.state);}
   if(Bonus){if(!Bonus.validateState(d.bonus))fail('支線紀錄不正確。');}else if(d.bonus!==null)fail('支線引擎尚未載入。');
   return true;
  }
@@ -116,9 +129,10 @@ class TacticalStore{
  }
  loadProgress(){return this.result(this.progress());}
  saveProgress(progress){try{tree(progress);if(JSON.stringify(progress)!==JSON.stringify(this.progress()))fail('完成與支線進度由可驗證的實際紀錄產生，不能直接改寫。');return this.result(this.progress());}catch(e){return {ok:false,message:e.message};}}
- loadSession(){return {...this.result(this.data.session?.state||null),attemptId:this.data.session?.attemptId||null};}
- archive(next,closure){if(!next.session)return;const s=next.session;next.attempts.push({attemptId:s.attemptId,chapterId:s.state.missionId,startedAt:s.startedAt,closedAt:this.clock(),closure,battle:s.state,learning:null});next.session=null;}
- startAttempt(state){try{this.stateValid(state);if(state.revision!==0||state.phase!=='player'||state.status!=='active'||(Array.isArray(state.commandLog)&&state.commandLog.length!==0))fail('新挑戰須從初始戰況開始；現有紀錄請使用匯入。');const next=copy(this.data);this.archive(next,'retry');next.session={attemptId:this.makeId(),startedAt:this.clock(),state:copy(state)};const result=this.commit(next);return {...result,data:copy(state),attemptId:next.session.attemptId};}catch(e){return {ok:false,message:e.message};}}
+ loadSession(){return {...this.result(this.data.session?.state||null),attemptId:this.data.session?.attemptId||null,draft:this.data.session?copy(this.data.session.draft):null};}
+ saveDraft(attemptId,draft){try{if(!this.data.session||this.data.session.attemptId!==attemptId)return {ok:false,code:'draft-stale',message:'草稿不屬於目前挑戰，未覆寫任何紀錄。'};if(!this.terminal(this.data.session.state))fail('戰术結束後才能保存反思草稿。');tree(draft);this.draftValid(draft);const next=copy(this.data);next.session.draft=copy(draft);return {...this.commit(next),data:copy(draft),attemptId};}catch(e){return {ok:false,message:e.message};}}
+ archive(next,closure){if(!next.session)return;const s=next.session;next.attempts.push({attemptId:s.attemptId,chapterId:s.state.missionId,startedAt:s.startedAt,closedAt:this.clock(),closure,battle:s.state,learning:null,draft:s.draft&&(s.draft.reason||s.draft.revisionCondition)?copy(s.draft):null});next.session=null;}
+ startAttempt(state){try{this.stateValid(state);if(state.revision!==0||state.phase!=='player'||state.status!=='active'||(Array.isArray(state.commandLog)&&state.commandLog.length!==0))fail('新挑戰須從初始戰況開始；現有紀錄請使用匯入。');const next=copy(this.data);this.archive(next,'retry');next.session={attemptId:this.makeId(),startedAt:this.clock(),state:copy(state),draft:{reason:'',revisionCondition:''}};const result=this.commit(next);return {...result,data:copy(state),attemptId:next.session.attemptId};}catch(e){return {ok:false,message:e.message};}}
  saveSession(state){
   try{this.stateValid(state);if(!this.data.session)return this.startAttempt(state);const old=this.data.session.state;
    if(old.missionId!==state.missionId)fail('新章節請建立新的挑戰紀錄。');
@@ -139,7 +153,7 @@ class TacticalStore{
    if(!this.data.session&&prior)return {...this.result(prior),duplicate:true};
    if(!this.data.session)fail('找不到這次挑戰，請先保存戰況。');
    const next=copy(this.data),s=next.session;if(!equal(s.state,state))fail('請先保存這次終局戰況，再填寫反思；不能混入另一份挑戰。');
-   const t=this.clock(),a={attemptId:s.attemptId,chapterId:state.missionId,startedAt:s.startedAt,closedAt:t,closure:'finished',battle:copy(state),learning:{reason:reason.trim(),revision:revision.trim(),completedAt:t,clockSource:'device-untrusted'}};
+   const t=this.clock(),a={attemptId:s.attemptId,chapterId:state.missionId,startedAt:s.startedAt,closedAt:t,closure:'finished',battle:copy(state),draft:null,learning:{reason:reason.trim(),revision:revision.trim(),completedAt:t,clockSource:'device-untrusted'}};
    next.attempts.push(a);next.session=null;return {...this.commit(next),data:copy(a)};
   }catch(e){return {ok:false,message:e.message};}
  }
@@ -149,7 +163,7 @@ class TacticalStore{
  exportJSON(){return JSON.stringify(this.data,null,2);}
  exportDamagedJSON(){return this.damagedRaw||this.recoveryRaw;}
  importJSON(raw,options={}){
-  try{if(!plain(options)||Object.keys(options).some(k=>k!=='replaceExisting')||(own(options,'replaceExisting')&&typeof options.replaceExisting!=='boolean'))fail('匯入選項不正確。');if(typeof raw!=='string'||bytes(raw)>MAX_BYTES)fail('匯入檔案須小於 6 MB。');const incoming=JSON.parse(raw);this.validate(incoming);
+  try{if(!plain(options)||Object.keys(options).some(k=>k!=='replaceExisting')||(own(options,'replaceExisting')&&typeof options.replaceExisting!=='boolean'))fail('匯入選項不正確。');if(typeof raw!=='string'||bytes(raw)>MAX_BYTES)fail('匯入檔案須小於 6 MB。');const incoming=this.migrate(JSON.parse(raw));this.validate(incoming);
    if((this.damagedRaw||this.data.session||this.data.attempts.length||this.baseRaw)&&!options.replaceExisting)fail('請先下載目前備份，再確認以匯入檔取代新版紀錄。');
    const next=copy(incoming);const result=this.commit(next,{replaceDamaged:true,replaceExisting:options.replaceExisting===true});return {...result,data:copy(next)};
   }catch(e){return {ok:false,message:e.message};}
@@ -162,6 +176,6 @@ class TacticalStore{
   }catch(_){return {ok:true,data:{exists:true,count:null,readable:false}};}
  }
 }
-Object.assign(TacticalStore,{KEY,FORMAT,VERSION,ENGINE_VERSION,CONTENT_VERSION,MAX_BYTES,MAX_ATTEMPTS,SETTINGS:Object.freeze(SETTINGS)});
+Object.assign(TacticalStore,{KEY,FORMAT,VERSION,SCHEMA_REVISION,ENGINE_VERSION,CONTENT_VERSION,MAX_BYTES,MAX_ATTEMPTS,SETTINGS:Object.freeze(SETTINGS)});
 return TacticalStore;
 });

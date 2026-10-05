@@ -12,6 +12,7 @@
 <body>
   <a class="skip-link" href="#main-content">跳至遊戲內容</a>
   <div id="app" aria-busy="true"><main class="boot-screen" id="main-content"><span class="boot-symbol" aria-hidden="true">✦</span><p class="eyebrow">DAWN OPERATIONS</p><h1>小隊整備中</h1><p>正在開啟戰術地圖…</p><noscript><p>這個戰棋遊戲需要 JavaScript。請啟用後重新載入。</p></noscript></main></div>
+  <div id="voice-caption" class="voice-caption" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="toast-region" class="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
   <dialog id="game-dialog" class="game-dialog" aria-labelledby="dialog-title"></dialog>
   <script>window.RPG_ASSET_BASE='../assets/';</script>
@@ -22,6 +23,7 @@
   <script src="../js/engine/rpg_bonus.js"></script>
   <script src="../js/tactical/tactical_missions.js"></script>
   <script src="../js/tactical/tactical_engine.js"></script>
+  <script src="../js/tactical/tactical_coach.js"></script>
   <script src="../js/tactical/tactical_store.js"></script>
   <script src="../js/tactical/tactical_assets.js"></script>
   <script src="../js/tactical/tactical_renderer.js"></script>
