@@ -1,4 +1,4 @@
-/* 原創 16 小節 RPG 配樂：Web Audio 本機合成，無外部素材或網路請求。 */
+/* Original generated field BGM with local synth fallback. Audio starts only after user interaction. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(root);
   else root.RPGMusic = factory(root);
@@ -33,6 +33,7 @@
       this.context = null; this.master = null; this.filter = null; this.interval = null;
       this.pending = null; this.unlocked = false; this.step = 0; this.nextTime = 0;
       this.voices = new Set(); this.lastStatus = '';
+      this.trackBuffer=null;this.trackSource=null;this.trackGain=null;this.trackRequest=null;this.trackOffset=0;this.trackStartedAt=0;this.trackFailed=false;this.effects=new Map();this.effectLoadStarted=false;
       this.emit();
     }
     getStatus() { return { enabled: this.enabled, volume: this.volume, playing: this.playing, available: this.available, message: this.message }; }
@@ -96,7 +97,7 @@
         if (this.destroyed || !this.enabled || this.paused) return false;
         this.playing = true; this.message = '背景音樂播放中';
         this.nextTime = this.context.currentTime + 0.06;
-        this.fade(this.volume * 0.65); this.schedule();
+        this.fade(this.volume * 0.65);this.loadEffects(); if(this.trackBuffer)this.startTrack();else this.loadTrack(); this.schedule();
         if (this.interval === null) this.interval = this.timer.setInterval(() => {
           try { this.schedule(); } catch (_) { this.fail('背景音樂排程失敗，可繼續遊玩'); }
         }, 120);
@@ -115,6 +116,7 @@
     }
     fail(message) { this.stop(); this.message = message; this.emit(); }
     stop() {
+      if(this.trackSource&&this.context){this.trackOffset=(this.trackOffset+this.context.currentTime-this.trackStartedAt)%this.trackBuffer.duration;const source=this.trackSource,gain=this.trackGain;this.trackSource=null;this.trackGain=null;try{source.stop(this.context.currentTime+.08);}catch(_){}source.onended=()=>{try{source.disconnect();gain?.disconnect();}catch(_){}};}
       this.playing = false;
       if (this.interval !== null) { this.timer.clearInterval(this.interval); this.interval = null; }
       this.fade(0);
@@ -140,6 +142,7 @@
     schedule() {
       if (!this.playing || this.paused || !this.enabled || this.destroyed) return;
       if (this.context.state !== 'running') { this.fail('背景音樂暫時中斷，請再操作遊戲恢復'); return; }
+      if(this.trackSource)return;
       const now = this.context.currentTime;
       for (const voice of this.voices) if (voice.end < now) this.release(voice);
       // 瀏覽器計時器延遲時，從目前位置續奏，不補播積壓的音符。
@@ -157,6 +160,28 @@
         }
         this.step = (this.step + 1) % STEPS; this.nextTime += STEP;
       }
+    }
+    loadTrack() {
+      if(this.trackRequest||this.trackBuffer||this.trackFailed||!root.fetch||!this.context?.decodeAudioData)return;
+      const url=root.RPG_AUDIO_TRACK||((root.RPG_ASSET_BASE||'assets/')+'audio/morning-base.mp3');
+      this.trackRequest=root.fetch(url).then(r=>{if(!r.ok)throw new Error('track unavailable');return r.arrayBuffer();}).then(bytes=>this.context.decodeAudioData(bytes)).then(buffer=>{if(this.destroyed)return;this.trackBuffer=buffer;if(this.playing&&!this.paused&&this.enabled)this.startTrack();}).catch(()=>{this.trackFailed=true;if(this.playing)this.message='本機合成配樂播放中';this.emit();}).finally(()=>this.trackRequest=null);
+    }
+    startTrack(){
+      if(!this.trackBuffer||this.trackSource||!this.playing||this.paused||!this.enabled||this.destroyed)return;
+      const now=this.context.currentTime;
+      for(const voice of this.voices){try{voice.source.stop(now+.04);}catch(_){}}
+      const source=this.context.createBufferSource(),gain=this.context.createGain();source.buffer=this.trackBuffer;source.loop=true;gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(.86,now+.8);source.connect(gain);gain.connect(this.master);this.trackSource=source;this.trackGain=gain;this.trackStartedAt=now;source.start(now,this.trackOffset||0);this.message='探索配樂播放中';this.emit();
+    }
+    loadEffects(){
+      if(this.effectLoadStarted||!root.fetch||!this.context?.decodeAudioData)return;this.effectLoadStarted=true;
+      this.effectRequests=['menu','confirm','clue'].map(kind=>{const url=root.RPG_EFFECT_ASSETS?.[kind]||((root.RPG_ASSET_BASE||'assets/')+'audio/'+kind+'.mp3');return root.fetch(url).then(r=>{if(!r.ok)throw new Error('effect unavailable');return r.arrayBuffer();}).then(bytes=>this.context.decodeAudioData(bytes)).then(buffer=>{if(!this.destroyed)this.effects.set(kind,buffer);}).catch(()=>{});});
+    }
+    effect(kind='confirm'){
+      if(!this.unlocked||!this.enabled||this.paused||this.destroyed||this.context?.state!=='running'||this.volume===0)return;
+      const now=this.context.currentTime,buffer=this.effects.get(kind==='discovery'||kind==='complete'?'clue':kind);
+      if(buffer){const source=this.context.createBufferSource(),gain=this.context.createGain();source.buffer=buffer;gain.gain.value=1.1;source.connect(gain);gain.connect(this.master);const voice={source,gain,end:now+buffer.duration+.02};this.voices.add(voice);source.onended=()=>this.release(voice);source.start(now);return;}
+      const notes=kind==='menu'?[76]:kind==='discovery'?[72,76,79]:kind==='complete'?[72,76,79,84]:kind==='step'?[]:[69,74];
+      notes.forEach((n,i)=>this.note(n,now+i*.07,.18,.12,'sine'));
     }
     note(midi, start, length, level, type) {
       const source = this.context.createOscillator(), gain = this.context.createGain();
@@ -177,7 +202,7 @@
       if (this.destroyed) return;
       this.destroyed = true; this.stop();
       for (const voice of [...this.voices]) this.release(voice);
-      try { this.filter?.disconnect(); this.master?.disconnect(); } catch (_) {}
+      this.effects.clear();try { this.filter?.disconnect(); this.master?.disconnect(); } catch (_) {}
       try { const closing = this.context?.close(); if (closing?.catch) closing.catch(() => {}); } catch (_) {}
       this.message = '背景音樂已停止'; this.emit();
     }

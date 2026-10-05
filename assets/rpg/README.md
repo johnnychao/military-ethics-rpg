@@ -1,11 +1,19 @@
-# 國醫倫理冒險：原創像素素材
+# Original game artwork and sound
 
-場景、人物、樹木、建築、物件、策略格與人物頭像由 `js/engine/rpg_world.js` 的 Canvas 2D 繪製程式產生。沒有下載《冒險三國誌》的角色、圖片、音樂或地圖；影片僅提供遊戲類型參考。
+## Visuals
 
-人物為虛構。像素圖形、配色與地圖配置是本專案的新製作，不使用外部圖像素材。中文字採作業系統已具備的字型，不附帶或下載字型檔。遊戲載入只讀取本機程式與樣式，不需外網素材；實際斷網操作的驗證範圍見 `驗證/2D驗證紀錄.md`。
+- The active camp, characters, trees, buildings, objects, tactical board are original Canvas 2D game artwork in `js/engine/rpg_world.js`. The renderer reads existing engine state. Chapter-specific geometry in `rpg_maps.js` is applied to cloned app definitions; every originally walkable position and the common completion gate remain valid, while roads, landmarks, clue locations and optional interactions differ. Decisions, reflection requirements and attendance rules remain separate.
+- `training-base.webp` and the four `portrait-*.webp` bust portraits are web-optimized original Google Flow / Nano Banana Pro outputs, generated for this project with user authorization after Imagen retirement. The training-base export was 2752×1536; portraits were 1024×1024, with flat ivory backgrounds (not transparency). Portraits appear in framed dialogue/party UI; the background is introductory art. Neither is described as a gameplay screenshot or as Imagen output. The original walking sprites remain programmatic and collision-aligned.
+- Guardian Tales official store images were consulted only for visual reference: clear outlined chibi characters, layered environments, readable interaction markers and bright outdoor colors. No Guardian Tales character, logo, scene, image or music is included or traced.
+- Existing fictional character identities remain: 恩禾、若嵐、明峻、以晴. The game does not use real military emblems.
+- Chinese text uses available system fonts. No third-party font file is redistributed.
 
-舊3D角色模型的原始授權與素材保留在改版前備份，未由新版入口載入。
+## Music
 
-背景配樂〈小隊同行〉由 `js/engine/rpg_audio.js` 的原創音符表與 Web Audio 音源在本機產生：84 BPM、16 小節、約 45.7 秒循環，包含旋律、和弦、低音與輕節奏。沒有引用、下載或改編影片音樂，不需要外部音樂檔、音效素材或遠端服務。策略場景略加節奏，後果與回顧場景柔化音色。
+`assets/audio/morning-base.mp3` is based on original music generated in Google Flow Music using Lyria 3.5, titled 晨光基地・Morning Base. The prompt requested an original, warm military-medical academy exploration theme without vocals or an existing game/artist melody. The resulting 61.77-second source was edited into a 50.5-second crossfaded loop and normalized for quiet background use. It is loaded as a same-origin asset only after an ordinary user interaction.
 
-音樂需要先操作遊戲才能啟動；開關與音量可保存，背景頁籤會暫停排程。瀏覽器播放控制的官方參考：[Chrome autoplay policy](https://developer.chrome.com/blog/autoplay/) 與 [MDN AudioContext.resume](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/resume)。原創配樂的實際揚聲器聽感尚待使用者試聽；程式與瀏覽器播放狀態的驗證記錄見 `驗證/2D驗證紀錄.md`。
+If the local music file cannot be loaded or decoded, the existing original Web Audio melody remains a fallback. Muting, volume changes, background pausing and resuming apply to both. The menu, confirmation and clue cues (`menu.mp3`, `confirm.mp3`, `clue.mp3`) are edited excerpts of original Google Flow Music/Lyria 3.5 audio. They are loaded locally after interaction, use the same volume/mute controls, and fall back to original synthesized notes if unavailable. Audible speaker checks remain separate from source and lifecycle tests.
+
+## Data and distribution
+
+The public artifact contains only explicitly allowlisted game files. Source textbooks, student names, IDs, reflections, exported records, private worksheets, credentials and collector source code are excluded from the website build. The isolated `/preview/u03/` prototype uses its own device-local game, optional-challenge and receipt-outbox keys, and always disables classroom collection. Optional side stories, puzzles, collectibles and personal record boards never gate attendance or rank moral worth.

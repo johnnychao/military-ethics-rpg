@@ -4,7 +4,7 @@ const root = path.resolve(__dirname, '..');
 const output = path.resolve(root, 'site');
 if (path.dirname(output) !== root || path.basename(output) !== 'site') throw new Error('Unsafe build directory');
 const PUBLIC_FILES = [
-  'index.html','preview/u03/index.html','privacy.html','favicon.svg','css/rpg.css','css/receipt.css','js/rpg_app.js',
+  'index.html','preview/u03/index.html','privacy.html','favicon.svg','css/rpg.css','css/receipt.css','css/adventure.css','css/bonus.css','assets/rpg/training-base.webp','assets/rpg/portrait-cadet.webp','assets/rpg/portrait-liaison.webp','assets/rpg/portrait-logistics.webp','assets/rpg/portrait-doctor.webp','assets/audio/morning-base.mp3','assets/audio/menu.mp3','assets/audio/confirm.mp3','assets/audio/clue.mp3','js/rpg_app.js','js/rpg_bonus_ui.js','js/data/rpg_maps.js','js/data/rpg_bonus_content.js','js/engine/rpg_bonus.js',
   'js/classroom_config.js','js/receipt_client.js','js/data/rpg_chapters.js',
   'js/engine/rpg_engine.js','js/engine/rpg_store.js','js/engine/rpg_world.js','js/engine/rpg_audio.js'
 ];

@@ -36,3 +36,15 @@ test('Isolated u03 visual preview keeps classroom collection disabled',()=>{
  assert.equal(config.enabled,false); assert.equal(config.collectorUrl,'');
  assert.equal(config.sessionId,''); assert.equal(config.assignedChapter,'');
 });
+
+test('isolated visual preview cannot enable classroom collection or overwrite live game saves',()=>{
+ const html=fs.readFileSync(path.join(root,'preview/u03/index.html'),'utf8');
+ assert.ok(html.includes("const KEY = 'ndmu-ethics-rpg-preview:v1'"));
+ assert.ok(html.includes("const STORAGE_KEY = 'ndmu-ethics-rpg-preview:bonus:v1'"));
+ assert.ok(!html.includes("'ndmu-ethics-rpg:bonus:v1'"));
+ assert.ok(html.includes("const OUTBOX_KEY = 'ndmu-ethics-classroom-preview-outbox:v1'"));
+ assert.ok(!html.includes("const OUTBOX_KEY = 'ndmu-ethics-classroom-outbox:v1'"));
+ assert.ok(html.includes("window.ClassroomConfig={enabled:false,collectorUrl:'',sessionId:'',assignedChapter:''"));
+ assert.ok(!/<script[^>]+src="https?:/i.test(html));
+ assert.ok(!/AKfy[a-zA-Z0-9_-]{20,}/.test(html));
+});

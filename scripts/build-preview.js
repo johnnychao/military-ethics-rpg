@@ -1,0 +1,14 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..');
+let html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const image='data:image/webp;base64,'+fs.readFileSync(path.join(root,'assets/rpg/training-base.webp')).toString('base64');
+const track='data:audio/mpeg;base64,'+fs.readFileSync(path.join(root,'assets/audio/morning-base.mp3')).toString('base64');
+const portraits=Object.fromEntries(['cadet','liaison','logistics','doctor'].map(key=>[key,'data:image/webp;base64,'+fs.readFileSync(path.join(root,'assets/rpg/portrait-'+key+'.webp')).toString('base64')]));
+const effects=Object.fromEntries(['menu','confirm','clue'].map(key=>[key,'data:audio/mpeg;base64,'+fs.readFileSync(path.join(root,'assets/audio/'+key+'.mp3')).toString('base64')]));
+html=html.replace(/<link rel="stylesheet" href="([^"]+)">/g,(_,file)=>'<style>'+fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n').replace("url('../assets/rpg/training-base.webp')",`url('${image}')`)+'</style>');
+const scripts=[];
+html=html.replace(/<script defer src="([^"]+)"><\/script>/g,(_,file)=>{let source=fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');if(file==='js/classroom_config.js'){source=`window.ClassroomConfig={enabled:false,collectorUrl:'',sessionId:'',assignedChapter:'',sessionLabel:'',privacyUrl:'../../privacy.html'};`;}source=source.replaceAll("'ndmu-ethics-rpg:v1'","'ndmu-ethics-rpg-preview:v1'").replaceAll("'ndmu-ethics-classroom-outbox:v1'","'ndmu-ethics-classroom-preview-outbox:v1'").replaceAll('ndmu-ethics-rpg:bonus:v1','ndmu-ethics-rpg-preview:bonus:v1');scripts.push('<script>'+source.replaceAll('</script','<\\/script')+'</script>');return''});
+html=html.replace('</body>',`<script>window.RPG_PORTRAIT_ASSETS=${JSON.stringify(portraits)};window.RPG_AUDIO_TRACK=${JSON.stringify(track)};window.RPG_EFFECT_ASSETS=${JSON.stringify(effects)};</script>`+scripts.join('\n')+'</body>');
+html=html.replaceAll('href="privacy.html"','href="../../privacy.html"').replaceAll('href="favicon.svg"','href="../../favicon.svg"');
+const out=path.join(root,'preview/u03/index.html');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,html);console.log({path:out,bytes:Buffer.byteLength(html)});

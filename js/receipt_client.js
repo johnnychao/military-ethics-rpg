@@ -4,7 +4,7 @@
     module.exports = factory(require('./engine/rpg_engine'), require('./engine/rpg_store'));
   } else {
     root.ClassroomReceipt = factory(root.RPGEngine, root.RPGStore);
-    root.ClassroomReceipt.mount(root.document, root.ClassroomConfig, root.RPGData.chapters, root);
+    root.ClassroomReceipt.mount(root.document, root.ClassroomConfig, root.RPGMaps ? root.RPGData.chapters.map(root.RPGMaps.apply) : root.RPGData.chapters, root);
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (Engine, Store) {
   'use strict';

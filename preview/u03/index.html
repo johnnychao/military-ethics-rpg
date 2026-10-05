@@ -130,6 +130,8 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
 @media(max-width:680px){.header-actions button#settings-button{display:block}body[data-phase="tactics"] .chapter-banner,body[data-phase="outcome"] .chapter-banner,body[data-phase="review"] .chapter-banner,body[data-phase="complete"] .chapter-banner{padding-top:6px;padding-bottom:6px}body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body[data-phase="review"] .resources,body[data-phase="complete"] .resources{top:68px;left:12px;right:12px}body[data-phase="tactics"] .chapter-banner h1,body[data-phase="outcome"] .chapter-banner h1{font-size:17px}}
 
 .chapter-banner>span:first-child{display:block;line-height:1.3}body[data-phase="tactics"] .chapter-banner>span:last-child,body[data-phase="outcome"] .chapter-banner>span:last-child,body[data-phase="review"] .chapter-banner>span:last-child,body[data-phase="complete"] .chapter-banner>span:last-child{position:absolute;top:10px;right:12px}
+
+@media(min-width:681px){body[data-phase="briefing"] .task-panel{top:222px;bottom:22px;max-height:none}}
 </style>
   <style>/* Optional exploration notebook: readable on keyboard, phone and desktop. */
 .bonus-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:17px 0}.bonus-card{background:#234740;border:1px solid #96aa81;border-radius:7px;padding:16px}.bonus-card h3{font-size:18px;color:#f4d899;margin:5px 0 10px}.bonus-card p{font-size:14px;line-height:1.75}.bonus-card>.eyebrow{font-size:10px;letter-spacing:2px;color:#a9d9c8}.bonus-card>.muted{display:block;margin-top:10px;line-height:1.5}.bonus-card button{margin:6px 0 0}.bonus-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.bonus-stats>div{background:#163c3b;border:1px solid #829d80;border-radius:5px;text-align:center;padding:12px 5px}.bonus-stats strong{font-size:24px;color:#f4d08b;display:block}.bonus-stats span{font-size:12px;color:#c4d5bd}.bonus-puzzle{display:grid;gap:12px;margin-top:15px}.bonus-sort-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,.65fr);gap:12px;align-items:center;background:#284d44;border:1px solid #75957d;border-radius:5px;padding:12px;font-size:14px;line-height:1.7}.bonus-sort-row select{background:#153a3a;border:1px solid #d3c08e;color:#f8ecd1;min-height:44px;max-width:100%;padding:8px;font-size:14px;border-radius:4px}.bonus-choice{display:flex;align-items:flex-start;gap:12px;background:#284d44;border:1px solid #7e9c82;border-radius:5px;padding:12px;line-height:1.7}.bonus-choice input{width:24px;height:24px;flex-shrink:0;accent-color:#d9c07b;margin-top:5px}.bonus-choice strong,.bonus-choice small{display:block}.bonus-choice small{font-size:12px;color:#c7d4be}.bonus-budget{padding:10px 12px;border:1px solid #b4ad78;background:#3d5947;border-radius:5px;color:#f4dfa7}.bonus-feedback{border-left:4px solid #d8bb77;background:#294c43;padding:12px 15px;margin:12px 0;line-height:1.7}.bonus-feedback.success{border-color:#a4d7aa;background:#2a5444}.bonus-feedback p{margin:5px 0}.bonus-feedback strong{color:#f6dea1}.bonus-story{font-size:16px!important;line-height:1.9!important}.bonus-ranking{padding-left:25px}.bonus-ranking li{padding:10px 4px;border-bottom:1px solid #698971;font-size:13px}.bonus-ranking li span{display:inline-block;max-width:80%;vertical-align:top}.bonus-ranking li strong{float:right;color:#f4d893}.bonus-puzzle button{min-height:44px}dialog:has(.bonus-puzzle),dialog:has(.bonus-grid){max-width:820px}button#bonus-button{border-color:#97bea1;color:#deebce}
@@ -201,6 +203,8 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
       <button id="classroom-copy" type="button">複製提交資料</button>
       <a id="classroom-open-page" class="classroom-open-page" target="_blank" rel="noopener noreferrer">直接開啟 Google 收件頁</a>
     </section>
+    <button id="classroom-export-pending" type="button">匯出待提交備份</button>
+    <p class="classroom-privacy">待提交備份可能含姓名、學號、行動與反思，請妥善保存，不要公開分享。匯出不代表老師已收件，也不會刪除待提交資料。</p>
     <button id="classroom-clear" type="button" disabled>清除此裝置的姓名、學號與待提交資料</button>
   </section>
   <input id="import-file" type="file" accept=".json,application/json" hidden>
@@ -924,7 +928,7 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
         ['law', '古代將德摘要可以直接當作今日的法律命令。', 'unsupported', '歷史思想可以提供提問，不能直接等同現行法律。']
       ], '保留歷史脈絡，才能清楚說明哪些來自史料、哪些是今天的類比。'),
       ['修復展牌', '幫策展員補上史料與轉用的界線。', '展牌的膠帶鬆了，兩份材料黏在一起。策展員請你把可確認、待確認與跨太遠的推論重新分開。'],
-      ['長椅下的紙書籤', '木椅底下露出一小角摺紙。', '書籤背面寫著：「隊伍變整齊時，也看一眼誰還在找入口。」這是策展員的今日提醒，不是假造的古人名言。', '收藏：入口書籤']),
+      ['石廊邊的紙書籤', '石廊邊露出一小角摺紙。', '書籤背面寫著：「隊伍變整齊時，也看一眼誰還在找入口。」這是策展員的今日提醒，不是假造的古人名言。', '收藏：入口書籤']),
     chapter('u02', '第一次服務', '武德的現代意義',
       sort('u02', '試讀回條修理站', '兩位虛構試讀者都領到新版圖卡，其中一位說看不懂縮寫。尚未進行第二次理解確認。', [
         ['received', '兩位試讀者都收到新版圖卡。', 'supported', '領到圖卡是題目已提供的事實。'],
@@ -942,7 +946,7 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
         ['license', '學員只要夠熱心，就能獨立決定治療。', 'unsupported', '熱心不能代替資格；承認限制仍可搭配持續協助。']
       ], '使命包含可靠地接住求助，也包含說清能力界線、未知狀態與接手責任。這個謎題只核對明示資訊，不替真實病人判斷。'),
       ['學弟的訊息草稿', '幫學弟把「已聯絡」與「已接手」寫清楚。', '學弟拿著一張擦了又寫的回報單：「我很想幫忙，但不確定能寫到哪裡。」你們一起比對能力卡、時間卡與通訊紀錄。'],
-      ['飲水機後的求助徽章', '飲水機邊有一枚畫著小燈的紙徽章。', '徽章寫著：「我不會這一段，但我陪你找到會的人。」旁邊補了一行：「找到窗口後，記得問對方是否接手。」這是學弟留給下一班的鼓勵。', '收藏：求助小燈']),
+      ['集合庭旁的求助徽章', '集合庭旁有一枚畫著小燈的紙徽章。', '徽章寫著：「我不會這一段，但我陪你找到會的人。」旁邊補了一行：「找到窗口後，記得問對方是否接手。」這是學弟留給下一班的鼓勵。', '收藏：求助小燈']),
     chapter('u04', '斷線的交接', '軍人倫理（二）',
       order('u04', 'handover', '把交接線接回來', '缺漏清單須先整理，才能發出完整交接訊息；接班者收到訊息後才可覆述；覆述完成後才能把該項標成已接手。待確認箱的標示只需在發訊息前完成。', [
         ['list', '列出已知、未知與待辦'], ['label', '標示待確認箱'], ['send', '發出交接訊息'], ['repeat', '收到接班者覆述'], ['record', '記錄已接手與剩餘待辦']
@@ -963,7 +967,7 @@ body[data-phase="tactics"] .resources,body[data-phase="outcome"] .resources,body
         ['bundle', '簡報與覆述合訂卡', 3, ['briefing', 'receipt']], ['ribbon', '活動彩帶', 2, []]
       ], 5, [['owner', '看得到責任窗口'], ['briefing', '支援者有工作簡報'], ['receipt', '接班者能回覆接手']], '人數增加不等於支援立刻可用。題目只檢查工具是否齊備，不比較誰應忍受更多疲勞。'),
       ['新人值勤背包', '替資訊站裝好三項必要工具。', '新人不想因提問耽誤大家。明峻請你把能讓問題被接住的工具先準備好，彩帶留到有餘裕時再說。'],
-      ['翻面的休息牌', '長椅邊有一塊可以翻面的紙牌。', '正面寫「需要支援」，背面寫「正在交接」。牌子沒有英雄與懦夫兩面，只有目前的工作狀態。', '收藏：支援翻牌']),
+      ['翻面的休息牌', '跑道邊有一塊可以翻面的紙牌。', '正面寫「需要支援」，背面寫「正在交接」。牌子沒有英雄與懦夫兩面，只有目前的工作狀態。', '收藏：支援翻牌']),
     chapter('u07', '消失的物資紀錄', '廉政倫理（一）',
       sort('u07', '九箱與十箱', '虛構紀錄卡寫帳上十箱、現場九箱；領用時間尚未核對。走廊傳聞沒有第一手來源。', [
         ['difference', '帳面與現場數量目前相差一箱。', 'supported', '數量差異由題目直接給出。'],
@@ -1370,7 +1374,7 @@ chapter(){return this.content.getChapter(this.o.getChapter().id);}
 summary(chapterId=this.o.getChapter().id){this.ensure();if(!this.summaryCache.has(chapterId))this.summaryCache.set(chapterId,this.engine.getSummary(this.state,chapterId));return this.summaryCache.get(chapterId);}
 apply(result){if(!result.ok){this.o.toast(result.feedback?.text||'此操作尚無法完成。');return false;}this.state=result.state;if(result.changed)this.summaryCache.clear();if(result.changed&&!this.readOnly){try{this.o.storage?.setItem(this.profileKey,JSON.stringify(this.state));}catch(_){this.o.toast('支線暫存在記憶體；請在探索手冊匯出備份。');}}this.o.onUpdate?.();if(result.awarded?.points||result.correct)this.o.effect?.('discovery');return true;}
 markers(){if(!this.ensure())return[];const c=this.o.getChapter(),data=this.content.getChapter(c.id),summary=this.summary(c.id),spots=c.map.bonusSpots?Object.values(c.map.bonusSpots):[{x:3,y:17},{x:13,y:14},{x:6,y:10},{x:10,y:5}],used=new Set();return(data.markers||[]).map((m,i)=>{const preferred=c.map.bonusSpots?.[m.suggestedZone],spot=[preferred,...spots].find(p=>p&&!used.has(p.x+','+p.y))||spots[i%spots.length];used.add(spot.x+','+spot.y);return{...m,...spot,bonus:true,done:summary.completedIds.includes(m.id)||(m.puzzleId&&summary.progress[m.puzzleId]?.solved)};});}
-open(){if(!this.ensure())return this.o.toast('先建立學員暱稱，再展開支線探索。');const c=this.o.getChapter(),data=this.content.getChapter(c.id),summary=this.summary(c.id),nodes=[el('p',`${c.region} · ${c.title}`,'muted'),el('p','主線之外，還有散落的故事與小挑戰。這些內容自由參加，不影響通關、反思或出席條件。'),this.stats(summary)];const grid=el('div',undefined,'bonus-grid');for(const m of data.markers||[]){const progress=m.puzzleId?summary.progress[m.puzzleId]:null,visited=summary.visitedIds.includes(m.id),card=el('section',undefined,'bonus-card');card.append(el('span',m.kind==='easterEgg'?'隱藏收藏':'支線挑戰','eyebrow'),el('h3',m.kind==='easterEgg'&&!visited?'一個尚未發現的小祕密':m.name),el('p',visited?m.description:m.kind==='easterEgg'?'留意地圖上閃爍的菱形標記。':m.description));if(m.kind!=='easterEgg'||visited)card.append(button(progress?.solved?'回顧挑戰':visited?'繼續挑戰':'閱讀線索',()=>this.openMarker(m.id),'gold-button wide'));const marker=this.markers().find(x=>x.id===m.id);if(this.o.getState().phase==='exploration'&&marker)card.append(button('前往地點 →',()=>{this.o.close();this.o.routeTo(marker);},'text-button wide'));card.append(el('small',progress?.solved?'已解鎖獎勵':visited&&m.kind==='easterEgg'?'已收藏':m.reward.label,'muted'));grid.append(card);}nodes.push(grid,button('查看個人紀錄榜',()=>this.boards(),'wide'),button('備份支線與收藏 JSON',()=>this.backup(),'text-button wide'));this.o.show('探索手冊',nodes,'SIDE STORIES');}
+open(){if(!this.ensure())return this.o.toast('先建立學員暱稱，再展開支線探索。');const c=this.o.getChapter(),data=this.content.getChapter(c.id),summary=this.summary(c.id),nodes=[el('p',`${c.region} · ${c.title}`,'muted'),el('p','主線之外，還有散落的故事與小挑戰。這些內容自由參加，不影響通關、反思或出席條件。'),this.stats(summary)];const grid=el('div',undefined,'bonus-grid');for(const m of data.markers||[]){const progress=m.puzzleId?summary.progress[m.puzzleId]:null,visited=summary.visitedIds.includes(m.id),card=el('section',undefined,'bonus-card');card.append(el('span',m.kind==='easterEgg'?'隱藏收藏':'支線挑戰','eyebrow'),el('h3',m.kind==='easterEgg'&&!visited?'一個尚未發現的小祕密':m.name),el('p',visited?m.description:m.kind==='easterEgg'?'留意地圖上閃爍的菱形標記。':m.description));if(m.kind!=='easterEgg'||visited)card.append(button(m.kind==='easterEgg'?'回顧收藏':progress?.solved?'回顧挑戰':visited?'繼續挑戰':'閱讀線索',()=>this.openMarker(m.id),'gold-button wide'));const marker=this.markers().find(x=>x.id===m.id);if(this.o.getState().phase==='exploration'&&marker)card.append(button('前往地點 →',()=>{this.o.close();this.o.routeTo(marker);},'text-button wide'));card.append(el('small',progress?.solved?'已解鎖獎勵':visited&&m.kind==='easterEgg'?'已收藏':m.reward.label,'muted'));grid.append(card);}nodes.push(grid,button('查看個人紀錄榜',()=>this.boards(),'wide'),button('備份支線與收藏 JSON',()=>this.backup(),'text-button wide'));this.o.show('探索手冊',nodes,'SIDE STORIES');}
 stats(s){const r=el('div',undefined,'bonus-stats');for(const [value,label]of[[`${s.completed}/${s.total}`,'支線完成'],[`${s.collections}/${s.maxCollections}`,'收藏'],[`${s.puzzles}/${s.maxPuzzles}`,'解謎']]){const item=el('div');item.append(el('strong',value),el('span',label));r.append(item);}return r;}
 openMarker(id){if(!this.ensure())return;const c=this.o.getChapter(),m=this.content.getChapter(c.id).markers.find(x=>x.id===id);if(!m)return;const result=this.engine.interact(this.state,c.id,id);if(!this.apply(result))return;const nodes=[el('p',m.story,'bonus-story')];if(result.feedback.text!==m.story)nodes.push(el('p',result.feedback.text,'bonus-feedback'));if(m.puzzleId)nodes.push(button('展開挑戰 →',()=>this.puzzle(m.puzzleId),'gold-button wide'));else nodes.push(el('p',m.reward.label,'badge'));nodes.push(button('返回探索手冊',()=>this.open(),'text-button wide'));this.o.show(m.name,nodes,m.kind==='easterEgg'?'HIDDEN DISCOVERY':'SIDE STORY');}
 puzzle(id,feedback=null,draft=null){const c=this.o.getChapter(),p=this.content.getChapter(c.id).puzzles.find(x=>x.id===id);if(!p)return;const progress=this.summary(c.id).progress[id]||{},initialAnswer=draft??progress.lastAnswer,nodes=[el('p',p.prompt,'lead'),el('p',p.instructions,'muted')],form=el('form',undefined,'bonus-puzzle');form.id='bonus-puzzle-form';let answer;
@@ -1379,7 +1383,7 @@ else if(p.kind==='dependency-order'){const constraints=el('ul',undefined,'bonus-
 else if(p.kind==='resource-plan'){const choices=[];const budget=el('p',undefined,'bonus-budget');budget.textContent='可用資源：'+Object.entries(p.budget||{}).map(([key,value])=>`${p.budgetLabels?.[key]||key} ${value}`).join(' · ');form.append(budget);if(p.requirements?.length)form.append(el('p','需要兼顧：'+p.requirements.map(r=>r.label).join('、'),'muted'));for(const choice of p.choices){const row=el('label',undefined,'bonus-choice'),check=el('input');check.type='checkbox';check.value=choice.id;check.checked=Array.isArray(initialAnswer)&&initialAnswer.includes(choice.id);choices.push(check);const text=el('span');text.append(el('strong',choice.label||choice.text));if(choice.description)text.append(el('small',choice.description));if(choice.covers?.length)text.append(el('small','可支援：'+choice.covers.map(id=>p.requirements?.find(r=>r.id===id)?.label||id).join('、')));if(choice.cost)text.append(el('small','成本：'+Object.entries(choice.cost).map(([key,value])=>`${p.budgetLabels?.[key]||key} ${value}`).join(' · ')));row.append(check,text);form.append(row);}answer=()=>choices.filter(x=>x.checked).map(x=>x.value);}
 else{nodes.push(el('p','這個挑戰尚未提供操作介面。'));this.o.show(p.title,nodes,'OPTIONAL CHALLENGE');return;}
 if(feedback){const box=el('section',undefined,'bonus-feedback'+(feedback.correct?' success':''));box.setAttribute('role','status');box.append(el('strong',feedback.feedback.title),el('p',feedback.feedback.text));for(const detail of feedback.feedback.details||[])box.append(el('p',detail));nodes.push(box);}
-const submit=el('button',progress.solved?'再次檢查':'檢查我的安排','gold-button wide');submit.type='submit';form.append(submit);form.addEventListener('submit',event=>{event.preventDefault();const result=this.engine.answer(this.state,c.id,id,answer());if(this.apply(result))this.puzzle(id,result);});nodes.push(form);if(progress.solved&&!feedback?.correct)nodes.push(el('p',p.rationale,'bonus-feedback success'));nodes.push(button('需要一點提示',()=>{const currentDraft=answer(),r=this.engine.hint(this.state,c.id,id);if(this.apply(r))this.puzzle(id,r,currentDraft);},'wide'),button('返回探索手冊',()=>this.open(),'text-button wide'),el('p','可反覆嘗試。使用提示、答錯或跳過，都不影響主線完成條件。','muted'));this.o.show(p.title,nodes,'OPTIONAL CHALLENGE');}
+const submit=el('button',progress.solved?'再次檢查':'檢查我的安排','gold-button wide');submit.type='submit';form.append(submit);form.addEventListener('submit',event=>{event.preventDefault();const currentDraft=answer(),result=this.engine.answer(this.state,c.id,id,currentDraft);const accepted=this.apply(result);this.puzzle(id,result,accepted?null:currentDraft);});nodes.push(form);if(progress.solved&&!feedback?.correct)nodes.push(el('p',p.rationale,'bonus-feedback success'));nodes.push(button('需要一點提示',()=>{const currentDraft=answer(),r=this.engine.hint(this.state,c.id,id);this.apply(r);this.puzzle(id,r,currentDraft);},'wide'),button('返回探索手冊',()=>this.open(),'text-button wide'),el('p','可反覆嘗試。使用提示、答錯或跳過，都不影響主線完成條件。','muted'));this.o.show(p.title,nodes,'OPTIONAL CHALLENGE');}
 boards(){this.ensure();const cards=el('div',undefined,'bonus-grid');for(const metric of['exploration','collection','puzzle']){const board=this.engine.getLeaderboard(this.state,metric),card=el('section',undefined,'bonus-card'),list=el('ol',undefined,'bonus-ranking');card.append(el('h3',board.label));for(const row of board.rows.filter(r=>r.score>0)){const li=el('li');li.value=row.rank;li.append(el('span',row.chapterId.slice(1)+' '+row.title),el('strong',String(row.score)+board.unit));list.append(li);}card.append(list.children.length?list:el('p','第一項探索紀錄，等你來留下。','muted'));cards.append(card);}this.o.show('個人紀錄榜',[el('p','這裡比較你自己的十三章探索紀錄。尚未連接班級榜，待完成班級登入設定；目前不顯示其他同學，也不替倫理立場、反思文字或個人品格排名。','muted'),el('p','探索榜以各章完成比例比較；同分並列，不比速度或提示次數。','muted'),cards,button('返回探索手冊',()=>this.open(),'wide')],'PERSONAL RECORDS');}
 backup(){const raw=JSON.stringify(this.state,null,2),area=el('textarea',undefined,'backup-text');area.readOnly=true;area.value=raw;area.setAttribute('aria-label','支線收藏 JSON 備份');this.o.show('支線與收藏備份',[el('p','此備份只包含可選挑戰與收藏。主線行動和反思，請另外在「紀錄」備份。'),area,button('選取備份文字',()=>{area.focus();area.select();},'wide'),button('下載支線 JSON',()=>this.o.download('國醫倫理冒險-支線收藏.json',raw,'application/json;charset=utf-8'),'gold-button wide')],'BONUS BACKUP');}
 }
@@ -1974,7 +1978,7 @@ set(state,chapter,selected=null,tiles=[]){const chapterChange=this.chapter?.id!=
 rect(x,y,w,h,c){this.ctx.fillStyle=c;this.ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));}
 poly(points,c){const ctx=this.ctx;ctx.fillStyle=c;ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fill();}
 text(s,x,y,c=C.cream,size=14,align='center'){this.ctx.fillStyle=c;this.ctx.font=`600 ${size}px "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`;this.ctx.textAlign=align;this.ctx.fillText(s,Math.round(x),Math.round(y));this.ctx.textAlign='left';}
-setCamera(snap=false){if(!this.state)return;const px=(this.state.player.x+.5)*T,py=(this.state.player.y+.5)*T;const tx=clamp(px-this.W*(this.W>700?.41:.5),-180,768-this.W+180),ty=clamp(py-this.H*.48,-130,960-this.H+190);if(snap||this.reducedMotion)this.camera={x:tx,y:ty};else{this.camera.x+=(tx-this.camera.x)*.12;this.camera.y+=(ty-this.camera.y)*.12;}}
+setCamera(snap=false){if(!this.state)return;const px=(this.state.player.x+.5)*T,py=(this.state.player.y+.5)*T;const tx=clamp(px-this.W*(this.W>700?.41:.5),-180,768-this.W*(this.W>700?.55:.5)),ty=clamp(py-this.H*.48,-130,960-this.H+190);if(snap||this.reducedMotion)this.camera={x:tx,y:ty};else{this.camera.x+=(tx-this.camera.x)*.12;this.camera.y+=(ty-this.camera.y)*.12;}}
 tileAt(clientX,clientY){const r=this.canvas.getBoundingClientRect(),x=(clientX-r.left)*this.W/r.width,y=(clientY-r.top)*this.H/r.height;if(this.state?.phase==='tactics'){const b=this.board();return{x:Math.floor((x-b.x)/b.t),y:Math.floor((y-b.y)/b.t)};}return{x:Math.floor((x+Math.round(this.camera.x))/T),y:Math.floor((y+Math.round(this.camera.y))/T)};}
 board(){const t=this.W>700?50:56;return{x:this.W>700?150:Math.round((this.W-6*t)/2),y:this.W>700?164:182,t};}
 stone(x,y,w,h){this.rect(x+4,y+5,w,h,'#345d4c35');this.rect(x,y,w,h,C.edge);this.rect(x+2,y+2,w-4,h-5,C.stone);this.rect(x+4,y+3,w-8,2,'#eee0b6');this.rect(x+4,y+h-5,w-8,2,'#b4ae88');}
@@ -1990,7 +1994,7 @@ building(wall,index=0){const x=wall.x*T,y=wall.y*T,w=wall.w*T,h=wall.h*T;if(h<=T
 crate(x,y){this.rect(x+5,y+7,39,39,'#29524335');this.rect(x+2,y+2,39,38,'#6e563c');this.rect(x+5,y+5,33,31,'#ad8b50');this.rect(x+8,y+8,26,4,'#d1b274');this.rect(x+8,y+17,26,3,'#8b6b3e');this.rect(x+8,y+28,26,3,'#8b6b3e');this.rect(x+10,y+5,4,31,'#c3a361');this.rect(x+29,y+5,4,31,'#c3a361');this.rect(x+17,y+17,9,9,'#dfd9ac');}
 tent(x,y,w=145){this.rect(x+12,y+15,w,73,'#183f3835');this.poly([[x,y+62],[x+38,y],[x+w-25,y],[x+w,y+62]],'#20594f');this.poly([[x+4,y+53],[x+40,y-2],[x+w-26,y-2],[x+w-3,y+53]],'#70a797');this.poly([[x+40,y-2],[x+w*.51,y+57],[x+4,y+57]],'#86b4a0');this.poly([[x+40,y+8],[x+55,y+57],[x+25,y+57]],'#dfd9ae');this.rect(x+7,y+55,w-13,25,'#34786e');this.rect(x+45,y+57,30,23,'#173f3f');this.rect(x+82,y+23,17,17,'#e3e7c8');this.poly([[x+90,y+26],[x+96,y+32],[x+90,y+38],[x+84,y+32]],'#317b75');this.rect(x+3,y+56,4,32,'#a9a77e');this.rect(x+w-10,y+56,4,32,'#a9a77e');}
 worldFloor(){
-if(!this.floor&&typeof document!=='undefined'){const layer=document.createElement('canvas');layer.width=1280;layer.height=1400;const previous=this.ctx;this.ctx=layer.getContext('2d');this.ctx.imageSmoothingEnabled=false;this.ctx.translate(240,190);this.paintFloor();this.ctx=previous;this.floor=layer;}
+if(!this.floor&&typeof document!=='undefined'){const layer=document.createElement('canvas');layer.width=1600;layer.height=1400;const previous=this.ctx;this.ctx=layer.getContext('2d');this.ctx.imageSmoothingEnabled=false;this.ctx.translate(240,190);this.paintFloor();this.ctx=previous;this.floor=layer;}
 if(this.floor){this.ctx.drawImage(this.floor,-240,-190);return;}this.paintFloor();}
 paintFloor(){if(this.chapter?.map.paths)return this.paintChapterFloor();const x0=-240,y0=-190,x1=1040,y1=1180;this.rect(x0,y0,x1-x0,y1-y0,'#74a45f');for(let y=Math.floor(y0/24);y<y1/24;y++)for(let x=Math.floor(x0/24);x<x1/24;x++){const n=noise(x,y);if(n>.66)this.rect(x*24+3,y*24+4,14,9,'#83ae693a');if(n<.25)this.rect(x*24+2,y*24+8,16,12,'#598f5430');if(n>.8){this.rect(x*24+6,y*24+11,2,5,'#a1c777');this.rect(x*24+9,y*24+13,2,3,'#4b854f');}if(n<.07)this.flower(x*24+8,y*24+8);}
 const route=(x,y,w,h)=>{this.rect(x-5,y-5,w+10,h+10,'#66885a');this.rect(x-2,y-2,w+4,h+4,'#b6b082');this.rect(x,y,w,h,'#d7c9a0');for(let yy=y;yy<y+h;yy+=20)for(let xx=x;xx<x+w;xx+=28){const n=noise(xx,yy);this.rect(xx+2,yy+2,24,16,n>.5?'#dacba1':'#cbbc96');this.rect(xx+5,yy+3,18,2,'#e9dbb1');}};
@@ -2008,9 +2012,9 @@ for(const [x,y]of[[2,17],[3,18],[13.4,18.8],[14,14],[4.2,12.5],[6,4.5]])this.bus
 for(const x of [5.2*T,11.7*T]){this.rect(x,19.5*T,5,91,'#6d775c');this.rect(x+5,19.5*T+3,27,31,'#2e706e');this.rect(x+10,19.5*T+7,17,4,'#7aa695');this.rect(x-7,21.3*T,18,8,'#a6aa84');}
 this.text('學 院 南 門',8.5*T,20.2*T,'#567b61',20);
 }
-paintChapterFloor(){const map=this.chapter.map,t=map.theme,ctx=this.ctx;this.rect(-240,-190,1280,1400,t.ground);for(let y=-8;y<51;y++)for(let x=-10;x<44;x++){const n=noise(x+this.chapter.number*13,y);if(n>.7)this.rect(x*24+3,y*24+5,14,8,t.light+'19');if(n<.23)this.rect(x*24+6,y*24+9,11,5,t.vegetation+'25');if(n>.91){this.rect(x*24+6,y*24+11,2,5,t.light+'66');this.rect(x*24+9,y*24+13,2,3,t.vegetation);}}
+paintChapterFloor(){const map=this.chapter.map,t=map.theme,ctx=this.ctx;this.rect(-240,-190,1600,1400,t.ground);for(let y=-8;y<51;y++)for(let x=-10;x<58;x++){const n=noise(x+this.chapter.number*13,y);if(n>.7)this.rect(x*24+3,y*24+5,14,8,t.light+'19');if(n<.23)this.rect(x*24+6,y*24+9,11,5,t.vegetation+'25');if(n>.91){this.rect(x*24+6,y*24+11,2,5,t.light+'66');this.rect(x*24+9,y*24+13,2,3,t.vegetation);}}
 for(const z of map.zones){const x=z.x*T,y=z.y*T,w=z.w*T,h=z.h*T;this.rect(x-3,y-3,w+6,h+6,t.pathEdge);this.rect(x,y,w,h,t.path);for(let yy=y+3;yy<y+h-2;yy+=24)for(let xx=x+3;xx<x+w-2;xx+=24){this.rect(xx,yy,20,20,(Math.floor(xx/24)+Math.floor(yy/24))%2?t.light+'24':t.accent+'18');this.rect(xx,yy,20,2,t.light+'55');}this.rect(x+6,y+6,w-12,2,t.accent);this.rect(x+6,y+h-8,w-12,2,t.accent);}
-for(const p of map.paths){const points=p.points.map(v=>({x:(v.x+.5)*T,y:(v.y+.5)*T}));ctx.save();ctx.lineCap='square';ctx.lineJoin='round';for(const [color,width]of[[t.pathEdge,p.width*T+8],[t.path,p.width*T]]){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.stroke();}for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;for(let d=12;d<len;d+=24){const x=a.x+dx*d/len,y=a.y+dy*d/len;ctx.strokeStyle=p.kind==='track'?'#f2e7c3aa':t.pathEdge+'66';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+nx*p.width*T*.44,y+ny*p.width*T*.44);ctx.lineTo(x-nx*p.width*T*.44,y-ny*p.width*T*.44);ctx.stroke();}if(p.kind==='track'){ctx.strokeStyle='#f2e7c3';ctx.lineWidth=2;for(const side of[-.34,.34]){ctx.beginPath();ctx.moveTo(a.x+nx*p.width*T*side,a.y+ny*p.width*T*side);ctx.lineTo(b.x+nx*p.width*T*side,b.y+ny*p.width*T*side);ctx.stroke();}}}ctx.restore();}
+for(const p of map.paths){const points=p.points.map(v=>({x:(v.x+.5)*T,y:(v.y+.5)*T}));ctx.save();ctx.lineCap='square';ctx.lineJoin='round';for(const [color,width]of[[t.pathEdge,p.width*T+8],[t.path,p.width*T]]){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.stroke();}for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;for(let d=12;d<len;d+=24){const x=a.x+dx*d/len,y=a.y+dy*d/len;ctx.strokeStyle=t.pathEdge+'66';ctx.lineWidth=2;if(p.kind!=='track'){ctx.beginPath();ctx.moveTo(x+nx*p.width*T*.44,y+ny*p.width*T*.44);ctx.lineTo(x-nx*p.width*T*.44,y-ny*p.width*T*.44);ctx.stroke();for(let cross=-p.width*T*.42+(Math.floor(d/24)%2)*13;cross<p.width*T*.43;cross+=27){ctx.beginPath();ctx.moveTo(x+nx*cross,y+ny*cross);ctx.lineTo(x+nx*cross+dx*Math.min(22,len-d)/len,y+ny*cross+dy*Math.min(22,len-d)/len);ctx.stroke();}}}if(p.kind==='track'){ctx.strokeStyle='#f2e7c3';ctx.lineWidth=2;for(const side of[-.34,.34]){ctx.beginPath();ctx.moveTo(a.x+nx*p.width*T*side,a.y+ny*p.width*T*side);ctx.lineTo(b.x+nx*p.width*T*side,b.y+ny*p.width*T*side);ctx.stroke();}}}ctx.restore();}
 for(const z of map.zones){const x=(z.x+z.w/2)*T,y=(z.y+z.h)*T-15;this.text(z.label,x,y,t.ink+'a0',13);}
 for(const d of map.decor){const x=(d.x+.5)*T,y=(d.y+.5)*T;ctx.save();ctx.globalAlpha=.65;if(d.kind==='petals'){for(let i=0;i<6;i++)this.rect(x-16+i*6,y+Math.sin(i*2)*12,4,3,t.light);}else if(d.kind==='grid'){for(let i=-1;i<2;i++){this.rect(x-20,y+i*14,40,2,t.accent);this.rect(x+i*14,y-20,2,40,t.accent);}}else if(d.kind==='stripe'||d.kind==='signal'||d.kind==='arrow'){for(let i=0;i<3;i++)this.poly([[x-18+i*13,y-8],[x-10+i*13,y],[x-18+i*13,y+8],[x-13+i*13,y],[x-18+i*13,y-8]],t.accent);}else{this.poly([[x,y-21],[x+21,y],[x,y+21],[x-21,y]],t.accent);this.poly([[x,y-17],[x+17,y],[x,y+17],[x-17,y]],t.path);if(d.label)this.text(d.label,x,y+5,t.ink,12);else this.rect(x-5,y-5,10,10,t.accent);}ctx.restore();}
 // Tall scenery is confined to the outer perimeter or actual map.walls.
@@ -2292,7 +2296,7 @@ RPGWorld.portrait=portrait;RPGWorld.WIDTH=W;RPGWorld.HEIGHT=H;RPGWorld.TILE=T;re
   }
   function warning(message){const w=$('storage-warning');w.hidden=false;w.replaceChildren(el('span',message),btn('匯出目前紀錄',()=>{if(store.save)backupText();}));$('save-status').textContent='存檔需要注意，請立即備份';}
   function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,3500);}
-  function show(title,nodes,kicker='FIELD NOTES'){stopWalking();modal.dataset.kind=kicker==='WELCOME, CADET'?'welcome':kicker==='DISCOVERY'?'discovery':'notes';$('modal-title').textContent=title;$('modal-kicker').textContent=kicker;body.replaceChildren(...(Array.isArray(nodes)?nodes:[nodes]));if(!modal.open)modal.showModal();}
+  function show(title,nodes,kicker='FIELD NOTES'){stopWalking();modal.dataset.kind=kicker==='WELCOME, CADET'?'welcome':kicker==='DISCOVERY'?'discovery':'notes';$('modal-title').textContent=title;$('modal-kicker').textContent=kicker;body.replaceChildren(...(Array.isArray(nodes)?nodes:[nodes]));if(!modal.open)modal.showModal();modal.scrollTop=0;}
   function focusTactics(){const target=selection.unitId?$('destination-select'):document.querySelector('#task-body [data-unit-id]:not(:disabled)');target?.focus({preventScroll:true});}
   function close(){modal.close();if(state.phase==='tactics')focusTactics();else $('scene').focus({preventScroll:true});}
   function ask(title,message,action){show(title,[el('p',message),btn('確認繼續',()=>{close();action();},'gold-button wide'),btn('取消',close,'wide')],'PLEASE CONFIRM');}
@@ -2525,7 +2529,7 @@ RPGWorld.portrait=portrait;RPGWorld.WIDTH=W;RPGWorld.HEIGHT=H;RPGWorld.TILE=T;re
       return signature(rest) === wanted;
     });
     if (previous) return clone(previous);
-    if (outbox.entries.length >= 20) fail('本機待提交紀錄已達上限；請先確認收件頁，再清除此裝置的待提交資料。遊戲紀錄不會被清除。');
+    if (outbox.entries.length >= 20) fail('本機待提交紀錄已達 20 份上限，這筆尚未準備或傳送。請先匯出待提交備份與遊戲 JSON，保留原事件編號；不要刪除未收件資料，請老師協助逐筆確認。');
     const eventId = options.eventIdFactory ? options.eventIdFactory() : newEventId(options.crypto);
     if (typeof eventId !== 'string' || !UUID.test(eventId) || outbox.entries.some(item => item.eventId === eventId)) fail('事件編號無效或重複；請重新操作。');
     const payload = { ...body, eventId };
@@ -2542,6 +2546,12 @@ RPGWorld.portrait=portrait;RPGWorld.WIDTH=W;RPGWorld.HEIGHT=H;RPGWorld.TILE=T;re
     storage.removeItem(OUTBOX_KEY);
     if (storage.getItem(OUTBOX_KEY) != null) fail('無法清除待提交資料；請在瀏覽器設定中移除本網站資料前先備份遊戲。');
   }
+  function pendingBackup(storage) {
+    const outbox = readOutbox(storage);
+    if (!outbox.entries.length) fail('目前沒有待提交紀錄可匯出。');
+    return { filename: 'military-ethics-pending-submissions.json', count: outbox.entries.length,
+      contents: JSON.stringify(outbox, null, 2) };
+  }
   function mount(document, config, chapters, host) {
     const panel = document.getElementById('classroom-receipt');
     if (!panel) return;
@@ -2552,8 +2562,22 @@ RPGWorld.portrait=portrait;RPGWorld.WIDTH=W;RPGWorld.HEIGHT=H;RPGWorld.TILE=T;re
     const button = $('classroom-submit'), configResult = checkConfig(config, chapters);
     const transfer = $('classroom-transfer'), preparedText = $('classroom-prepared-payload');
     const copy = $('classroom-copy'), openPage = $('classroom-open-page');
+    const exportPending = $('classroom-export-pending');
     let candidates = [], lastRaw, lastChoices, statusMessage = '';
     function announce(message) { if (statusMessage !== message) { statusMessage = message; status.textContent = message; } }
+    if (exportPending) exportPending.addEventListener('click', () => {
+      let url;
+      try {
+        const backup = pendingBackup(host.localStorage);
+        if (!host.Blob || !host.URL || typeof host.URL.createObjectURL !== 'function') fail('此瀏覽器無法下載待提交備份；請保留遊戲 JSON 與提交原文並請老師協助。');
+        url = host.URL.createObjectURL(new host.Blob([backup.contents], { type: 'application/json;charset=utf-8' }));
+        const link = document.createElement('a'); link.href = url; link.download = backup.filename; link.click();
+        announce('已準備下載 ' + backup.count + ' 份待提交備份，請確認檔案已下載。原事件仍保留，尚未確認雲端收件；備份含姓名、學號與反思，請妥善保存勿公開。');
+      } catch (error) { announce(error.message); }
+      finally {
+        if (url) host.setTimeout(() => host.URL.revokeObjectURL(url), 1000);
+      }
+    });
     // Clearing previously consented data remains available even if the teacher disables collection.
     // No pending identity is read or displayed before a student explicitly uses this control.
     clear.disabled = false;
@@ -2639,7 +2663,7 @@ RPGWorld.portrait=portrait;RPGWorld.WIDTH=W;RPGWorld.HEIGHT=H;RPGWorld.TILE=T;re
     }, true);
   }
   return { FORMAT, OUTBOX_KEY, LIMIT, checkConfig, validateComplete, readCandidates, selectAttempt,
-    normalizeStudent, eventBody, prepareEvent, readOutbox, clearOutbox, newEventId, mount };
+    normalizeStudent, eventBody, prepareEvent, readOutbox, clearOutbox, pendingBackup, newEventId, mount };
 });
 </script></body>
 </html>

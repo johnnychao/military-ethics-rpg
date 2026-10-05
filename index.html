@@ -8,7 +8,13 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/rpg.css">
   <link rel="stylesheet" href="css/receipt.css">
+  <link rel="stylesheet" href="css/adventure.css">
+  <link rel="stylesheet" href="css/bonus.css">
   <script defer src="js/data/rpg_chapters.js"></script>
+  <script defer src="js/data/rpg_maps.js"></script>
+  <script defer src="js/data/rpg_bonus_content.js"></script>
+  <script defer src="js/engine/rpg_bonus.js"></script>
+  <script defer src="js/rpg_bonus_ui.js"></script>
   <script defer src="js/engine/rpg_engine.js"></script>
   <script defer src="js/engine/rpg_store.js"></script>
   <script defer src="js/engine/rpg_world.js"></script>
@@ -20,21 +26,22 @@
 <body>
   <a class="skip" href="#scene">跳到遊戲操作</a>
   <header class="masthead">
-    <a class="brand" href="#scene" aria-label="國醫倫理冒險"><span class="seal" aria-hidden="true">十</span><span><small>國防醫學大學 · 軍事倫理</small><strong>國醫倫理冒險</strong></span></a>
-    <nav class="header-actions" aria-label="遊戲選單"><span id="profile-name" class="profile-name">新進學員</span><button id="chapters-button">章節</button><button id="concepts-button">概念</button><button id="records-button">紀錄</button><button id="settings-button" aria-label="設定與操作說明">☰</button></nav>
+    <a class="brand" href="#scene" aria-label="國醫倫理冒險"><span class="seal" aria-hidden="true"></span><span><small>FIELD ACADEMY · 軍事倫理</small><strong>國醫倫理冒險</strong></span></a>
+    <nav class="header-actions" aria-label="遊戲選單"><span id="profile-name" class="profile-name">新進學員</span><button id="chapters-button">章節</button><button id="concepts-button">概念</button><button id="records-button">紀錄</button><button id="bonus-button">支線</button><button id="settings-button" aria-label="設定與操作說明">☰</button></nav>
   </header>
   <main class="adventure-layout">
     <aside class="chapter-panel" aria-label="十三章冒險"><div class="panel-heading"><span class="eyebrow">ADVENTURE LOG</span><h2>十三章 · 一段旅程</h2><p>依主線前進，也能直接選當週章節。</p></div><div class="progress-line"><span>已完成</span><strong id="completion-count">0 / 13</strong></div><nav id="chapter-list" class="chapter-list" aria-label="選擇章節"></nav><div class="chapter-foot">每一次決定，都留下理由。<br>完成紀錄由老師判讀，不自動登記成績。</div></aside>
     <section class="game-column" aria-label="像素冒險場景">
       <div class="chapter-banner"><span id="chapter-number">CHAPTER 01</span><h1 id="chapter-title">行動準則的起點</h1><span id="scene-badge" class="scene-badge">學院整備區</span><span id="phase-label">任務簡報</span></div>
-      <div class="scene-frame"><canvas id="scene" width="384" height="480" tabindex="0" aria-label="探索地圖。方向鍵或WASD移動，E互動。"></canvas><div id="scene-caption" class="scene-caption">一起出發，把理由帶進行動。</div></div>
+      <div class="scene-frame"><canvas id="scene" width="960" height="640" tabindex="0" aria-label="探索地圖。方向鍵或WASD移動，E互動。"></canvas><div id="scene-caption" class="scene-caption">一起出發，把理由帶進行動。</div></div>
+      <div class="field-hint">移動 <kbd>W A S D</kbd> ／ 互動 <kbd>E</kbd></div>
       <div id="resources" class="resources" aria-label="本章資源" hidden></div>
       <div class="music-bar" aria-label="背景音樂控制"><button id="music-button" type="button" aria-pressed="false">♫ 播放音樂</button><label for="music-volume">音量 <output id="music-volume-value" for="music-volume">20%</output></label><input id="music-volume" type="range" min="0" max="100" step="5" value="20" aria-label="背景音樂音量"><span id="music-status" class="music-status" role="status">操作後開始播放</span></div>
       <div class="field-controls" id="field-controls"><div class="dpad" aria-label="方向控制"><button data-move="up" class="up" aria-label="向上移動">▲</button><button data-move="left" class="left" aria-label="向左移動">◀</button><span class="center" aria-hidden="true">＋</span><button data-move="right" class="right" aria-label="向右移動">▶</button><button data-move="down" class="down" aria-label="向下移動">▼</button></div><div class="interaction-box"><span id="nearby-label">先閱讀任務簡報</span><button id="interact-button" class="gold-button">互動 <kbd>E</kbd></button><button id="hint-button" class="text-button">目前目標與路線</button></div></div>
       <div id="party-strip" class="party-strip" aria-label="四位隊員"></div>
       <p class="game-note">原創虛構情境 · 專業診療由督導負責 · 進度先留在此瀏覽器；當堂收件須經你同意</p>
     </section>
-    <aside class="task-panel" aria-label="任務與隊伍指令"><div class="panel-heading"><span class="eyebrow" id="task-eyebrow">MISSION BRIEF</span><h2 id="task-heading">任務簡報</h2></div><div id="task-body" class="task-body"></div><details class="journal-details" open><summary>行動日誌 <span id="journal-count">0</span></summary><ol id="journal" class="journal"></ol></details></aside>
+    <aside class="task-panel" aria-label="任務與隊伍指令"><div class="panel-heading"><span class="eyebrow" id="task-eyebrow">MISSION BRIEF</span><h2 id="task-heading">任務簡報</h2></div><div id="task-body" class="task-body"></div><details class="journal-details"><summary>行動日誌 <span id="journal-count">0</span></summary><ol id="journal" class="journal"></ol></details></aside>
   </main>
   <footer class="footer"><span>探索 · 協作 · 決策 · 回顧</span><button id="help-button" class="text-button">操作說明</button><span id="save-status">自動保存每一次有效行動</span></footer>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
@@ -69,6 +76,8 @@
       <button id="classroom-copy" type="button">複製提交資料</button>
       <a id="classroom-open-page" class="classroom-open-page" target="_blank" rel="noopener noreferrer">直接開啟 Google 收件頁</a>
     </section>
+    <button id="classroom-export-pending" type="button">匯出待提交備份</button>
+    <p class="classroom-privacy">待提交備份可能含姓名、學號、行動與反思，請妥善保存，不要公開分享。匯出不代表老師已收件，也不會刪除待提交資料。</p>
     <button id="classroom-clear" type="button" disabled>清除此裝置的姓名、學號與待提交資料</button>
   </section>
   <input id="import-file" type="file" accept=".json,application/json" hidden>

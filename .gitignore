@@ -11,3 +11,6 @@ node_modules/
 *.xlsx
 *.log
 
+
+# Local QA screenshots, generated test saves and promo frame sequences
+qa/
