@@ -109,3 +109,4 @@
  .battle-header .battle-title p{font-size:8px;line-height:1.5;margin:0}
 }
 @media(max-width:360px){.site-header:not(.battle-header){flex-wrap:wrap}.site-header:not(.battle-header) .brand{flex:1 0 100%}.site-header:not(.battle-header) .header-actions{margin-left:auto}.battle-header{grid-template-areas:"brand brand" "mission mission" "tools tools"}.battle-header .brand{justify-self:start}}
+.formal-record-links{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.formal-record-links .legacy-entry{width:auto}.formal-record-links>a:not(.legacy-entry){display:inline-flex;align-items:center;min-height:44px;margin-top:14px;padding:8px 2px;font-size:12px;font-weight:700}
