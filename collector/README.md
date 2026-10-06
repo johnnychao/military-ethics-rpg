@@ -1,3 +1,5 @@
+> 歷史／舊版範圍說明（2026-10-06）：本目錄保留原 u03 當堂手動收件程式及其部署紀錄。正式首頁現已啟用獨立 v2 戰棋班級同步，Google 完整正式後端為不可變 v5，由教師私人原始碼包維護；本目錄的生成檔不含該完整後端，不可直接覆蓋正式 Google 專案。下文的「尚未啟用」「第 2 版」均指本舊收件器，不代表目前正式戰棋狀態。新版範圍請讀 [主 README](../README.md) 與 [正式版說明](../TACTICAL_FORMAL_RELEASE_NOTES.md)。
+
 # 私人收件器：權限範圍與部署驗收
 
 2026-10-05（台灣）已完成同 app 私人建表、drive.file-only consent、教師登入的虛構資料真實收件與拒收驗證；正式收件網址已更新至第 2 版，主入口 `enabled:true`，`/preview/u03/` 仍關閉收件。工作表只給教師本人；Web App 為 `USER_DEPLOYING`＋`ANYONE`，未登入 GET 會導向 Google 登入。非教師帳戶與實際學生裝置未另行驗收。GitHub commit／CI／Pages 的最新狀態以部署驗證記錄為準；本機產生 `Code.gs` 本身不會呼叫 Google。
