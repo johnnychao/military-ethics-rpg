@@ -31,7 +31,7 @@
   <script defer src="js/receipt_client.js"></script>
 </head>
 <body>
-<aside id="classroom-auto-sync" class="classroom-receipt" aria-label="舊版同步說明"><h2>舊版紀錄與原當堂收件</h2><p>此備援頁保留舊版遊戲、原有本機紀錄與當堂手動收件。為避免舊版多分頁綁定風險，本頁不再啟動全班自動同步；已收件歷史與帳號權限不變。</p><p><a href="../">前往國醫軍事倫理冒險新版，登入並同意班級同步</a>。當堂出席仍依老師指定流程核實，不以戰術勝敗自動判定。</p></aside>
+<aside id="classroom-auto-sync" class="classroom-receipt" aria-label="舊版同步說明"><h2>舊版紀錄與原當堂收件</h2><p>此備援頁保留舊版遊戲、原有本機紀錄與當堂手動收件。為避免舊版多分頁綁定風險，本頁不再啟動全班自動同步；已收件歷史與帳號權限不變。</p><p><a href="../">前往國醫軍事倫理冒險新版，登入並同意班級同步</a>。當堂出席仍依老師指定流程核實，不以戰術勝敗自動判定。</p><button type="button" id="legacy-queue-export">下載舊待同步備份</button><p id="legacy-queue-export-status" role="status">僅下載此裝置的原始待同步文字，不登入、不傳送、不改動資料，也不代表已收件。</p></aside>
   <a class="skip" href="#scene">跳到遊戲操作</a>
   <header class="masthead">
     <a class="brand" href="#scene" aria-label="國醫軍事倫理冒險"><span class="seal" aria-hidden="true"></span><span><small>FIELD ACADEMY · 軍事倫理</small><strong>國醫軍事倫理冒險</strong></span></a>
@@ -90,5 +90,6 @@
   </section>
   <input id="import-file" type="file" accept=".json,application/json" hidden>
   <noscript><p>此遊戲需要啟用瀏覽器 JavaScript。請使用支援 JavaScript 的瀏覽器開啟老師提供的遊戲網址；設備無法使用時請告知老師。</p></noscript>
+<script src="js/legacy_queue_export.js" defer></script>
 </body>
 </html>
