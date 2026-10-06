@@ -3,13 +3,15 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const root = path.resolve(__dirname, '..');
 const output = path.resolve(root, 'site');
 if (path.dirname(output) !== root || path.basename(output) !== 'site') throw new Error('Unsafe build directory');
-const PUBLIC_FILES = [
+const PUBLIC_FILES = [...new Set([
   ...require('./build-tactical-preview').publicFiles(),
+  ...require('./build-tactical-formal').formalPublicFiles(),
+  ...require('./build-tactical-formal').legacyPublicFiles(),
   'preview/avatar-audio/index.html','css/avatar.css','js/engine/rpg_avatar.js','js/rpg_avatar_ui.js','js/data/rpg_music.js','index.html','preview/u03/index.html','privacy.html','favicon.svg','css/rpg.css','css/receipt.css','css/adventure.css','css/bonus.css','assets/rpg/training-base.webp','assets/rpg/portrait-cadet.webp','assets/rpg/portrait-liaison.webp','assets/rpg/portrait-logistics.webp','assets/rpg/portrait-doctor.webp','assets/audio/morning-base.mp3','assets/audio/menu.mp3','assets/audio/confirm.mp3','assets/audio/clue.mp3','js/rpg_app.js','js/rpg_bonus_ui.js','js/data/rpg_maps.js','js/data/rpg_bonus_content.js','js/engine/rpg_bonus.js',
   'js/classroom_sync_config.js','js/classroom_sync_client.js','js/classroom_sync_boot.js',
   'js/classroom_config.js','js/receipt_client.js','js/data/rpg_chapters.js',
   'js/engine/rpg_engine.js','js/engine/rpg_store.js','js/engine/rpg_world.js','js/engine/rpg_audio.js'
-];
+])];
 function build() {
   fs.mkdirSync(output, {recursive:true});
   const allowed = new Set([...PUBLIC_FILES, '.nojekyll', 'version.json']);
@@ -23,7 +25,7 @@ function build() {
   }
   inspect(output);
   const hashes = {};
-  for (const rel of PUBLIC_FILES) {
+  for (const rel of new Set(PUBLIC_FILES)) {
     const source = path.join(root, rel), target = path.join(output, rel);
     if (!fs.statSync(source).isFile() || fs.lstatSync(source).isSymbolicLink()) throw new Error('Invalid public input: ' + rel);
     const bytes = fs.readFileSync(source);

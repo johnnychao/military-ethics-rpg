@@ -7,7 +7,7 @@
   else root.TacticalStore=factory(root.TacticalEngine,root.RPGAvatar,root.RPGBonus);
 })(typeof globalThis!=='undefined'?globalThis:this,function(DefaultEngine,Avatar,Bonus){
 'use strict';
-const KEY='ndmu-ethics-tactical-preview:v2',FORMAT='ndmu-ethics-tactical-records',VERSION=2;
+const KEY='ndmu-ethics-tactical-preview:v2',FORMAL_KEY='ndmu-ethics-tactical:v2',FORMAT='ndmu-ethics-tactical-records',VERSION=2;
 const SCHEMA_REVISION=2;
 const ENGINE_VERSION='2.0.0',CONTENT_VERSION='tactical-2026-10-06-v1';
 const MAX_BYTES=6*1024*1024,MAX_ATTEMPTS=130,LEGACY_KEY='ndmu-ethics-rpg:v1';
@@ -63,6 +63,7 @@ function normalizeProfile(input){
 }
 class TacticalStore{
  constructor(options={}){
+  this.key=options.key||KEY;if(![KEY,FORMAL_KEY].includes(this.key))throw new Error('不允許的戰棋儲存空間。');
   this.Engine=options.Engine||DefaultEngine;
   if(!this.Engine&&typeof require==='function'){try{this.Engine=require('./tactical_engine');}catch(_){}}
   this.storage=options.storage;this.onWarning=typeof options.onWarning==='function'?options.onWarning:()=>{};
@@ -71,9 +72,9 @@ class TacticalStore{
   this.persisted=false;this.damagedRaw=null;this.recoveryRaw=null;this.baseRaw=null;this.warningMessages=new Set();
   this.validatedStates=new Map();this.lockState='unsupported';this.releaseWriteLock=null;
   const locks=options.lockManager||(typeof window!=='undefined'&&typeof navigator!=='undefined'?navigator.locks:null);
-  if(locks&&typeof locks.request==='function'){this.lockState='pending';try{Promise.resolve(locks.request(KEY+':writer',{mode:'exclusive',ifAvailable:true},lock=>{this.lockState=lock?'owned':'unavailable';if(!lock){this.warn('新版遊戲已在另一個分頁開啟，本頁只暫存記憶體。請下載備份，或關閉另一頁後重新整理。');return;}return new Promise(resolve=>{this.releaseWriteLock=resolve;});})).catch(()=>{this.lockState='unavailable';this.warn('無法確認紀錄寫入鎖，本頁只保留記憶體，請下載備份。');});}catch(_){this.lockState='unavailable';}}
+  if(locks&&typeof locks.request==='function'){this.lockState='pending';try{Promise.resolve(locks.request(this.key+':writer',{mode:'exclusive',ifAvailable:true},lock=>{this.lockState=lock?'owned':'unavailable';if(!lock){this.warn('新版遊戲已在另一個分頁開啟，本頁只暫存記憶體。請下載備份，或關閉另一頁後重新整理。');return;}return new Promise(resolve=>{this.releaseWriteLock=resolve;});})).catch(()=>{this.lockState='unavailable';this.warn('無法確認紀錄寫入鎖，本頁只保留記憶體，請下載備份。');});}catch(_){this.lockState='unavailable';}}
   this.data=this.fresh();
-  try{const raw=this.storage?.getItem(KEY)||null;this.baseRaw=raw;if(raw){this.damagedRaw=raw;const parsed=this.migrate(JSON.parse(raw));this.validate(parsed);this.data=parsed;this.damagedRaw=null;this.persisted=true;}}
+  try{const raw=this.storage?.getItem(this.key)||null;this.baseRaw=raw;if(raw){this.damagedRaw=raw;const parsed=this.migrate(JSON.parse(raw));this.validate(parsed);this.data=parsed;this.damagedRaw=null;this.persisted=true;}}
   catch(error){this.warn('原有新版紀錄無法讀取，已保留原文，不會覆寫。請先下載備份。'+error.message);}
  }
  fresh(){const t=this.clock();return {format:FORMAT,version:VERSION,schemaRevision:SCHEMA_REVISION,engineVersion:ENGINE_VERSION,contentVersion:CONTENT_VERSION,profileId:this.makeId(),createdAt:t,updatedAt:t,clockSource:'device-untrusted',profile:normalizeProfile({}),session:null,attempts:[],bonus:Bonus?Bonus.createState():null};}
@@ -115,7 +116,7 @@ class TacticalStore{
   try{next.updatedAt=this.clock();this.validate(next);const raw=JSON.stringify(next);this.data=next;
    if(['pending','unavailable'].includes(this.lockState)){this.persisted=false;this.warn('本頁尚未取得紀錄寫入權，操作只留在記憶體；請下載備份並保留原分頁。');return {ok:true,persisted:false,conflict:true,message:'本頁未取得寫入權，請下載紀錄備份。'};}
    if(this.damagedRaw&&!options.replaceDamaged){this.persisted=false;this.warn('新的操作暫留記憶體；損壞的原存檔仍保留，請立即匯出新版備份。');return {ok:true,persisted:false,message:'操作已在記憶體保留，尚未寫入瀏覽器。'};}
-   try{if(!this.storage)throw new Error('無可用儲存空間');const current=this.storage.getItem(KEY)||null;if(current!==this.baseRaw&&!options.replaceExisting){this.persisted=false;this.warn('另一個分頁已更新紀錄。為避免覆蓋，新操作只留在本頁記憶體；請下載備份後重新整理。');return {ok:true,persisted:false,conflict:true,message:'偵測到其他分頁的紀錄，未覆寫；請下載本頁備份。'};}this.storage.setItem(KEY,raw);if(this.storage.getItem(KEY)!==raw)throw new Error('寫入後核對不一致');this.baseRaw=raw;this.persisted=true;if(options.replaceDamaged){this.recoveryRaw=this.damagedRaw||this.recoveryRaw;this.damagedRaw=null;}return {ok:true,persisted:true,message:'已在此瀏覽器保存。'};}
+   try{if(!this.storage)throw new Error('無可用儲存空間');const current=this.storage.getItem(this.key)||null;if(current!==this.baseRaw&&!options.replaceExisting){this.persisted=false;this.warn('另一個分頁已更新紀錄。為避免覆蓋，新操作只留在本頁記憶體；請下載備份後重新整理。');return {ok:true,persisted:false,conflict:true,message:'偵測到其他分頁的紀錄，未覆寫；請下載本頁備份。'};}this.storage.setItem(this.key,raw);if(this.storage.getItem(this.key)!==raw)throw new Error('寫入後核對不一致');this.baseRaw=raw;this.persisted=true;if(options.replaceDamaged){this.recoveryRaw=this.damagedRaw||this.recoveryRaw;this.damagedRaw=null;}return {ok:true,persisted:true,message:'已在此瀏覽器保存。'};}
    catch(error){this.persisted=false;this.warn('儲存失敗，操作暫留記憶體，請下載紀錄備份。'+error.message);return {ok:true,persisted:false,message:'尚未確認儲存，請下載備份。'};}
   }catch(error){return {ok:false,persisted:this.persisted,message:error.message};}
  }
@@ -176,6 +177,6 @@ class TacticalStore{
   }catch(_){return {ok:true,data:{exists:true,count:null,readable:false}};}
  }
 }
-Object.assign(TacticalStore,{KEY,FORMAT,VERSION,SCHEMA_REVISION,ENGINE_VERSION,CONTENT_VERSION,MAX_BYTES,MAX_ATTEMPTS,SETTINGS:Object.freeze(SETTINGS)});
+Object.assign(TacticalStore,{KEY,FORMAL_KEY,FORMAT,VERSION,SCHEMA_REVISION,ENGINE_VERSION,CONTENT_VERSION,MAX_BYTES,MAX_ATTEMPTS,SETTINGS:Object.freeze(SETTINGS)});
 return TacticalStore;
 });

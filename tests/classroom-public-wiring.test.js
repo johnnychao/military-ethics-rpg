@@ -12,12 +12,11 @@ test('disabled boot makes no DOM, storage, network or game-hook calls',()=>{
  const fail=()=>{throw new Error('MUST_NOT_TOUCH');};
  vm.runInNewContext(script,{ClassroomSyncConfig:{enabled:false},EthicsClassroomClient:{mountPublic:fail},document:{createElement:fail},localStorage:{getItem:fail}});
 });
-test('public sync hooks install after store definitions but before app construction',()=>{
- const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
- const store=html.indexOf('src="js/engine/rpg_store.js"'),client=html.indexOf('src="js/classroom_sync_client.js"'),boot=html.indexOf('src="js/classroom_sync_boot.js"'),app=html.indexOf('src="js/rpg_app.js"');
- assert.ok(store>0&&store<client&&client<boot&&boot<app);
- const {PUBLIC_FILES}=require('../scripts/build-site.js');
- ['js/classroom_sync_config.js','js/classroom_sync_client.js','js/classroom_sync_boot.js'].forEach(x=>assert.ok(PUBLIC_FILES.includes(x)));
+test('legacy safety fallback disables automatic class sync while keeping original manual collection',()=>{
+ const html=fs.readFileSync(path.join(root,'legacy-v1/index.html'),'utf8');
+ assert.ok(!/<script[^>]+src="js\/classroom_sync_(config|client|boot)\.js"/.test(html));
+ assert.match(html,/src="js\/receipt_client\.js"/);assert.match(html,/src="js\/classroom_config\.js"/);
+ assert.match(html,/本頁不再啟動全班自動同步/);assert.match(html,/已收件歷史與帳號權限不變/);
 });
 
 test('both visual previews disable class sync and isolate the persistent sync queue',()=>{

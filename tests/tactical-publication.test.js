@@ -28,10 +28,10 @@ test('asset manifest has no guessed remote URLs and every declared asset exists'
 test('public tactical programs cannot send records, load external code or execute user strings',()=>{
  for(const p of Builder.CORE.filter(p=>p.startsWith('js/tactical/'))){if(!fs.existsSync(path.join(root,p)))continue;const code=source(p);assert.ok(!/\b(?:eval|Function)\s*\(/.test(code),p);assert.ok(!/\b(?:fetch|XMLHttpRequest|WebSocket|sendBeacon)\s*\(/.test(code),p);assert.ok(!/(?:https:\/\/script\.google|AKfy[a-zA-Z0-9_-]{20,})/.test(code),p);}
 });
-test('legacy entry and production identity/collection flags remain byte-identical to the reviewed baseline',()=>{
+test('legacy entry has only the approved automatic-sync safety removal; identity/manual collection remain byte-identical',()=>{
  const baseline=path.resolve(root,'../final_release_restore/public-source/military-ethics-rpg');
  if(!fs.existsSync(baseline))return;
- for(const p of ['index.html','js/rpg_app.js','js/engine/rpg_store.js','js/engine/rpg_engine.js','js/classroom_config.js','js/classroom_sync_config.js','js/classroom_sync_boot.js','js/classroom_sync_client.js','js/receipt_client.js'])assert.deepEqual(fs.readFileSync(path.join(root,p)),fs.readFileSync(path.join(baseline,p)),p);
+ for(const p of ['index.html','js/rpg_app.js','js/engine/rpg_store.js','js/engine/rpg_engine.js','js/classroom_config.js','js/classroom_sync_config.js','js/classroom_sync_boot.js','js/classroom_sync_client.js','js/receipt_client.js'])assert.deepEqual(fs.readFileSync(path.join(root,p==='index.html'?'legacy-v1/index.html':p)),p==='index.html'?Buffer.from(require('../scripts/build-tactical-formal').legacyEntryFor(fs.readFileSync(path.join(baseline,p),'utf8'))):fs.readFileSync(path.join(baseline,p)),p);
 });
 
 test('layout harness only uses fixed ordinary iframe sizes and cannot change browser or game state',()=>{

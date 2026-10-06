@@ -51,7 +51,7 @@ function fixture({ blockAvatarSave = false } = {}) {
     all() { return [this, ...this.children.flatMap(node => node?.all?.() || [])]; }
   }
   const nodes = new Map();
-  const html = fs.readFileSync('index.html', 'utf8');
+  const html = fs.readFileSync('legacy-v1/index.html', 'utf8');
   for (const match of html.matchAll(/<([\w-]+)[^>]* id="([^"]+)"[^>]*>/g)) {
     const node = new Element(match[1]); node.id = match[2]; nodes.set(node.id, node);
   }

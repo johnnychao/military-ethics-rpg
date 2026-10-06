@@ -1,0 +1,2 @@
+/* Public routing only; no identity, roster, credential or Sheet ID. */
+(function(root){'use strict';root.TacticalClassroomConfig=Object.freeze({"enabled":true,"endpoint":"https://script.google.com/macros/s/AKfycbxXZwRVoQYSZNz_DkX5mDEbw2uO7gqsbxZuegByuPt9tOdnYaGcUIZCM-5jQRtk2Wlt/exec","bridgeOrigin":"https://n-t47dac2m5h2bd33ymboaztfpl5kw5ksd2ps5ekq-0lu-script.googleusercontent.com"});})(typeof globalThis!=='undefined'?globalThis:this);

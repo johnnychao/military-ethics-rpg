@@ -181,7 +181,7 @@ test('event IDs require cryptographic UUID v4 generation', () => {
   const fallback = Client.newEventId({ getRandomValues: array => { array.fill(0); return array; } }); assert.equal(fallback, firstId.replace(/1$/, '0'));
 });
 test('prepared payload goes to a direct GET page via copy and paste, without cross-origin submission', () => {
-  const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '../legacy-v1/index.html'), 'utf8');
   const script = fs.readFileSync(path.join(__dirname, '../js/receipt_client.js'), 'utf8');
   assert.match(html, /id="classroom-form" autocomplete="off"/);
   assert.match(html, /id="classroom-fields" disabled/); assert.match(html, /id="classroom-prepared-payload" readonly/);

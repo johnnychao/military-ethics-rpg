@@ -1,0 +1,29 @@
+/* Cosmetic character studio, deliberately separate from educational game state. */
+#modal[data-kind="welcome"],#modal[data-kind="avatar"]{width:min(980px,calc(100vw - 32px));max-width:980px;}
+.avatar-studio{display:grid;grid-template-columns:minmax(190px,.72fr) minmax(0,1.5fr);gap:26px;margin:20px 0 24px;align-items:start;}
+.avatar-stage{position:sticky;top:0;background:linear-gradient(145deg,#e8e7cf,#c7d9c4);border:1px solid #b5c4a7;border-radius:16px;text-align:center;padding:22px 14px 18px;overflow:hidden;}
+.avatar-stage::before{content:"";position:absolute;left:18%;right:18%;top:245px;height:30px;background:#8dab8055;border-radius:50%;}
+.avatar-stage .eyebrow{color:#487161;font-size:.67rem;letter-spacing:.18em;}
+.avatar-stage h3{margin:8px 0 0;font-size:1.05rem;color:#254e46;}
+.avatar-stage canvas{position:relative;width:min(100%,240px);height:auto;image-rendering:pixelated;filter:drop-shadow(0 6px 0 #52715a1c);}
+.avatar-summary{font-size:.75rem;line-height:1.7;color:#3d6055;max-width:220px;margin:8px auto;}
+.avatar-stage-note{border-top:1px solid #7f9e7f55;padding-top:13px;font-size:.78rem;line-height:1.7;color:#3c6556;}
+.avatar-controls h3{color:#f5e9c6;font-size:1.05rem;margin:0 0 12px;}
+.avatar-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.avatar-preset{display:flex;align-items:center;flex-direction:column;gap:3px;min-width:0;padding:9px 4px 10px;background:#faf3dc;border:2px solid transparent;border-radius:10px;color:#294b42;min-height:132px;}
+.avatar-preset:not(:disabled):hover{background:#e5edda;color:#294b42;}
+.avatar-preset[aria-pressed="true"]:not(:disabled):hover{background:#d9e8d5;color:#294b42;}
+.avatar-preset[aria-pressed="true"]{background:#d9e8d5;border-color:#2e7164;box-shadow:0 0 0 2px #d4b16444;}
+.avatar-preset canvas{width:58px;height:68px;image-rendering:pixelated;}
+.avatar-preset strong{font-size:.78rem;}.avatar-preset small{font-size:.63rem;line-height:1.4;color:#657264;}
+.avatar-help{font-size:.77rem;line-height:1.75;color:#dce6cd;margin:12px 0;}
+.avatar-fields{border:0;border-top:1px solid #88a38b;padding:12px 0 5px;margin:16px 0 0;min-width:0;}
+.avatar-fields legend{font-size:.79rem;font-weight:700;letter-spacing:.06em;padding-right:12px;color:#f8dfaa;}
+.avatar-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 13px;}
+.avatar-field{min-width:0;}.avatar-field label{display:block;font-size:.76rem;color:#dce6cd;margin-bottom:5px;}
+.avatar-field select{width:100%;min-height:44px;margin:0;padding:8px 10px;border:1px solid #b8bda4;border-radius:7px;background:#fffbed;color:#29473f;font:inherit;font-size:.85rem;}
+.avatar-reset{margin-top:14px;min-height:44px;}.avatar-identity{margin:15px 0 18px;border-top:1px solid #d3ccb0;padding-top:12px;}.avatar-identity input{max-width:100%;}
+.avatar-actions{display:flex;gap:12px;align-items:center;margin-top:16px;}.avatar-actions .gold-button{flex:1;}
+.avatar-preset:focus-visible,.avatar-field select:focus-visible,.avatar-reset:focus-visible{outline:3px solid #ffda83;outline-offset:3px;}
+@media(max-width:680px){#modal[data-kind="welcome"],#modal[data-kind="avatar"]{width:calc(100vw - 20px);padding:16px;}.avatar-studio{grid-template-columns:1fr;gap:18px;margin-top:15px;}.avatar-stage{position:relative;display:grid;grid-template-columns:130px 1fr;grid-template-rows:auto auto 1fr;padding:14px 12px;text-align:left;min-height:164px;align-items:center;column-gap:10px;}.avatar-stage canvas{grid-column:1;grid-row:1/5;width:130px;}.avatar-stage .eyebrow,.avatar-stage h3,.avatar-summary,.avatar-stage-note{grid-column:2;}.avatar-stage::before{display:none;}.avatar-stage h3{font-size:.95rem;margin:5px 0;}.avatar-summary{font-size:.66rem;margin:5px 0;line-height:1.55;}.avatar-stage-note{display:none;}.avatar-presets{gap:5px;}.avatar-preset{min-height:118px;}.avatar-preset strong{font-size:.7rem;}.avatar-preset small{font-size:.58rem;}.avatar-field select{font-size:16px;}.avatar-fields-grid{gap:12px;}.avatar-actions{flex-wrap:wrap;}.avatar-actions button{min-height:44px;}}
+@media(prefers-reduced-motion:reduce){.avatar-preset{transition:none;}}
