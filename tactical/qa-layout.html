@@ -18,7 +18,20 @@
 <button type="button" data-preset="phone" aria-pressed="true">手機版面 390 × 844</button>
 <button type="button" data-preset="small" aria-pressed="false">窄版 320 × 568</button>
 <button type="button" data-preset="tablet" aria-pressed="false">平板版面 768 × 1024</button>
-<button type="button" data-preset="laptop" aria-pressed="false">筆電版面 1165 × 757</button>
+<button type="button" data-preset="laptop" aria-pressed="false">窄筆電 1165 × 757</button>
+<button type="button" data-preset="phone361" aria-pressed="false">窄手機 361 × 780</button>
+<button type="button" data-preset="landscape667" aria-pressed="false">橫向手機 667 × 375</button>
+<button type="button" data-preset="tablet681" aria-pressed="false">臨界平板 681 × 800</button>
+<button type="button" data-preset="phonewide" aria-pressed="false">手機 430 × 932</button>
+<button type="button" data-preset="landscape" aria-pressed="false">橫向手機 568 × 320</button>
+<button type="button" data-preset="landscapewide" aria-pressed="false">橫向手機 844 × 390</button>
+<button type="button" data-preset="tablet820" aria-pressed="false">平板 820 × 1180</button>
+<button type="button" data-preset="tablet1024" aria-pressed="false">橫向平板 1024 × 768</button>
+<button type="button" data-preset="laptop1280" aria-pressed="false">筆電 1280 × 720</button>
+<button type="button" data-preset="laptop1366" aria-pressed="false">筆電 1366 × 768</button>
+<button type="button" data-preset="laptop1440" aria-pressed="false">筆電 1440 × 900</button>
+<button type="button" data-preset="desktop" aria-pressed="false">桌機 1920 × 1080</button>
+<button type="button" data-preset="short" aria-pressed="false">短視窗 1224 × 580</button>
 </nav>
 <p id="dimensions" role="status" aria-live="polite">目前視框：390 × 844 CSS 像素</p>
 <a href="index.html">直接開啟正常預覽</a>
@@ -26,7 +39,7 @@
 <main><div class="frame-holder"><iframe id="game-frame" title="晨光行動隔離預覽版面" src="index.html" width="390" height="844"></iframe></div></main>
 <footer>這個測試頁不變更瀏覽器安全設定，不使用開發人員工具或遠端除錯介面。</footer>
 <script>
-(function(){'use strict';const presets={phone:[390,844],small:[320,568],tablet:[768,1024],laptop:[1165,757]},frame=document.getElementById('game-frame'),label=document.getElementById('dimensions');document.querySelectorAll('[data-preset]').forEach(function(button){button.addEventListener('click',function(){const size=presets[button.dataset.preset];if(!size)return;frame.style.width=size[0]+'px';frame.style.height=size[1]+'px';frame.width=size[0];frame.height=size[1];document.querySelectorAll('[data-preset]').forEach(function(b){b.setAttribute('aria-pressed',String(b===button));});label.textContent='目前視框：'+size[0]+' × '+size[1]+' CSS 像素';});});})();
+(function(){'use strict';const presets={phone:[390,844],small:[320,568],tablet:[768,1024],laptop:[1165,757],phone361:[361,780],landscape667:[667,375],tablet681:[681,800],phonewide:[430,932],landscape:[568,320],landscapewide:[844,390],tablet820:[820,1180],tablet1024:[1024,768],laptop1280:[1280,720],laptop1366:[1366,768],laptop1440:[1440,900],desktop:[1920,1080],short:[1224,580]},frame=document.getElementById('game-frame'),label=document.getElementById('dimensions');document.querySelectorAll('[data-preset]').forEach(function(button){button.addEventListener('click',function(){const size=presets[button.dataset.preset];if(!size)return;frame.style.width=size[0]+'px';frame.style.height=size[1]+'px';frame.width=size[0];frame.height=size[1];document.querySelectorAll('[data-preset]').forEach(function(b){b.setAttribute('aria-pressed',String(b===button));});label.textContent='目前視框：'+size[0]+' × '+size[1]+' CSS 像素';});});})();
 </script>
 </body>
 </html>
