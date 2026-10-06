@@ -9,6 +9,17 @@
   const STORAGE_KEY = 'ndmu-ethics-tactical-classroom:queue:v2';
   const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
   const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$/;
+  // Conservative pacing stays below 10 submissions / 600 seconds, including retries.
+  const SEND_INTERVAL = 65000, RATE_WINDOW = 600000, HEARTBEAT_TTL = 10000;
+  const SAFE_ERRORS = new Set(['RETRY_LATER_KEEP_EVENT','CLASSROOM_BUSY','TACTICAL_DISABLED','RATE_LIMIT_PERSON','RATE_LIMIT_CLASS','RATE_LIMIT','COLLECTOR_BUSY','BUSY','SESSION_EXPIRED','AUTH_REQUIRED','ACCESS_DENIED','AUTH_NOT_CONFIGURED','CLASSROOM_DISABLED','SESSION_CHANGED','BRIDGE_CLOSED','RPC_TIMEOUT','RECEIPT_INVALID','REQUEST_INVALID','BRIDGE_REQUEST_FAILED','BRIDGE_UPGRADE_REQUIRED']);
+  function safeErrorCode(error) {
+    const value = typeof error === 'string' ? error : error && (error.code || error.message);
+    const code = typeof value === 'string' ? value.replace(/^(?:Error: |Exception: )+/, '') : '';
+    return SAFE_ERRORS.has(code) ? code : 'BRIDGE_REQUEST_FAILED';
+  }
+  function errorMessage(code) {
+    return /^(SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED|AUTH_NOT_CONFIGURED|CLASSROOM_DISABLED|TACTICAL_DISABLED|SESSION_CHANGED)$/.test(code) ? '登入或班級連線已失效；紀錄保留，請重新連線並再次同意。' : /^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code) ? '伺服器暫時限制傳送次數；紀錄已保留，等待冷卻後自動重試。' : /^(COLLECTOR_BUSY|CLASSROOM_BUSY|BUSY)$/.test(code) ? '收件服務忙碌；紀錄已保留，稍後自動重試。' : '尚未取得可核對回執，保留原事件編號重送。';
+  }
   const clone = value => JSON.parse(JSON.stringify(value));
   const plain = value => !!value && typeof value === 'object' && !Array.isArray(value);
   const canonical = value => Array.isArray(value) ? value.map(canonical) : plain(value) ? Object.fromEntries(Object.keys(value).sort().map(k => [k, canonical(value[k])])) : value;
@@ -46,20 +57,39 @@
     let enabled = options.enabled === true, consent = false, session = null, login = null, preparing = false, context = null;
     let entries = [], owners = new Map(), durableOwners = new Map(), damagedRaw = null, storageWarning = '', message = enabled ? '請先登入 Google，選擇班級並同意同步。' : '老師尚未啟用班級同步；遊戲可先在本機進行。';
     let sending = false, generation = 0, nextGlobalAt = 0, currentStore = null, bonus = null;
-    let profileKey = null, bonusCaptures = new Map();
+    let profileKey = null, bonusCaptures = new Map(), bridgeConnected = false, gameConsent = false;
+    const subscribers = new Set(), createdHere = new Set();
+    function jitter(max) { const n = options.random ? options.random() : Math.random(); return Math.floor(Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0)) * max); }
     const Engine = options.Engine, Bonus = options.Bonus;
     function profile() { return currentStore && currentStore.data && currentStore.data.profileId || null; }
     function storeReady(){return !!(currentStore&&currentStore.key==='ndmu-ethics-tactical:v2'&&currentStore.persisted&&currentStore.lockState==='owned');}
     function profileConflict() { return !!(context && profile() && owners.has(profile()) && owners.get(profile()) !== context.queueScope); }
     function state() {
-      if (session && session.expiresAt <= now()) { resetIdentity(); message = '登入已到期，請重新登入同一帳號。'; }
-      return { enabled, consent, authenticated: !!session && session.expiresAt > now(), loginPending: !!login || preparing,
+      if (session && session.expiresAt <= now()) { resetIdentity(); message = '登入已到期，請重新登入同一帳號並再次同意。'; }
+      const currentEntries = entries.filter(e => context && e.classId === context.classId && e.queueScope === context.queueScope && e.lineage.startsWith(profile() + ':'));
+      const pending = currentEntries.filter(e => e.status !== 'synced');
+      const nextRetryAt = pending.length ? Math.max(nextGlobalAt, Math.min(...pending.map(e => e.nextTryAt))) : null;
+      const retryAfterMs = nextRetryAt === null ? 0 : Math.max(0, nextRetryAt - now());
+      const authenticated = !!session && session.expiresAt > now();
+      const syncState = !enabled ? 'disabled' : !authenticated || !context || !local && !bridgeConnected ? 'disconnected' : !consent ? 'consent_required' : sending ? 'sending' : pending.length ? retryAfterMs ? 'waiting' : 'pending' : currentEntries.some(e => e.status === 'synced') ? 'synced' : 'idle';
+      return { enabled, consent, authenticated, loginPending: !!login || preparing, sending, nextRetryAt, retryAfterMs, syncState,
+        bridgeConnected: local ? authenticated && !!context : bridgeConnected, gameConsent,
         classId: context && context.classId, classes: session ? clone(session.classes || []) : [], profileConflict: profileConflict(),
         pending: entries.filter(e => e.status !== 'synced').length, synced: entries.filter(e => e.status === 'synced').length,
         foreignPending: entries.filter(e => e.status !== 'synced' && (!context || e.queueScope !== context.queueScope || e.classId !== context.classId)).length,
-        storageWarning, message, entries: entries.map(e => ({ eventId: e.eventId, chapterId: JSON.parse(e.raw).attempt.chapterId, status: e.status, error: e.error || '', receipt: e.receipt ? clone(e.receipt) : null })) };
+        storageWarning, message, entries: entries.map(e => { const a = JSON.parse(e.raw).attempt; return { eventId: e.eventId, attemptId: a.attemptId, chapterId: a.chapterId, closure: a.closure,
+          currentProfile: e.lineage.startsWith(profile() + ':'), currentScope: !!context && e.queueScope === context.queueScope && e.classId === context.classId,
+          status: e.status, tries: e.tries, nextTryAt: e.nextTryAt, error: e.error ? errorMessage(safeErrorCode(e.error)) : '', errorCode: e.error ? safeErrorCode(e.error) : '', receipt: e.receipt ? clone(e.receipt) : null }; }) };
     }
-    function emit() { try { notify(state()); } catch (_) {} }
+    function emit() { const value = state(); try { notify(value); } catch (_) {} subscribers.forEach(fn => { try { fn(value); } catch (_) {} }); }
+    function subscribe(fn) { if (typeof fn !== 'function') throw new Error('LISTENER_REQUIRED'); subscribers.add(fn); return () => subscribers.delete(fn); }
+    function markBridgeConnection(connected, accepted) {
+      const next = connected === true, acceptedConsent = next && accepted === true;
+      if (bridgeConnected === next && gameConsent === acceptedConsent) return;
+      bridgeConnected = next; gameConsent = acceptedConsent;
+      if (!local) message = !next ? '尚未連接原遊戲分頁；請從遊戲內開啟 Google 同步分頁。' : !consent ? '已確認原遊戲分頁連線；請完成本頁登入、選班及同步同意。' : !gameConsent ? '已確認原遊戲分頁連線；請回原遊戲分頁勾選同步同意。' : '兩處同步同意已確認；請在原遊戲分頁查看待同步筆數與伺服器回執。';
+      emit();
+    }
     function savedQueue() {
       return { format: 'ndmu-ethics-tactical-classroom-queue', version: 2, owners: [...owners].map(([profile, queueScope]) => ({ profile, queueScope })),
         entries: entries.map(e => ({ eventId: e.eventId, classId: e.classId, queueScope: e.queueScope, lineage: e.lineage, raw: e.raw, status: e.status, receipt: e.receipt, tries: e.tries, nextTryAt: e.nextTryAt, error: e.error || '' })) };
@@ -98,17 +128,43 @@
       const byId = new Map(entries.map(e => [e.eventId, e]));
       saved.entries.forEach(e => { const existing = byId.get(e.eventId); if (existing && (existing.raw !== e.raw || existing.queueScope !== e.queueScope || existing.lineage !== e.lineage)) throw new Error('QUEUE_CONFLICT'); });
       saved.owners.forEach((scope, key) => { owners.set(key, scope); durableOwners.set(key, scope); });
-      saved.entries.forEach(e => { const existing = byId.get(e.eventId); if (!existing) entries.push(clone(e)); else if (e.status === 'synced' && existing.status !== 'synced') Object.assign(existing, clone(e)); });
+      saved.entries.forEach(e => { const existing = byId.get(e.eventId); if (!existing) entries.push(clone(e)); else {
+        // A stale tab may never make an attempted event look unattempted again.
+        const tries = Math.max(existing.tries, e.tries), nextTryAt = Math.max(existing.nextTryAt, e.nextTryAt);
+        if (e.status === 'synced' && existing.status !== 'synced') Object.assign(existing, clone(e));
+        existing.tries = tries; existing.nextTryAt = nextTryAt;
+      } });
+      nextGlobalAt = Math.max(nextGlobalAt, ...saved.entries.filter(e => e.tries > 0).map(e => e.nextTryAt));
     }
     function refresh() {
       if (!storage || typeof storage.getItem !== 'function') return;
       const raw = storage.getItem(STORAGE_KEY); if (raw) mergeSaved(readQueue(raw));
     }
+    function compactUnattemptedProgress() {
+      // Legacy tries=0 can conceal an old-client crash after RPC dispatch. Only
+      // entries created in this new-client lifetime have safe provenance.
+      // Only remove redundant, never-dispatched progress. Closed attempts and any
+      // event which might already exist at the server retain their exact bytes/ID.
+      const parsed = new Map(entries.map(e => [e.eventId, JSON.parse(e.raw)]));
+      const prefix = (a,b) => a.length <= b.length && a.every((v,i) => stringify(v) === stringify(b[i]));
+      entries = entries.filter((entry, index) => {
+        const p = parsed.get(entry.eventId), a = p.attempt;
+        if (!createdHere.has(entry.eventId) || entry.status !== 'pending' || entry.tries !== 0 || a.closure !== 'in_progress') return true;
+        return !entries.some((other, otherIndex) => {
+          if (entry === other || entry.lineage !== other.lineage || entry.classId !== other.classId || entry.queueScope !== other.queueScope) return false;
+          const q = parsed.get(other.eventId), b = q.attempt;
+          if (a.startedAt !== b.startedAt || a.chapterId !== b.chapterId || a.battle.initialDecisionId !== b.battle.initialDecisionId || a.battle.engineVersion !== b.battle.engineVersion || a.battle.contentVersion !== b.battle.contentVersion || !prefix(a.battle.commandLog,b.battle.commandLog)) return false;
+          // Do not discard bonus history unless the replacement contains it too.
+          if (p.bonus && (!q.bonus || !prefix(p.bonus.events,q.bonus.events))) return false;
+          return b.closure !== 'in_progress' || b.battle.commandLog.length > a.battle.commandLog.length || otherIndex > index;
+        });
+      });
+    }
     function persist() {
       try {
         if (damagedRaw !== null) throw new Error('QUEUE_DAMAGED');
         if (!storage || typeof storage.setItem !== 'function') throw new Error('STORAGE_UNAVAILABLE');
-        refresh(); const raw=JSON.stringify(savedQueue());if(raw.length>6400000||entries.length>400)throw new Error('QUEUE_LIMIT');storage.setItem(STORAGE_KEY, raw);
+        refresh(); compactUnattemptedProgress(); const raw=JSON.stringify(savedQueue());if(raw.length>6400000||entries.length>400)throw new Error('QUEUE_LIMIT');storage.setItem(STORAGE_KEY, raw);
         if (storage.getItem(STORAGE_KEY) !== raw) throw new Error('STORAGE_READBACK_FAILED');
         storageWarning = ''; durableOwners = new Map(owners); return true;
       } catch (_) { storageWarning = '待同步資料目前只保留在本頁記憶體，請立即匯出備份，不要關閉本頁。'; return false; }
@@ -117,13 +173,15 @@
       try { const raw = storage && storage.getItem(STORAGE_KEY); if (raw) { try { mergeSaved(readQueue(raw)); } catch (_) { damagedRaw = raw; storageWarning = '待同步備份無法讀取；原文已保留。請匯出備份並請老師協助。'; } } }
       catch (_) { storageWarning = '無法讀取本機待同步資料；本頁新紀錄僅保留於記憶體，請匯出備份。'; }
     }
+    // Reconstruct a conservative durable cooldown after reload/crash without changing the v2 queue schema.
+    nextGlobalAt = Math.max(0, ...entries.filter(e => e.tries > 0).map(e => e.nextTryAt));
     function clearCapture() {
       profileKey = null;
       bonusCaptures.forEach(pending => { if (pending.timer !== null && options.clearTimeout) options.clearTimeout(pending.timer); });
       bonusCaptures.clear();
     }
-    function authFailure(error) { return /ACCESS_DENIED|AUTH_NOT_CONFIGURED|AUTH_REQUIRED|SESSION_EXPIRED|CLASSROOM_DISABLED/.test(String(error && (error.code || error.message))); }
-    function resetIdentity() { generation += 1; login = null; preparing = false; session = null; context = null; consent = false; clearCapture(); }
+    function authFailure(error) { return /^(ACCESS_DENIED|AUTH_NOT_CONFIGURED|AUTH_REQUIRED|SESSION_EXPIRED|CLASSROOM_DISABLED|TACTICAL_DISABLED|SESSION_CHANGED)$/.test(safeErrorCode(error)); }
+    function resetIdentity() { generation += 1; login = null; preparing = false; session = null; context = null; consent = false; gameConsent = false; clearCapture(); }
     function baseline(store) { currentStore=store;profileKey=profile(); }
     async function beginLogin() {
       if (!enabled || local) throw new Error('CLASSROOM_DISABLED');
@@ -167,7 +225,7 @@
     async function join(classId) {
       if (!enabled || local || !ID.test(classId)) throw new Error('CLASSROOM_DISABLED');
       const token = activeSession(); generation += 1; const current = generation;
-      context = null; consent = false; clearCapture(); message = '核對班級名冊中。'; emit();
+      context = null; consent = false; gameConsent = false; clearCapture(); message = '核對班級名冊中。'; emit();
       let result;
       try { result = await rpc('classroomJoinTactical', [classId, token]); }
       catch (error) { if (session && session.token === token && generation === current && authFailure(error)) { resetIdentity(); emit(); } throw error; }
@@ -190,38 +248,59 @@
         owners.set(key, context.queueScope); baseline(currentStore); persist();
         if (durableOwners.get(key) !== context.queueScope) { consent = false; message = '無法安全保存本機紀錄與帳號的連結，暫不啟用同步。請保留遊戲備份並允許本機儲存後重試。'; emit(); throw new Error('OWNERSHIP_STORAGE_REQUIRED'); }
       }
-      consent = value === true;
+      consent = value === true; if (!consent) gameConsent = false;
       if(consent&&local){try{captureHistory();}catch(error){consent=false;clearCapture();emit();throw error;}}else if(!consent)clearCapture();
-      message = consent ? '已開啟新版班级同步。伺服器收件仍待老師核實；勝敗不決定出席，當堂點名仍按教師指定流程。' : '已暫停新的同步及重送；尚未確認的資料保留。'; emit();
+      message = consent ? (local ? '已同意同步；待同步紀錄收到可核對回執後才算已收件。' : !bridgeConnected ? '本頁已同意同步，但尚未連接原遊戲分頁。請從遊戲內開啟同步分頁。' : !gameConsent ? '本頁已同意同步；請回原遊戲分頁勾選同步同意。' : '兩處同步同意已確認；請在原遊戲分頁查看伺服器回執。') : '已暫停新的同步及重送；尚未確認的資料保留。'; emit();
     }
     function ownedProfile() { return !!(profileKey && profileKey === profile() && context && owners.get(profileKey) === context.queueScope); }
     function enqueue(attempt, envelope, lineage) {
       if (!local || !enabled || !consent || !context || !session || session.expiresAt <= now() || !ownedProfile() || !lineage || !lineage.id.startsWith(profileKey + ':')) return false;
+      try { refresh(); } catch (_) { storageWarning = '無法核對本機待同步備份，請先匯出並請老師協助。'; throw new Error('QUEUE_CONFLICT'); }
       const body = { format: 'ndmu-ethics-class-attempt', version: 2, classId: context.classId, attempt: clone(attempt), bonus: envelope ? clone(envelope) : null };
       const signature = stringify(body);
-      if (entries.some(e => e.lineage === lineage.id && e.queueScope === context.queueScope && (() => { const p = JSON.parse(e.raw); delete p.eventId; return stringify(p) === signature; })())) return false;
-      const eventId=uuid(crypto),payload={...body,eventId};payloadValid(payload);const raw=stringify(payload);if(raw.length>3200000||entries.length>=400)throw new Error('QUEUE_LIMIT');
+      if (entries.some(e => e.lineage === lineage.id && e.queueScope === context.queueScope && (() => {
+        const p = JSON.parse(e.raw); delete p.eventId;
+        if (stringify(p) === signature) return true;
+        // Revisiting archived history omits bonus data. Do not create another
+        // event for an identical completed attempt already carrying that history.
+        return p.classId === body.classId && stringify(p.attempt) === stringify(body.attempt) && (!body.bonus || p.bonus && body.bonus.events.length <= p.bonus.events.length && body.bonus.events.every((event,i) => stringify(event) === stringify(p.bonus.events[i])));
+      })())) return false;
+      const eventId=uuid(crypto),payload={...body,eventId};payloadValid(payload);const raw=stringify(payload);if(raw.length>3200000)throw new Error('QUEUE_LIMIT');
+      createdHere.add(eventId);
       entries.push({ eventId, classId: context.classId, queueScope: context.queueScope, lineage: lineage.id, raw, status: 'pending', receipt: null, tries: 0, nextTryAt: 0, error: '' });
       persist(); message = '新紀錄已排入待同步；收到可核對回執後才算已收件。'; emit(); return true;
     }
     async function pump() {
-      if (!local || !enabled || !consent || !context || !storeReady() || !ownedProfile() || sending || now() < nextGlobalAt || damagedRaw !== null) return false;
+      if (!local || !enabled || !consent || !context || !storeReady() || !ownedProfile() || sending || damagedRaw !== null) return false;
+      if (now() < nextGlobalAt) { emit(); return false; }
       let token; try { token = activeSession(); } catch (_) { return false; }
+      // Refresh before choosing; persisted attempts/receipts from another view win.
+      if (!persist()) { message = '無法安全保存傳送狀態，暫停送出。請保留此頁並匯出備份。'; emit(); return false; }
+      if (now() < nextGlobalAt) { emit(); return false; }
       const sendingSession = session, sendingContext = context;
-      const entry = entries.find(e => e.status === 'pending' && e.classId === context.classId && e.queueScope === context.queueScope && e.nextTryAt <= now());
-      if (!entry) return false;
-      sending = true; entry.tries += 1; nextGlobalAt = now() + 5000;
+      const due = entries.filter(e => e.status === 'pending' && e.classId === context.classId && e.queueScope === context.queueScope && e.lineage.startsWith(profileKey + ':') && e.nextTryAt <= now());
+      // Each event contains a full replay, so completed reflection need not wait
+      // behind redundant progress or an earlier event's per-event retry delay.
+      const priority = e => JSON.parse(e.raw).attempt.closure === 'finished' ? 0 : JSON.parse(e.raw).attempt.closure === 'in_progress' ? 2 : 1;
+      due.sort((a,b) => priority(a)-priority(b)); const entry = due[0];
+      if (!entry) { emit(); return false; }
+      sending = true; entry.tries += 1; nextGlobalAt = now() + SEND_INTERVAL + jitter(5000); entry.nextTryAt = nextGlobalAt;
+      // This write/readback MUST finish before RPC. A crash with an unknown server
+      // outcome must never permit coalescing or replacing this immutable event.
+      if (!persist()) { sending = false; message = '無法安全保存傳送狀態，暫停送出。請保留此頁並匯出備份。'; emit(); return false; }
+      emit();
       try {
         const result = await rpc('classroomSubmitTacticalAttempt', [entry.raw, token, entry.queueScope]);
         if (!validReceipt(result, entry.eventId)) throw new Error('RECEIPT_INVALID');
         entry.status = 'synced'; entry.receipt = clone(result); entry.error = '';
         if (context === sendingContext) message = '伺服器已收件並讀回核對，仍待老師核實。';
       } catch (error) {
-        const code = String(error && (error.code || error.message) || 'RPC_FAILED');
-        entry.error = /(?:SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED)/.test(code) ? '請重新登入同一帳號後重送。' : '尚未取得可核對回執，保留原事件編號重送。';
-        if (/(?:SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED)/.test(code) && session === sendingSession) resetIdentity();
-        entry.nextTryAt = now() + Math.min(120000, 5000 * Math.pow(2, Math.min(entry.tries - 1, 5)));
-        if (context === sendingContext || !context) message = entry.error;
+        const code = safeErrorCode(error); entry.error = code;
+        if (authFailure(error) && session === sendingSession) resetIdentity();
+        const delay = /^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code) ? RATE_WINDOW + jitter(30000) : Math.min(300000, SEND_INTERVAL * Math.pow(2, Math.min(entry.tries - 1, 3))) + jitter(15000);
+        entry.nextTryAt = Math.max(nextGlobalAt, now() + delay);
+        if (/^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code)) nextGlobalAt = entry.nextTryAt;
+        if (context === sendingContext || !context) message = errorMessage(code);
       } finally { sending = false; persist(); emit(); }
       return entry.status === 'synced';
     }
@@ -250,6 +329,7 @@
     function resetConsent(){consent=false;generation+=1;clearCapture();baseline(currentStore);message='本機紀錄已變更，請再次核對帳號並同意同步。';emit();}
     function connectBridge(config) {
       if (!local || !enabled || !exact(config, ['classId','queueScope','rankingsEnabled','expiresAt','connectionId','protocolVersion','engineVersion','contentVersion','bonusContentVersion']) || !ID.test(config.classId) || !scopeValid(config.queueScope) || !/^[a-f0-9]{64}$/.test(config.connectionId) || typeof config.rankingsEnabled !== 'boolean' || !iso(config.expiresAt) || Date.parse(config.expiresAt) <= now() || config.protocolVersion!==2 || config.engineVersion!=='2.0.0' || config.contentVersion!=='tactical-2026-10-06-v1' || typeof config.bonusContentVersion!=='string') throw new Error('BRIDGE_INVALID');
+      if (session && session.expiresAt <= now()) resetIdentity();
       if (context && context.connectionId === config.connectionId && context.classId === config.classId && context.queueScope === config.queueScope && session) { session.expiresAt = Date.parse(config.expiresAt); return; }
       resetIdentity(); session = { token: null, expiresAt: Date.parse(config.expiresAt), classes: [] };
       context = { classId: config.classId, queueScope: config.queueScope, rankingsEnabled: config.rankingsEnabled, connectionId:config.connectionId,bonusContentVersion:config.bonusContentVersion };
@@ -274,15 +354,25 @@
       if (!validReceipt(receipt, p.eventId)) throw new Error('RECEIPT_INVALID');
       return receipt;
     }
-    function clearJoined() { generation += 1; context = null; consent = false; clearCapture(); message = '班級選擇已變更，請重新核對班級並同意同步。'; emit(); }
+    function clearJoined() { generation += 1; context = null; consent = false; gameConsent = false; clearCapture(); message = '班級選擇已變更，請重新核對班級並同意同步。'; emit(); }
     function logout() { const oldToken = session && session.token; resetIdentity(); if (oldToken) Promise.resolve(rpc('endClassroomLogin', [oldToken])).catch(() => {}); message = '已清除本頁登入狀態。待同步紀錄保留，請自行匯出保管。'; emit(); }
-    function retry() { entries.forEach(e => { if (e.status === 'pending' && context && e.queueScope === context.queueScope) e.nextTryAt = Math.min(e.nextTryAt, now()); }); nextGlobalAt = 0; emit(); }
+    function retry() { const s = state(); message = s.retryAfterMs ? '冷卻期間仍保留紀錄；到達下次重試時間後自動送出。' : '正在檢查待同步紀錄；收到可核對回執後才算已收件。'; emit(); return s.retryAfterMs === 0; }
+    function hasReceiptForAttempt(attempt) {
+      // An imported backup can reuse attemptId and later finish differently. Only
+      // the exact replay + reflection accepted by the server proves completion.
+      state(); // Expiry must clear the current scope before attributing a receipt.
+      if (!context || !profile() || !plain(attempt) || attempt.closure !== 'finished') return false;
+      try {
+        const expected = stringify(attempt), lineage = profile() + ':' + attempt.attemptId;
+        return entries.some(e => e.lineage === lineage && e.classId === context.classId && e.queueScope === context.queueScope && e.status === 'synced' && validReceipt(e.receipt, e.eventId) && stringify(JSON.parse(e.raw).attempt) === expected);
+      } catch (_) { return false; }
+    }
     function exportQueue() { return JSON.stringify({ ...savedQueue(), ...(damagedRaw !== null ? { damagedRaw } : {}) }, null, 2); }
     function reportError(error) {
       const code = String(error && error.message);
-      message = /WRITE_LOCK_REQUIRED/.test(code)?'未取得本頁專屬寫入鎖，暫不啟用同步。請關閉其他新版遊戲分頁後重新開啟；不支援安全寫入鎖的瀏覽器仍可本機遊玩與匯出備份。':/ATTEMPT_INVALID|PAYLOAD_INVALID|BONUS_INVALID/.test(code)?'這份匯入紀錄不符合新版同步格式，未傳送。請保留備份並洽老師；不會改寫原挑戰編號。':/QUEUE_LIMIT/.test(code)?'待同步紀錄已達上限，請先匯出備份並等候老師協助。': /OWNERSHIP_STORAGE_REQUIRED/.test(code) ? '無法安全保存本機紀錄與帳號的連結，暫不啟用同步。請保留遊戲備份並允許本機儲存後重試。' : /PROFILE_OWNER_CONFLICT/.test(code) ? '這份本機遊戲紀錄已連結另一帳號或班級。請登入原帳號，或先備份後建立新的遊戲紀錄。' : /PROFILE_REQUIRED/.test(code) ? '請先建立遊戲紀錄，再勾選同步同意。' : /SESSION|ACCESS_DENIED/.test(code) ? '登入無效或沒有此班級權限，請重新登入並請老師核對名冊。' : /POPUP_BLOCKED/.test(code) ? '同步視窗被瀏覽器阻擋，請允許此網站開啟彈出視窗後重試。' : '目前無法完成連線；待同步紀錄保留，可匯出備份。'; emit();
+      message = /BRIDGE_UPGRADE_REQUIRED/.test(code)?'Google 同步分頁版本較舊，尚未連線或傳送。請關閉舊分頁，重新從遊戲開啟；若仍出現此訊息，請通知老師更新同步服務。':/WRITE_LOCK_REQUIRED/.test(code)?'未取得本頁專屬寫入鎖，暫不啟用同步。請關閉其他新版遊戲分頁後重新開啟；不支援安全寫入鎖的瀏覽器仍可本機遊玩與匯出備份。':/ATTEMPT_INVALID|PAYLOAD_INVALID|BONUS_INVALID/.test(code)?'這份匯入紀錄不符合新版同步格式，未傳送。請保留備份並洽老師；不會改寫原挑戰編號。':/QUEUE_LIMIT/.test(code)?'待同步紀錄已達上限，請先匯出備份並等候老師協助。': /OWNERSHIP_STORAGE_REQUIRED/.test(code) ? '無法安全保存本機紀錄與帳號的連結，暫不啟用同步。請保留遊戲備份並允許本機儲存後重試。' : /PROFILE_OWNER_CONFLICT/.test(code) ? '這份本機遊戲紀錄已連結另一帳號或班級。請登入原帳號，或先備份後建立新的遊戲紀錄。' : /PROFILE_REQUIRED/.test(code) ? '請先建立遊戲紀錄，再勾選同步同意。' : /SESSION|ACCESS_DENIED/.test(code) ? '登入無效或沒有此班級權限，請重新登入並請老師核對名冊。' : /POPUP_BLOCKED/.test(code) ? '同步視窗被瀏覽器阻擋，請允許此網站開啟彈出視窗後重試。' : '目前無法完成連線；待同步紀錄保留，可匯出備份。'; emit();
     }
-    return Object.freeze({ state, beginLogin, pollLogin, join, setConsent, enqueue, pump, leaderboard, attachStore, capture, resetConsent, payloadValid, clearJoined, connectBridge, bridgeState, submitRemote, logout, retry, exportQueue, reportError });
+    return Object.freeze({ state, subscribe, markBridgeConnection, beginLogin, pollLogin, join, setConsent, enqueue, pump, leaderboard, attachStore, capture, resetConsent, payloadValid, clearJoined, connectBridge, bridgeState, submitRemote, logout, retry, hasReceiptForAttempt, exportQueue, reportError });
   }
   function mount(document, host, bootstrap) {
     bootstrap = bootstrap || {};
@@ -290,7 +380,7 @@
     let client, polling = false, rankRequest = 0, priorView = '';
     function render(s) {
       status.textContent = s.message; $('class-sync-warning').textContent = s.storageWarning;
-      $('class-sync-count').textContent = '請回原遊戲分頁查看待同步筆數與伺服器回執。';
+      $('class-sync-count').textContent = s.bridgeConnected ? (s.gameConsent ? '原遊戲分頁已連接。請回原遊戲查看待同步筆數與伺服器回執。' : '原遊戲分頁已連接，仍須在遊戲分頁另行同意同步。') : '尚未連接原遊戲分頁。請從遊戲內開啟 Google 同步分頁。';
       $('class-login').disabled = !s.enabled || s.loginPending;
       $('class-consent').disabled = !s.authenticated || !s.classId; $('class-consent').checked = s.consent;
       $('class-select').disabled = !s.authenticated; $('class-join').disabled = !s.authenticated;
@@ -343,32 +433,47 @@
     // configured after verification; never accept a suffix match on incoming messages.
     const bridgeOrigin = config.bridgeOrigin;
     if (config.endpoint !== EXEC_ENDPOINT || typeof bridgeOrigin !== 'string' || !/^https:\/\/[a-z0-9-]+-script\.googleusercontent\.com$/.test(bridgeOrigin) || new URL(bridgeOrigin).origin !== bridgeOrigin) throw new Error('BRIDGE_CONFIGURATION_INVALID');
-    let popup = null, frame = null, challenge = null, generation = 0, joined = null;
+    let popup = null, frame = null, challenge = null, generation = 0, joined = null, compatible = false, heartbeatId = null, lastSeenAt = null, localConsent = false;
+    const now = host.Date && host.Date.now ? host.Date.now.bind(host.Date) : Date.now;
+    function acknowledge() {
+      if (!frame || !heartbeatId || !popup || popup.closed) return;
+      try { frame.postMessage({ protocol: BRIDGE_PROTOCOL, challenge, type: 'ack', heartbeatId, connectionId: joined ? joined.connectionId : null, consent: localConsent }, bridgeOrigin); } catch (_) {}
+    }
+    function setConsent(value) { const next = value === true; if (localConsent === next) return; localConsent = next; acknowledge(); }
     const pending = new Map();
     function closeRequests() { pending.forEach(p => { host.clearTimeout(p.timer); p.reject(new Error('BRIDGE_CLOSED')); }); pending.clear(); }
-    function clearState() { closeRequests(); joined = null; onState(null); }
+    function clearState() { closeRequests(); joined = null; localConsent = false; onState(null); }
     function receive(event) {
       if (event.origin !== bridgeOrigin || !popup || popup.closed || !event.source || !plain(event.data)) return;
       let sourceIsPopup = false; try { sourceIsPopup = event.source.top === popup; } catch (_) {}
       const data = event.data;
       if (!sourceIsPopup || data.protocol !== BRIDGE_PROTOCOL || data.challenge !== challenge) return;
-      if (data.type === 'ready') { if (frame !== event.source) { generation += 1; clearState(); frame = event.source; } return; }
-      if (event.source !== frame) return;
+      if (data.type === 'ready') {
+        if (frame !== event.source) { generation += 1; clearState(); frame = event.source; }
+        lastSeenAt = now();
+        // Capabilities are outside the exact v2 joined state: old game pages
+        // can use the new server, while new games fail closed on stale servers.
+        compatible = Array.isArray(data.capabilities) && ['verified-game-heartbeat-v1','safe-errors-v1'].every(capability => data.capabilities.includes(capability)) && /^[a-f0-9]{64}$/.test(data.heartbeatId);
+        heartbeatId = compatible ? data.heartbeatId : null;
+        if (!compatible) { generation += 1; closeRequests(); joined = null; localConsent = false; onState(null, 'BRIDGE_UPGRADE_REQUIRED'); return; }
+        acknowledge(); return;
+      }
+      if (event.source !== frame || !compatible) return;
       if (data.type === 'joined') {
         const s = data.state;
         if (!exact(s, ['classId','queueScope','rankingsEnabled','expiresAt','connectionId','protocolVersion','engineVersion','contentVersion','bonusContentVersion']) || !ID.test(s.classId) || !/^[A-Za-z0-9_-]{32,128}$/.test(s.queueScope) || !/^[a-f0-9]{64}$/.test(s.connectionId) || typeof s.rankingsEnabled !== 'boolean' || !iso(s.expiresAt) || s.protocolVersion!==2 || s.engineVersion!=='2.0.0' || s.contentVersion!=='tactical-2026-10-06-v1' || typeof s.bonusContentVersion!=='string') return;
         if (!joined || joined.connectionId !== s.connectionId || joined.queueScope !== s.queueScope || joined.classId !== s.classId) { generation += 1; closeRequests(); }
-        joined = clone(s); onState(clone(s)); return;
+        joined = clone(s); lastSeenAt = now(); onState(clone(s)); acknowledge(); return;
       }
       if (data.type === 'disconnected') { generation += 1; clearState(); return; }
       if (data.type !== 'result' || typeof data.requestId !== 'string') return;
       const p = pending.get(data.requestId); if (!p || p.generation !== generation) return;
       pending.delete(data.requestId); host.clearTimeout(p.timer);
-      if (data.ok === true) p.resolve(data.result); else p.reject(new Error('BRIDGE_REQUEST_FAILED'));
+      if (data.ok === true) p.resolve(data.result); else p.reject(new Error(safeErrorCode(data.errorCode)));
     }
     host.addEventListener('message', receive);
     function open() {
-      generation += 1; clearState(); frame = null; challenge = randomHex(host.crypto, 32);
+      generation += 1; clearState(); frame = null; compatible = false; heartbeatId = null; lastSeenAt = null; challenge = randomHex(host.crypto, 32);
       const url = new URL(EXEC_ENDPOINT); url.searchParams.set('mode', 'tactical-classroom'); url.searchParams.set('bridge', challenge);
       // Opener is deliberately retained for this exact-origin, nonce-bound channel.
       // Only the random bridge challenge enters the URL; no credentials or identities.
@@ -393,47 +498,65 @@
       // Do not navigate a popup that may now show an unrelated page. This advisory
       // logout is sent only to the verified iframe, then the local channel is erased.
       if (frame && challenge) { try { frame.postMessage({ protocol: BRIDGE_PROTOCOL, challenge, type: 'disconnect' }, bridgeOrigin); } catch (_) {} }
-      generation += 1; clearState(); frame = null; popup = null; challenge = null;
+      generation += 1; clearState(); frame = null; popup = null; challenge = null; heartbeatId = null; lastSeenAt = null;
     }
-    function check() { if (popup && popup.closed) { generation += 1; clearState(); popup = null; frame = null; challenge = null; } }
-    return Object.freeze({ open, rpc, check, disconnect });
+    function check() {
+      if (popup && popup.closed) { generation += 1; clearState(); popup = null; frame = null; challenge = null; heartbeatId = null; lastSeenAt = null; }
+      else if (frame && lastSeenAt !== null && now() - lastSeenAt > HEARTBEAT_TTL) { generation += 1; clearState(); frame = null; heartbeatId = null; lastSeenAt = null; }
+    }
+    return Object.freeze({ open, rpc, check, disconnect, setConsent });
   }
   function installBridgeServer(host, client, bootstrap) {
+    const mark = (connected, consent) => { if (typeof client.markBridgeConnection === 'function') client.markBridgeConnection(connected, consent); };
+    mark(false, false);
     if (!bootstrap || bootstrap.enabled !== true || !/^[a-f0-9]{64}$/.test(bootstrap.bridge)) return null;
     let opener; try { opener = host.top.opener; } catch (_) { return null; }
-    if (!opener) return null;
-    const challenge = bootstrap.bridge;
-    let connected=true,lifecycleGeneration=0;
+    if (!opener || opener.closed) return null;
+    const challenge = bootstrap.bridge, now = host.Date && host.Date.now ? host.Date.now.bind(host.Date) : Date.now;
+    let connected = true, lifecycleGeneration = 0, heartbeatId = null, lastAckAt = null, timer = null;
     function send(type, data) { if (connected) { try { opener.postMessage({ protocol: BRIDGE_PROTOCOL, challenge, type, ...data }, GAME_ORIGIN); } catch (_) {} } }
     const inFlight = new Set();
     host.addEventListener('message', async event => {
       const d = event.data;
       let currentOpener; try { currentOpener = host.top.opener; } catch (_) { return; }
-      if (!connected || event.origin !== GAME_ORIGIN || event.source !== opener || event.source !== currentOpener || !plain(d) || d.protocol !== BRIDGE_PROTOCOL || d.challenge !== challenge) return;
-      if(d.type==='disconnect'){lifecycleGeneration++;inFlight.clear();client.logout();publish();connected=false;if(timer!==null)host.clearInterval(timer);timer=null;return;}
-      if (d.type !== 'request' || !UUID.test(d.requestId) || !Array.isArray(d.args) || inFlight.has(d.requestId) || inFlight.size >= 3) return;
+      if (!connected || event.origin !== GAME_ORIGIN || event.source !== opener || event.source !== currentOpener || opener.closed || !plain(d) || d.protocol !== BRIDGE_PROTOCOL || d.challenge !== challenge) return;
+      if (d.type === 'disconnect') { lifecycleGeneration++; inFlight.clear(); mark(false, false); client.logout(); publish(); connected = false; if (timer !== null) host.clearInterval(timer); timer = null; return; }
+      if (d.type === 'ack') {
+        if (d.heartbeatId !== heartbeatId || typeof d.consent !== 'boolean') return;
+        const bound = client.bridgeState();
+        if (d.connectionId !== null && (!bound || d.connectionId !== bound.connectionId)) return;
+        lastAckAt = now(); mark(true, !!bound && d.connectionId === bound.connectionId && d.consent); return;
+      }
+      if (d.type !== 'request' || !UUID.test(d.requestId) || !Array.isArray(d.args) || inFlight.has(d.requestId)) return;
+      if (inFlight.size >= 3) { send('result', { requestId: d.requestId, ok: false, errorCode: 'CLASSROOM_BUSY' }); return; }
       const bound = client.bridgeState();
-      if (!bound) { send('result', { requestId: d.requestId, ok: false }); return; }
-      inFlight.add(d.requestId);const requestGeneration=lifecycleGeneration;
+      if (!bound) { send('result', { requestId: d.requestId, ok: false, errorCode: 'AUTH_REQUIRED' }); return; }
+      inFlight.add(d.requestId); const requestGeneration = lifecycleGeneration;
       try {
         let result;
-        // expected queueScope travels with each payload. Check it again in the
-        // client immediately before dispatching the token-bearing Google RPC.
-        if (d.method === 'classroomSubmitTacticalAttempt' && d.args.length === 2 && d.args[1] === bound.queueScope) result = await client.submitRemote(d.args[0], d.args[1]);
-        else if (d.method === 'classroomTacticalLeaderboard' && d.args.length === 3 && d.args[0] === bound.classId && d.args[2] === bound.queueScope) result = await client.leaderboard(d.args[1], d.args[2]);
-        else throw new Error('REQUEST_INVALID');
-        if(requestGeneration===lifecycleGeneration)send('result',{requestId:d.requestId,ok:true,result});
-      }catch(_){if(requestGeneration===lifecycleGeneration)send('result',{requestId:d.requestId,ok:false});}
-      finally{if(requestGeneration===lifecycleGeneration)inFlight.delete(d.requestId);}
+        // A valid scoped request is also evidence of a live older v2 game peer.
+        // Heartbeat acknowledgements are additive; older games still work.
+        if (d.method === 'classroomSubmitTacticalAttempt' && d.args.length === 2 && d.args[1] === bound.queueScope) {
+          lastAckAt = now(); mark(true, true); result = await client.submitRemote(d.args[0], d.args[1]);
+        } else if (d.method === 'classroomTacticalLeaderboard' && d.args.length === 3 && d.args[0] === bound.classId && d.args[2] === bound.queueScope) {
+          lastAckAt = now(); mark(true, false); result = await client.leaderboard(d.args[1], d.args[2]);
+        } else throw new Error('REQUEST_INVALID');
+        if (requestGeneration === lifecycleGeneration) send('result', { requestId: d.requestId, ok: true, result });
+      } catch (error) { if (requestGeneration === lifecycleGeneration) send('result', { requestId: d.requestId, ok: false, errorCode: safeErrorCode(error) }); }
+      finally { if (requestGeneration === lifecycleGeneration) inFlight.delete(d.requestId); }
     });
     function publish() {
-      // Republish the complete small public state on every heartbeat: if the first
-      // ready event arrives before window.open returns, later heartbeats recover.
-      send('ready', {}); const state = client.bridgeState(); send(state ? 'joined' : 'disconnected', state ? { state } : {});
+      let current; try { current = host.top.opener; } catch (_) {}
+      if (current !== opener || opener.closed) { mark(false, false); client.logout(); connected = false; if (timer !== null) host.clearInterval(timer); timer = null; return; }
+      if (lastAckAt === null || now() - lastAckAt > HEARTBEAT_TTL) mark(false, false);
+      heartbeatId = randomHex(host.crypto, 32);
+      send('ready', { capabilities: ['verified-game-heartbeat-v1','safe-errors-v1'], heartbeatId });
+      const state = client.bridgeState(); send(state ? 'joined' : 'disconnected', state ? { state } : {});
     }
-    let timer=null;function startPublishing(){if(timer!==null)return;publish();timer=host.setInterval(publish,2000);}
-    startPublishing();host.addEventListener('pagehide',()=>{lifecycleGeneration++;inFlight.clear();if(timer!==null)host.clearInterval(timer);timer=null;send('disconnected',{});connected=false;client.logout();});
-    host.addEventListener('pageshow',event=>{if(!event.persisted)return;let current;try{current=host.top.opener;}catch(_){return;}if(current!==opener||!opener||opener.closed)return;connected=true;startPublishing();});
+    function startPublishing() { if (timer !== null) return; publish(); if (connected) timer = host.setInterval(publish, 2000); }
+    startPublishing();
+    host.addEventListener('pagehide', () => { lifecycleGeneration++; inFlight.clear(); if (timer !== null) host.clearInterval(timer); timer = null; send('disconnected', {}); connected = false; lastAckAt = null; heartbeatId = null; mark(false, false); client.logout(); });
+    host.addEventListener('pageshow', event => { if (!event.persisted) return; let current; try { current = host.top.opener; } catch (_) { return; } if (current !== opener || !opener || opener.closed) return; connected = true; lastAckAt = null; startPublishing(); });
     return Object.freeze({ publish });
   }
   function mountPublic(document, host, config, store) {
@@ -452,14 +575,15 @@
     let transport = null, storage = null, rankRequest = 0, priorView = ''; try { storage = host.localStorage; } catch (_) {}
     const client = createClient({ mode:'public',Engine:host.TacticalEngine,Bonus:host.RPGBonus,enabled: config && config.enabled === true, crypto: host.crypto, storage, rpc: (m,a) => transport ? transport.rpc(m,a) : Promise.reject(new Error('BRIDGE_CLOSED')), setTimeout: host.setTimeout.bind(host), clearTimeout: host.clearTimeout.bind(host), onChange: render });
     function render(s) {
-      status.textContent = s.message; warning.textContent = s.storageWarning + (s.profileConflict ? ' 目前本機遊戲紀錄屬於另一帳號或班級，請登入原帳號，或先備份後建立新的遊戲紀錄。' : '');
+      status.textContent = s.message + (s.retryAfterMs > 0 && s.consent ? ' 下次重試：' + new Date(s.nextRetryAt).toLocaleTimeString() + '。' : ''); warning.textContent = s.storageWarning + (s.profileConflict ? ' 目前本機遊戲紀錄屬於另一帳號或班級，請登入原帳號，或先備份後建立新的遊戲紀錄。' : '');
       count.textContent = '待確認 ' + s.pending + ' 筆 · 已收件 ' + s.synced + ' 筆' + (s.foreignPending ? '；其他帳號／班級待確認 ' + s.foreignPending + ' 筆' : '');
       check.disabled = !s.authenticated || !s.classId || s.profileConflict; check.checked = s.consent; connect.disabled = !s.enabled || !transport;
-      retry.disabled = !s.consent; rank.disabled = !s.authenticated || !s.classId;
+      retry.disabled = !s.consent || s.sending || s.retryAfterMs > 0; retry.textContent = s.retryAfterMs > 0 ? '等待重試（' + Math.ceil(s.retryAfterMs / 1000) + ' 秒）' : '重試待同步紀錄'; rank.disabled = !s.authenticated || !s.classId;
+      if (transport && transport.setConsent) transport.setConsent(s.consent);
       const view = JSON.stringify([s.authenticated, s.classId, s.consent]); if (view !== priorView) { rankRequest += 1; board.replaceChildren(); priorView = view; }
       receipts.replaceChildren(); s.entries.slice(-20).reverse().forEach(e => { const li = document.createElement('li'); li.textContent = e.chapterId + ' · ' + e.eventId + ' · ' + (e.receipt ? e.receipt.serverReceivedAt + ' 已收件，待教師核實' : '待確認收件'); receipts.append(li); });
     }
-    if (config && config.enabled === true) { try { transport = createBridgeTransport(host, config, state => { try { if (state) client.connectBridge(state); else client.logout(); } catch (e) { client.reportError(e); } }); } catch (e) { client.reportError(e); connect.disabled = true; } }
+    if (config && config.enabled === true) { try { transport = createBridgeTransport(host, config, (state, errorCode) => { try { if (state) client.connectBridge(state); else { client.logout(); if (errorCode) client.reportError(new Error(errorCode)); } } catch (e) { client.reportError(e); } }); } catch (e) { client.reportError(e); connect.disabled = true; } }
     client.attachStore(store);render(client.state());
     connect.addEventListener('click', () => { try { transport.open(); } catch (e) { client.reportError(e); } });
     check.addEventListener('change', () => { try { client.setConsent(check.checked); } catch (e) { client.reportError(e); } });
