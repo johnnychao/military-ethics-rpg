@@ -202,7 +202,7 @@
         if (context === sendingContext) message = '伺服器已收件並讀回核對，仍待老師核實。';
       } catch (error) {
         const code = String(error && (error.code || error.message) || 'RPC_FAILED');
-        entry.error = /(?:SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED)/.test(code) ? '請重新登入同一帳號後重送。' : '尚未取得可核對回執，保留原事件編號重送。';
+        entry.error = /^(?:Error: |Exception: )*CHAPTER_NOT_OPEN$/.test(code) ? '章節或支線尚未到開放時間；原紀錄已保留，開放後會用同一事件編號重試。' : /(?:SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED)/.test(code) ? '請重新登入同一帳號後重送。' : '尚未取得可核對回執，保留原事件編號重送。';
         if (/(?:SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED)/.test(code) && session === sendingSession) resetIdentity();
         entry.nextTryAt = now() + Math.min(120000, 5000 * Math.pow(2, Math.min(entry.tries - 1, 5)));
         if (context === sendingContext || !context) message = entry.error;
@@ -400,7 +400,7 @@
       if (data.type !== 'result' || typeof data.requestId !== 'string') return;
       const p = pending.get(data.requestId); if (!p || p.generation !== generation) return;
       pending.delete(data.requestId); host.clearTimeout(p.timer);
-      if (data.ok === true) p.resolve(data.result); else p.reject(new Error('BRIDGE_REQUEST_FAILED'));
+      if (data.ok === true) p.resolve(data.result); else p.reject(new Error(data.errorCode === 'CHAPTER_NOT_OPEN' ? 'CHAPTER_NOT_OPEN' : 'BRIDGE_REQUEST_FAILED'));
     }
     host.addEventListener('message', receive);
     function open() {
@@ -459,7 +459,10 @@
         else if (d.method === 'classroomLeaderboard' && d.args.length === 3 && d.args[0] === bound.classId && d.args[2] === bound.queueScope) result = await client.leaderboard(d.args[1], d.args[2]);
         else throw new Error('REQUEST_INVALID');
         send('result', { requestId: d.requestId, ok: true, result });
-      } catch (_) { send('result', { requestId: d.requestId, ok: false }); }
+      } catch (error) {
+        const code = String(error && (error.code || error.message) || '').replace(/^(?:Error: |Exception: )+/, '');
+        send('result', { requestId: d.requestId, ok: false, ...(code === 'CHAPTER_NOT_OPEN' ? { errorCode: code } : {}) });
+      }
       finally { inFlight.delete(d.requestId); }
     });
     function publish() {

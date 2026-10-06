@@ -2,6 +2,14 @@
   "algorithm": "SHA256",
   "sources": [
     {
+      "path": "js/data/course_schedule.js",
+      "sha256": "b1676ac64a7429e5fcd8f5c1022e7148f2050d9fe8ee5036bfc25ab30e5298ee"
+    },
+    {
+      "path": "collector/chapter_access.js",
+      "sha256": "341ebf05fe141674ef72a18d3de33c29e2402c62b0ab7a24e18438d49bcad762"
+    },
+    {
       "path": "js/data/rpg_chapters.js",
       "sha256": "3254c56ad8a05661c8b3a7ea081ef3a1e6677816e30769e9f43943857db65084"
     },
@@ -11,7 +19,7 @@
     },
     {
       "path": "collector/core.js",
-      "sha256": "43c45c7571bf955c3a4e1abf9ae33cd213a9fff8cd9688bfdd07364f41424e94"
+      "sha256": "55cc21cc9e9830413115ecab44f30d74a8becdb20a05c094d43e6e2ba96e4d9b"
     },
     {
       "path": "collector/submission_page.js",
@@ -24,6 +32,6 @@
   ],
   "generated": {
     "path": "collector/generated/Code.gs",
-    "sha256": "79f795993232950dd3778aa778a401cf1ee789aa607b22bd02aa2a16fcd88cdb"
+    "sha256": "d9a54cd23f8c9e431137b07413a6bbf6d576398487398526d11dac44f8b51bf0"
   }
 }

@@ -1,8 +1,8 @@
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.EthicsCollectorCore = factory();
-}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./chapter_access'));
+  else root.EthicsCollectorCore = factory(root.EthicsCourseAccess);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (courseAccess) {
   'use strict';
 
   const FORMAT = 'ndmu-ethics-submission';
@@ -179,7 +179,9 @@
         checkWindow(checked.session, new Date(existing[2]));
         return publicReceipt(existing, true);
       }
-      const serverReceivedAt = checkWindow(checked.session, deps.now());
+      const now = deps.now();
+      courseAccess.checkCollector(checked.session, now);
+      const serverReceivedAt = checkWindow(checked.session, now);
       if (typeof deps.store.countEvents !== 'function') fail('COLLECTOR_STORE_INVALID');
       const limits = eventLimits(checked.session);
       const window = limits.windowSeconds === undefined ? undefined : {
@@ -208,6 +210,7 @@
     COLLECTOR_NOT_CONFIGURED: '老師尚未啟用收件服務。',
     UNKNOWN_SESSION: '課次尚未設定，請向老師確認當堂入口。',
     WRONG_CHAPTER: '提交章節與本課次指定章節不符。',
+    CHAPTER_NOT_OPEN: '章節或支線尚未到開放時間；請保留原紀錄與收件編號，開放後重送。',
     SESSION_NOT_OPEN: '本課次尚未開始收件。', SESSION_CLOSED: '本課次收件時間已結束。',
     INVALID_IDENTITY: '請填入有效的自填學號與姓名；身分仍待老師核實。',
     ATTEMPT_INCOMPLETE: '本次關卡尚未完成。', INVALID_ATTEMPT: '關卡紀錄驗證未通過，請保留本機備份並告知老師。',

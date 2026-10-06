@@ -141,7 +141,7 @@ function harness(options = {}) {
     EthicsSubmissionPage: { renderSubmissionPage: () => '<main>synthetic same-origin form</main>' }
   });
   const root = path.resolve(__dirname, '..');
-  for (const relative of ['js/data/rpg_chapters.js', 'js/engine/rpg_engine.js', 'collector/core.js', 'collector/adapter.gs']) {
+  for (const relative of ['js/data/course_schedule.js', 'collector/chapter_access.js', 'js/data/rpg_chapters.js', 'js/engine/rpg_engine.js', 'collector/core.js', 'collector/adapter.gs']) {
     vm.runInContext(fs.readFileSync(path.join(root, relative), 'utf8'), context, { filename: relative });
   }
   return { context, rows, formulas, calls, lock, properties, state,

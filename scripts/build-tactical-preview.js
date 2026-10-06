@@ -4,7 +4,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),PREFIX='preview/tactical-v2';
 const CORE=[
- 'js/data/rpg_chapters.js','js/data/rpg_bonus_content.js','js/engine/rpg_bonus.js',
+ 'js/data/course_schedule.js','js/data/rpg_chapters.js','js/data/rpg_bonus_content.js','js/engine/rpg_bonus.js',
  'js/engine/rpg_avatar.js','js/data/rpg_music.js','js/engine/rpg_audio.js',
  'js/tactical/tactical_missions.js','js/tactical/tactical_engine.js',
  'js/tactical/tactical_store.js','js/tactical/tactical_coach.js','js/tactical/tactical_assets.js',

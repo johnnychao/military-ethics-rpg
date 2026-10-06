@@ -2,23 +2,24 @@
 /* Classroom-only client. Proofs and session credentials live only in closures. */
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.TacticalClassroomClient = factory();
-}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('../../js/data/course_schedule'));
+  else root.TacticalClassroomClient = factory(root.CourseSchedule);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (Schedule) {
   'use strict';
   const STORAGE_KEY = 'ndmu-ethics-tactical-classroom:queue:v2';
+  const PACING_KEY = STORAGE_KEY + ':pacing:v1';
   const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
   const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$/;
   // Conservative pacing stays below 10 submissions / 600 seconds, including retries.
   const SEND_INTERVAL = 65000, RATE_WINDOW = 600000, HEARTBEAT_TTL = 10000;
-  const SAFE_ERRORS = new Set(['RETRY_LATER_KEEP_EVENT','CLASSROOM_BUSY','TACTICAL_DISABLED','RATE_LIMIT_PERSON','RATE_LIMIT_CLASS','RATE_LIMIT','COLLECTOR_BUSY','BUSY','SESSION_EXPIRED','AUTH_REQUIRED','ACCESS_DENIED','AUTH_NOT_CONFIGURED','CLASSROOM_DISABLED','SESSION_CHANGED','BRIDGE_CLOSED','RPC_TIMEOUT','RECEIPT_INVALID','REQUEST_INVALID','BRIDGE_REQUEST_FAILED','BRIDGE_UPGRADE_REQUIRED']);
+  const SAFE_ERRORS = new Set(['CHAPTER_NOT_OPEN','RETRY_LATER_KEEP_EVENT','CLASSROOM_BUSY','TACTICAL_DISABLED','RATE_LIMIT_PERSON','RATE_LIMIT_CLASS','RATE_LIMIT','COLLECTOR_BUSY','BUSY','SESSION_EXPIRED','AUTH_REQUIRED','ACCESS_DENIED','AUTH_NOT_CONFIGURED','CLASSROOM_DISABLED','SESSION_CHANGED','BRIDGE_CLOSED','RPC_TIMEOUT','RECEIPT_INVALID','REQUEST_INVALID','BRIDGE_REQUEST_FAILED','BRIDGE_UPGRADE_REQUIRED']);
   function safeErrorCode(error) {
     const value = typeof error === 'string' ? error : error && (error.code || error.message);
     const code = typeof value === 'string' ? value.replace(/^(?:Error: |Exception: )+/, '') : '';
     return SAFE_ERRORS.has(code) ? code : 'BRIDGE_REQUEST_FAILED';
   }
   function errorMessage(code) {
-    return /^(SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED|AUTH_NOT_CONFIGURED|CLASSROOM_DISABLED|TACTICAL_DISABLED|SESSION_CHANGED)$/.test(code) ? '登入或班級連線已失效；紀錄保留，請重新連線並再次同意。' : /^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code) ? '伺服器暫時限制傳送次數；紀錄已保留，等待冷卻後自動重試。' : /^(COLLECTOR_BUSY|CLASSROOM_BUSY|BUSY)$/.test(code) ? '收件服務忙碌；紀錄已保留，稍後自動重試。' : '尚未取得可核對回執，保留原事件編號重送。';
+    return code === 'CHAPTER_NOT_OPEN' ? '章節或支線尚未到開放時間；原紀錄已保留，開放後會用同一事件編號重試。' : /^(SESSION_EXPIRED|ACCESS_DENIED|AUTH_REQUIRED|AUTH_NOT_CONFIGURED|CLASSROOM_DISABLED|TACTICAL_DISABLED|SESSION_CHANGED)$/.test(code) ? '登入或班級連線已失效；紀錄保留，請重新連線並再次同意。' : /^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code) ? '伺服器暫時限制傳送次數；紀錄已保留，等待冷卻後自動重試。' : /^(COLLECTOR_BUSY|CLASSROOM_BUSY|BUSY)$/.test(code) ? '收件服務忙碌；紀錄已保留，稍後自動重試。' : '尚未取得可核對回執，保留原事件編號重送。';
   }
   const clone = value => JSON.parse(JSON.stringify(value));
   const plain = value => !!value && typeof value === 'object' && !Array.isArray(value);
@@ -123,6 +124,31 @@
         seen.add(e.eventId);
       });return {entries:saved.entries,owners:ownership};
     }
+    function durableGlobalDelay(entry) {
+      // A confirmed chapter rejection delays just that immutable event. Dispatch
+      // pacing remains independently durable even when this event waits weeks.
+      return entry.tries > 0 && safeErrorCode(entry.error) !== 'CHAPTER_NOT_OPEN' ? entry.nextTryAt : 0;
+    }
+    function refreshPacing() {
+      const raw = storage && storage.getItem(PACING_KEY); if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (!exact(saved, ['version', 'nextGlobalAt']) || saved.version !== 1 || !Number.isFinite(saved.nextGlobalAt) || saved.nextGlobalAt < 0) throw new Error('PACING_INVALID');
+      nextGlobalAt = Math.max(nextGlobalAt, saved.nextGlobalAt);
+    }
+    function chapterRetryAt(entry) {
+      const current = now(), upcoming = [];
+      try {
+        const payload = JSON.parse(entry.raw), ids = [payload.attempt.chapterId, ...(payload.bonus ? payload.bonus.events.map(event => event.chapterId) : [])];
+        if (Schedule && typeof Schedule.get === 'function') ids.forEach(id => {
+          const scheduled = Schedule.get(id), time = scheduled ? Date.parse(scheduled.opensAt) : NaN;
+          if (Number.isFinite(time) && time > current) upcoming.push(time);
+        });
+      } catch (_) {}
+      // Try at the next relevant class opening. Earlier acknowledged bonus
+      // events may be grandfathered by the server; never strip them locally.
+      // A fast/incorrect device clock uses a bounded fallback, not a busy loop.
+      return upcoming.length ? Math.min(...upcoming) : current + 900000;
+    }
     function mergeSaved(saved) {
       saved.owners.forEach((scope, key) => { if (owners.has(key) && owners.get(key) !== scope) throw new Error('PROFILE_OWNER_CONFLICT'); });
       const byId = new Map(entries.map(e => [e.eventId, e]));
@@ -130,15 +156,19 @@
       saved.owners.forEach((scope, key) => { owners.set(key, scope); durableOwners.set(key, scope); });
       saved.entries.forEach(e => { const existing = byId.get(e.eventId); if (!existing) entries.push(clone(e)); else {
         // A stale tab may never make an attempted event look unattempted again.
+        const savedIsNewer = e.tries > existing.tries || e.tries === existing.tries &&
+          (e.nextTryAt > existing.nextTryAt || e.nextTryAt === existing.nextTryAt && !existing.error && !!e.error);
         const tries = Math.max(existing.tries, e.tries), nextTryAt = Math.max(existing.nextTryAt, e.nextTryAt);
         if (e.status === 'synced' && existing.status !== 'synced') Object.assign(existing, clone(e));
+        else if (existing.status !== 'synced' && savedIsNewer) existing.error = e.error;
         existing.tries = tries; existing.nextTryAt = nextTryAt;
       } });
-      nextGlobalAt = Math.max(nextGlobalAt, ...saved.entries.filter(e => e.tries > 0).map(e => e.nextTryAt));
+      nextGlobalAt = Math.max(nextGlobalAt, ...saved.entries.map(durableGlobalDelay));
     }
     function refresh() {
       if (!storage || typeof storage.getItem !== 'function') return;
       const raw = storage.getItem(STORAGE_KEY); if (raw) mergeSaved(readQueue(raw));
+      refreshPacing();
     }
     function compactUnattemptedProgress() {
       // Legacy tries=0 can conceal an old-client crash after RPC dispatch. Only
@@ -166,6 +196,11 @@
         if (!storage || typeof storage.setItem !== 'function') throw new Error('STORAGE_UNAVAILABLE');
         refresh(); compactUnattemptedProgress(); const raw=JSON.stringify(savedQueue());if(raw.length>6400000||entries.length>400)throw new Error('QUEUE_LIMIT');storage.setItem(STORAGE_KEY, raw);
         if (storage.getItem(STORAGE_KEY) !== raw) throw new Error('STORAGE_READBACK_FAILED');
+        if (nextGlobalAt > 0) {
+          const pacing = JSON.stringify({ version: 1, nextGlobalAt });
+          storage.setItem(PACING_KEY, pacing);
+          if (storage.getItem(PACING_KEY) !== pacing) throw new Error('STORAGE_READBACK_FAILED');
+        }
         storageWarning = ''; durableOwners = new Map(owners); return true;
       } catch (_) { storageWarning = '待同步資料目前只保留在本頁記憶體，請立即匯出備份，不要關閉本頁。'; return false; }
     }
@@ -174,7 +209,8 @@
       catch (_) { storageWarning = '無法讀取本機待同步資料；本頁新紀錄僅保留於記憶體，請匯出備份。'; }
     }
     // Reconstruct a conservative durable cooldown after reload/crash without changing the v2 queue schema.
-    nextGlobalAt = Math.max(0, ...entries.filter(e => e.tries > 0).map(e => e.nextTryAt));
+    nextGlobalAt = Math.max(0, ...entries.map(durableGlobalDelay));
+    if (local) { try { refreshPacing(); } catch (_) { storageWarning = '無法核對同步冷卻紀錄，暫停送出；請保留待同步備份。'; } }
     function clearCapture() {
       profileKey = null;
       bonusCaptures.forEach(pending => { if (pending.timer !== null && options.clearTimeout) options.clearTimeout(pending.timer); });
@@ -297,7 +333,7 @@
       } catch (error) {
         const code = safeErrorCode(error); entry.error = code;
         if (authFailure(error) && session === sendingSession) resetIdentity();
-        const delay = /^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code) ? RATE_WINDOW + jitter(30000) : Math.min(300000, SEND_INTERVAL * Math.pow(2, Math.min(entry.tries - 1, 3))) + jitter(15000);
+        const delay = code === 'CHAPTER_NOT_OPEN' ? Math.max(0, chapterRetryAt(entry) - now()) : /^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code) ? RATE_WINDOW + jitter(30000) : Math.min(300000, SEND_INTERVAL * Math.pow(2, Math.min(entry.tries - 1, 3))) + jitter(15000);
         entry.nextTryAt = Math.max(nextGlobalAt, now() + delay);
         if (/^(RATE_LIMIT|RETRY_LATER_KEEP_EVENT)/.test(code)) nextGlobalAt = entry.nextTryAt;
         if (context === sendingContext || !context) message = errorMessage(code);

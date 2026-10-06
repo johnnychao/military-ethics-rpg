@@ -117,3 +117,8 @@
 @media(min-width:961px) and (max-height:840px){#app[data-mode="formal"] .board-scene{max-width:calc((100dvh - 475px)*var(--board-aspect) + 32px)}#app[data-mode="formal"] .mission-panel{max-height:calc(100dvh - 495px)}}
 @media(max-width:960px){.classroom-live-status{margin-inline:16px;gap:7px 14px}}
 @media(max-width:680px){.classroom-live-status{grid-template-columns:minmax(0,1fr) auto;margin:0 8px 8px;padding:9px 11px;gap:6px 10px;border-radius:10px}.sync-local{grid-column:1/-1;display:flex;align-items:center;gap:8px;border:0;border-bottom:1px solid #d6e1d3;padding:0 0 5px}.sync-local .sync-label{margin:0}.sync-local strong,.sync-cloud strong{font-size:11px}.sync-label{font-size:9px;margin-bottom:2px}.sync-cloud p{font-size:9px}.sync-open{font-size:10px;white-space:normal;max-width:82px;padding:7px 9px}.classroom-live-status .sync-update,.classroom-live-status .sync-error{font-size:10px}.completed-classroom-status{padding:12px}.completed-classroom-status strong{font-size:12px}.completed-classroom-status p{font-size:11px}}
+
+/* Course opening times stay readable on phones. */
+.chapter-opening{display:block;margin-top:12px;font-size:.82rem;line-height:1.6;color:var(--muted,#59616b)}
+.mission-locked{filter:saturate(.45)}
+.mission-locked .mission-card-art{opacity:.7}

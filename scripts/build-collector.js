@@ -4,6 +4,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 const sources = [
+  'js/data/course_schedule.js',
+  'collector/chapter_access.js',
   'js/data/rpg_chapters.js',
   'js/engine/rpg_engine.js',
   'collector/core.js',

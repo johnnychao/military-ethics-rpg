@@ -1,4 +1,76 @@
 // Generated locally; no OAuth, deployment or live Sheet access.
+// Source: js/data/course_schedule.js
+/* D84 115-1 course schedule; opens at class start and never closes.
+ * Dates: verified D84 115-1 semester reading schedule.
+ * Start time: teacher-confirmed Tuesday 13:30, Asia/Taipei. Client UI is not a trusted clock.
+ */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.CourseSchedule=factory();})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const dates=['09-22','09-29','10-06','10-13','10-20','10-27','11-10','11-17','11-24','12-01','12-08','12-15','12-22'];
+const entries=Object.freeze(Object.fromEntries(dates.map((date,i)=>{const id='u'+String(i+1).padStart(2,'0');return [id,Object.freeze({id,opensAt:'2026-'+date+'T13:30:00+08:00',timeZone:'Asia/Taipei'})];})));
+function get(id){return Object.prototype.hasOwnProperty.call(entries,id)?entries[id]:null;}
+function isOpen(id,now=Date.now()){const e=get(id),time=now instanceof Date?now.getTime():typeof now==='string'?Date.parse(now):now;return !!e&&Number.isFinite(time)&&time>=Date.parse(e.opensAt);}
+function label(id){const e=get(id);return e?e.opensAt.slice(0,10).replace(/-/g,'/')+' 13:30（台北時間）':'開放時間待確認';}
+return Object.freeze({entries,get,isOpen,label,timeZone:'Asia/Taipei',version:'d84-115-1-20261006'});
+});
+
+
+// Source: collector/chapter_access.js
+/** Trusted-time admission policy for the verified formal course only.
+ * This is not a general class configuration or an attendance/grade policy.
+ */
+(function (root, factory) {
+  'use strict';
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('../js/data/course_schedule'));
+  else root.EthicsCourseAccess = factory(root.CourseSchedule);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (schedule) {
+  'use strict';
+  const CLASS_ID = 'military-ethics-2026-fall';
+  function fail(code) { const error = new Error(code); error.code = code; throw error; }
+  function requireOpen(chapterId, now) {
+    if (!schedule || typeof schedule.isOpen !== 'function' || !schedule.get(chapterId)) fail('CONFIGURATION_INVALID');
+    if (!(now instanceof Date) || !Number.isFinite(now.getTime())) fail('SERVER_CLOCK_INVALID');
+    if (!schedule.isOpen(chapterId, now)) fail('CHAPTER_NOT_OPEN');
+  }
+  function checkClass(payload, now, previousBonusEnvelopes) {
+    if (payload.classId !== CLASS_ID) return;
+    requireOpen(payload.attempt.chapterId, now);
+    if (payload.bonus === null) return;
+    // Engine replay already validated the entire cumulative envelope. Client dates
+    // cannot grandfather events. Only byte-equivalent, server-acknowledged events
+    // in an integrity-checked history for this member/content version may carry on.
+    const closed = payload.bonus.events.filter(event => !schedule.isOpen(event.chapterId, now));
+    if (!closed.length) return;
+    const previous = new Set();
+    previousBonusEnvelopes().forEach(envelope => {
+      if (envelope && envelope.contentVersion === payload.bonus.contentVersion && Array.isArray(envelope.events)) {
+        envelope.events.forEach(event => previous.add(canonicalJson(event)));
+      }
+    });
+    if (closed.some(event => !previous.has(canonicalJson(event)))) fail('CHAPTER_NOT_OPEN');
+  }
+  function canonicalJson(value) {
+    function canonical(item) {
+      if (Array.isArray(item)) return item.map(canonical);
+      if (item && typeof item === 'object') return Object.fromEntries(Object.keys(item).sort().map(key => [key, canonical(item[key])]));
+      return item;
+    }
+    return JSON.stringify(canonical(value));
+  }
+  function checkCollector(session, now) {
+    // Only the verified D84 session naming for this schedule is in scope. A new
+    // arbitrary class/session is not silently assigned this course's dates.
+    if (!schedule || !schedule.entries) fail('CONFIGURATION_INVALID');
+    const entry = Object.values(schedule.entries).find(item =>
+      session.id === item.opensAt.slice(0, 10) + '-d84-26-' + item.id);
+    if (!entry) return;
+    if (entry.id !== session.chapterId) fail('SESSION_CONFIGURATION_INVALID');
+    requireOpen(entry.id, now);
+  }
+  return Object.freeze({ CLASS_ID, checkClass, checkCollector });
+}));
+
+
 // Source: js/data/rpg_chapters.js
 /* 原創教學情境。摘要改寫自本機教材；PDF 頁碼指檔案頁次。
  * 人物、事件、資源與後果均為虛構，完成紀錄不等於正式成績。
@@ -705,9 +777,9 @@
 // Source: collector/core.js
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.EthicsCollectorCore = factory();
-}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./chapter_access'));
+  else root.EthicsCollectorCore = factory(root.EthicsCourseAccess);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (courseAccess) {
   'use strict';
 
   const FORMAT = 'ndmu-ethics-submission';
@@ -884,7 +956,9 @@
         checkWindow(checked.session, new Date(existing[2]));
         return publicReceipt(existing, true);
       }
-      const serverReceivedAt = checkWindow(checked.session, deps.now());
+      const now = deps.now();
+      courseAccess.checkCollector(checked.session, now);
+      const serverReceivedAt = checkWindow(checked.session, now);
       if (typeof deps.store.countEvents !== 'function') fail('COLLECTOR_STORE_INVALID');
       const limits = eventLimits(checked.session);
       const window = limits.windowSeconds === undefined ? undefined : {
@@ -913,6 +987,7 @@
     COLLECTOR_NOT_CONFIGURED: '老師尚未啟用收件服務。',
     UNKNOWN_SESSION: '課次尚未設定，請向老師確認當堂入口。',
     WRONG_CHAPTER: '提交章節與本課次指定章節不符。',
+    CHAPTER_NOT_OPEN: '章節或支線尚未到開放時間；請保留原紀錄與收件編號，開放後重送。',
     SESSION_NOT_OPEN: '本課次尚未開始收件。', SESSION_CLOSED: '本課次收件時間已結束。',
     INVALID_IDENTITY: '請填入有效的自填學號與姓名；身分仍待老師核實。',
     ATTEMPT_INCOMPLETE: '本次關卡尚未完成。', INVALID_ATTEMPT: '關卡紀錄驗證未通過，請保留本機備份並告知老師。',

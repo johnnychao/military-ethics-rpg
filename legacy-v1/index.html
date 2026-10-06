@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="css/adventure.css">
   <link rel="stylesheet" href="css/bonus.css">
   <link rel="stylesheet" href="css/avatar.css">
+  <script>window.RPGRuntimeConfig=Object.freeze({mode:'formal'});</script>
+  <script defer src="js/data/course_schedule.js"></script>
   <script defer src="js/data/rpg_chapters.js"></script>
   <script defer src="js/data/rpg_maps.js"></script>
   <script defer src="js/data/rpg_bonus_content.js"></script>
@@ -38,7 +40,7 @@
     <nav class="header-actions" aria-label="遊戲選單"><span id="profile-name" class="profile-name">新進學員</span><button id="avatar-button" type="button">角色</button><button id="chapters-button">章節</button><button id="concepts-button">概念</button><button id="records-button">紀錄</button><button id="bonus-button">支線</button><button id="settings-button" aria-label="設定與操作說明">☰</button></nav>
   </header>
   <main class="adventure-layout">
-    <aside class="chapter-panel" aria-label="十三章冒險"><div class="panel-heading"><span class="eyebrow">ADVENTURE LOG</span><h2>十三章 · 一段旅程</h2><p>依主線前進，也能直接選當週章節。</p></div><div class="progress-line"><span>已完成</span><strong id="completion-count">0 / 13</strong></div><nav id="chapter-list" class="chapter-list" aria-label="選擇章節"></nav><div class="chapter-foot">每一次決定，都留下理由。<br>完成紀錄由老師判讀，不自動登記成績。</div></aside>
+    <aside class="chapter-panel" aria-label="十三章冒險"><div class="panel-heading"><span class="eyebrow">ADVENTURE LOG</span><h2>十三章 · 一段旅程</h2><p>各章於課程當日 13:30 開放，之後可隨時複習。</p></div><div class="progress-line"><span>已完成</span><strong id="completion-count">0 / 13</strong></div><nav id="chapter-list" class="chapter-list" aria-label="選擇章節"></nav><div class="chapter-foot">每一次決定，都留下理由。<br>完成紀錄由老師判讀，不自動登記成績。</div></aside>
     <section class="game-column" aria-label="像素冒險場景">
       <div class="chapter-banner"><span id="chapter-number">CHAPTER 01</span><h1 id="chapter-title">行動準則的起點</h1><span id="scene-badge" class="scene-badge">學院整備區</span><span id="phase-label">任務簡報</span></div>
       <div class="scene-frame"><canvas id="scene" width="960" height="640" tabindex="0" aria-label="探索地圖。方向鍵或WASD移動，E互動。"></canvas><div id="scene-caption" class="scene-caption">一起出發，把理由帶進行動。</div></div>
